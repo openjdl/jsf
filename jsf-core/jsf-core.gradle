@@ -1,0 +1,50 @@
+description = "Kidal's Kotlin Server Foundation Core"
+
+ext {
+    // crypto
+    bouncycastleBcprovVersion = "1.46"
+
+    // apache
+    apacheCommonsLang3Version = "3.6"
+    apacheCommonsBeanutilsVersion = "1.9.3"
+    apacheCommonsCodecVersion = "1.12"
+
+    // json
+    fasterxmlJacksonVersion = "2.11.1"
+
+    // yaml
+    snakeyamlVersion = "1.18"
+
+    // snappy
+    snappyVersion = "1.1.4"
+}
+
+dependencies {
+    // kotlin
+//  optional "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+//  optional "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+
+    // log
+    compile "org.slf4j:slf4j-api:${slf4jVersion}"
+    compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
+    compile "ch.qos.logback:logback-core:${logbackVersion}"
+    compile "ch.qos.logback:logback-classic:${logbackVersion}"
+
+    // crypto
+    compile "org.bouncycastle:bcprov-jdk16:${bouncycastleBcprovVersion}"
+
+    // apache
+    compile "org.apache.commons:commons-lang3:${apacheCommonsLang3Version}"
+    compile "commons-beanutils:commons-beanutils:${apacheCommonsBeanutilsVersion}"
+    compile "commons-codec:commons-codec:${apacheCommonsCodecVersion}"
+
+    // json
+    compile "com.fasterxml.jackson.core:jackson-core:${fasterxmlJacksonVersion}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${fasterxmlJacksonVersion}"
+
+    // yaml
+    compile "org.yaml:snakeyaml:${snakeyamlVersion}"
+
+    // snappy
+    compile "org.xerial.snappy:snappy-java:${snappyVersion}"
+}

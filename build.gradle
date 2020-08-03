@@ -1,0 +1,141 @@
+buildscript {
+//  repositories {
+//    maven { url "https://repo.spring.io/plugins-release" }
+//  }
+//  dependencies {
+//    classpath "io.spring.gradle:propdeps-plugin:0.0.9.RELEASE"
+//  }
+}
+
+plugins {
+  id "java-library"
+  id "maven-publish"
+  id "io.spring.dependency-management" version "1.0.9.RELEASE" apply false
+  id "org.jetbrains.kotlin.jvm" version "1.3.72" apply false
+  id "org.jetbrains.kotlin.plugin.spring" version "1.3.72"
+  id 'org.jetbrains.dokka' version '0.10.1' apply false
+}
+
+ext {
+  kotlinVersion = "1.3.72"
+  springBootVersion = "2.3.2.RELEASE"
+  slf4jVersion = "1.7.30"
+  logbackVersion = "1.2.3"
+
+  withoutJclOverSlf4j = {
+    exclude group: "org.slf4j", name: "jcl-over-slf4j"
+  }
+  withoutSlf4JApi = {
+    exclude group: "org.slf4j", module: "slf4j-api"
+  }
+}
+
+configure(allprojects) { project ->
+  group = "org.kidal"
+  sourceCompatibility = '1.8'
+
+  apply plugin: "java"
+  apply plugin: "kotlin"
+  apply plugin: "kotlin-spring"
+//  apply plugin: "propdeps"
+  apply plugin: "io.spring.dependency-management"
+//  apply from: "${gradleScriptDir}/ide.gradle"
+  apply plugin: "maven-publish"
+
+  pluginManager.withPlugin("kotlin") {
+    apply plugin: "org.jetbrains.dokka"
+    compileKotlin {
+      kotlinOptions {
+        jvmTarget = "1.8"
+        languageVersion = "1.3"
+        apiVersion = "1.3"
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        allWarningsAsErrors = true
+      }
+    }
+    compileTestKotlin {
+      kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs = ["-Xjsr305=strict"]
+      }
+    }
+  }
+
+  configurations.all {
+    // Check for updates every build
+    resolutionStrategy {
+      cacheChangingModulesFor 0, "seconds"
+      cacheDynamicVersionsFor 0, "seconds"
+    }
+
+    // Consistent slf4j version (e.g. clashes between slf4j versions)
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+      if (details.requested.group == "org.slf4j") {
+        details.useVersion slf4jVersion
+      }
+    }
+  }
+
+  compileJava {
+    sourceCompatibility = 8
+    targetCompatibility = 8
+    options.encoding = "UTF-8"
+  }
+
+  compileTestJava {
+    sourceCompatibility = 8
+    targetCompatibility = 8
+    options.encoding = "UTF-8"
+    options.compilerArgs += "-parameters"
+  }
+
+  compileKotlin {
+    kotlinOptions {
+      jvmTarget = "1.8"
+      freeCompilerArgs = ["-Xjsr305=strict"]
+    }
+  }
+
+  compileTestKotlin {
+    kotlinOptions {
+      jvmTarget = "1.8"
+      freeCompilerArgs = ["-Xjsr305=strict"]
+    }
+  }
+
+  repositories {
+    maven {
+      url "https://maven.aliyun.com/repository/public/"
+    }
+    maven {
+      url "https://maven.aliyun.com/repository/spring/"
+    }
+    mavenLocal()
+    mavenCentral()
+  }
+
+  test {
+    useJUnitPlatform()
+    include(["**/*Tests.class", "**/*Test.class"])
+  }
+
+  dependencies {
+    implementation "org.springframework.boot:spring-boot-starter:${springBootVersion}"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
+    compile "org.springframework.boot:spring-boot-devtools:${springBootVersion}"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
+      exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+    }
+  }
+}
+
+configure(rootProject) {
+  description = "Kidal's Kotlin Server Foundation"
+
+  apply plugin: "groovy"
+
+  // Don't publish the default jar for the root project
+  configurations.archives.artifacts.clear()
+}
