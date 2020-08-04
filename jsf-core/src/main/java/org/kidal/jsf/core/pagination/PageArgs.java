@@ -4,10 +4,12 @@ import org.jetbrains.annotations.NotNull;
 import org.kidal.jsf.core.utils.MathUtils;
 import org.kidal.jsf.core.utils.callback.Action1;
 
+
 /**
- * 分页参数
+ * Created at 2020-08-04 17:30:00
  *
  * @author kidal
+ * @since 0.1.0
  */
 public class PageArgs {
   /**

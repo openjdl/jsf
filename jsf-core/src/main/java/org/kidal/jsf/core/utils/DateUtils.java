@@ -7,7 +7,10 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
+ * Created at 2020-08-04 17:30:00
+ *
  * @author kidal
+ * @since 0.1.0
  */
 public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
   public static final String PATTERN_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";

@@ -3,10 +3,12 @@ package org.kidal.jsf.core.pagination;
 import org.jetbrains.annotations.NotNull;
 import org.kidal.jsf.core.utils.callback.Action1;
 
+
 /**
- * 遍历分页器
+ * Created at 2020-08-04 17:30:00
  *
  * @author kidal
+ * @since 0.1.0
  */
 public class ForEachPager<T> {
   /**

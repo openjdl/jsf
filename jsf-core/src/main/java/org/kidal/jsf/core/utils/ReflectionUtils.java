@@ -29,9 +29,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by kidal on 2017/8/4.
+ * Created at 2020-08-04 17:30:00
  *
  * @author kidal
+ * @since 0.1.0
  */
 public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtils.class);

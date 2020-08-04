@@ -3,7 +3,10 @@ package org.kidal.jsf.core.utils;
 import java.util.Arrays;
 
 /**
+ * Created at 2020-08-04 17:30:00
+ *
  * @author kidal
+ * @since 0.1.0
  */
 public enum CompressionType {
   /**
