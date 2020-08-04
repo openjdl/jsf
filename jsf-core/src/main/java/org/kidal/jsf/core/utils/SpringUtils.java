@@ -2,6 +2,7 @@ package org.kidal.jsf.core.utils;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
@@ -10,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -178,7 +178,7 @@ public class SpringUtils implements ApplicationContextAware, EnvironmentAware {
    *
    */
   @Override
-  public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
   }
 
@@ -193,7 +193,7 @@ public class SpringUtils implements ApplicationContextAware, EnvironmentAware {
    *
    */
   @Override
-  public void setEnvironment(@NonNull Environment environment) {
+  public void setEnvironment(@NotNull Environment environment) {
     this.environment = environment;
   }
 }

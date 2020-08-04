@@ -1,6 +1,6 @@
 package org.kidal.jsf.core.utils;
 
-import org.springframework.lang.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.xerial.snappy.Snappy;
 
 import java.io.ByteArrayInputStream;
@@ -22,9 +22,9 @@ public class CompressUtils {
   /**
    * 压缩数据
    */
-  @NonNull
-  public static byte[] compress(@NonNull CompressionType type,
-                                @NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public static byte[] compress(@NotNull CompressionType type,
+                                @NotNull byte[] data, int offset, int length) throws IOException {
     switch (type) {
       case NONE:
         if (offset == 0 && length == data.length) {
@@ -48,9 +48,9 @@ public class CompressUtils {
   /**
    * 解压数据
    */
-  @NonNull
-  public static byte[] uncompress(@NonNull CompressionType type,
-                                  @NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public static byte[] uncompress(@NotNull CompressionType type,
+                                  @NotNull byte[] data, int offset, int length) throws IOException {
     switch (type) {
       case NONE:
         if (offset == 0 && length == data.length) {
@@ -74,9 +74,9 @@ public class CompressUtils {
   /**
    * 压缩数据并添加算法类型掩码
    */
-  @NonNull
-  public byte[] compressWithAlgorithmType(@NonNull CompressionType type,
-                                          @NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public byte[] compressWithAlgorithmType(@NotNull CompressionType type,
+                                          @NotNull byte[] data, int offset, int length) throws IOException {
     byte[] bytes = compress(type, data, offset, length);
     byte[] markedBytes = new byte[length + 1];
 
@@ -88,16 +88,16 @@ public class CompressUtils {
   /**
    * 通过算法类型掩码解压数据
    */
-  @NonNull
-  public byte[] uncompressWithAlgorithmType(@NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public byte[] uncompressWithAlgorithmType(@NotNull byte[] data, int offset, int length) throws IOException {
     return uncompress(CompressionType.valueOfAlgorithmType(data[0]), data, offset + 1, length - 1);
   }
 
   /**
    * Zip压缩
    */
-  @NonNull
-  public static byte[] zipCompress(@NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public static byte[] zipCompress(@NotNull byte[] data, int offset, int length) throws IOException {
     try (ByteArrayInputStream in = new ByteArrayInputStream(data, offset, length)) {
       try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
         try (DeflaterOutputStream deflater = new DeflaterOutputStream(out)) {
@@ -112,8 +112,8 @@ public class CompressUtils {
   /**
    * Zip 解压
    */
-  @NonNull
-  public static byte[] zipUncompress(@NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public static byte[] zipUncompress(@NotNull byte[] data, int offset, int length) throws IOException {
     try (ByteArrayInputStream in = new ByteArrayInputStream(data, offset, length)) {
       try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
         try (InflaterOutputStream inflater = new InflaterOutputStream(out)) {
@@ -128,8 +128,8 @@ public class CompressUtils {
   /**
    * Snappy压缩
    */
-  @NonNull
-  public static byte[] snappyCompress(@NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public static byte[] snappyCompress(@NotNull byte[] data, int offset, int length) throws IOException {
     if (offset == 0 && length == data.length) {
       return Snappy.compress(data);
     } else {
@@ -142,8 +142,8 @@ public class CompressUtils {
   /**
    * Snappy解压
    */
-  @NonNull
-  public static byte[] snappyUncompress(@NonNull byte[] data, int offset, int length) throws IOException {
+  @NotNull
+  public static byte[] snappyUncompress(@NotNull byte[] data, int offset, int length) throws IOException {
     if (offset == 0 && length == data.length) {
       return Snappy.uncompress(data);
     } else {
@@ -156,7 +156,7 @@ public class CompressUtils {
   /**
    *
    */
-  private static void writeTo(@NonNull ByteArrayInputStream in, @NonNull OutputStream out) throws IOException {
+  private static void writeTo(@NotNull ByteArrayInputStream in, @NotNull OutputStream out) throws IOException {
     byte[] buffer = new byte[BUF_SIZE];
     int count;
     while ((count = in.read(buffer, 0, BUF_SIZE)) != -1) {
