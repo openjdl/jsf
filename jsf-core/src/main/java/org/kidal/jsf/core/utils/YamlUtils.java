@@ -11,7 +11,7 @@ import java.io.Reader;
 /**
  * Created by tengda on 2017/8/8.
  *
- * @author tengda
+ * @author kidal
  */
 public class YamlUtils {
   private static final Logger LOG = LoggerFactory.getLogger(YamlUtils.class);
