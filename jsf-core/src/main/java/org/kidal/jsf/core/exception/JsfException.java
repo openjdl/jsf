@@ -1,6 +1,9 @@
 package org.kidal.jsf.core.exception;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.text.MessageFormat;
 
 /**
  * Created at 2020-08-04 18:41:32
@@ -68,5 +71,27 @@ public class JsfException extends RuntimeException {
   @NotNull
   public Object[] getFormatArguments() {
     return formatArguments;
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public String formatMessage(@Nullable String format) {
+    if (format == null) {
+      format = getData().getFormat();
+    }
+    if (formatArguments == null || formatArguments.length == 0) {
+      return format;
+    }
+    return MessageFormat.format(format, formatArguments);
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public String formatMessage() {
+    return formatMessage(null);
   }
 }
