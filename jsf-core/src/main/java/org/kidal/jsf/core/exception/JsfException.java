@@ -15,7 +15,7 @@ public class JsfException extends RuntimeException {
   /**
    * 错误数据
    */
-  private final JsfExceptionData data;
+  private final JsfExceptionDataContract data;
 
   /**
    * 错误信息格式化参数
@@ -25,7 +25,7 @@ public class JsfException extends RuntimeException {
   /**
    *
    */
-  public JsfException(@NotNull JsfExceptionData data, Object... formatArguments) {
+  public JsfException(@NotNull JsfExceptionDataContract data, Object... formatArguments) {
     this.data = data;
     this.formatArguments = formatArguments;
   }
@@ -33,7 +33,7 @@ public class JsfException extends RuntimeException {
   /**
    *
    */
-  public JsfException(@NotNull String message, @NotNull JsfExceptionData data, Object... formatArguments) {
+  public JsfException(@NotNull String message, @NotNull JsfExceptionDataContract data, Object... formatArguments) {
     super(message);
     this.data = data;
     this.formatArguments = formatArguments;
@@ -42,7 +42,7 @@ public class JsfException extends RuntimeException {
   /**
    *
    */
-  public JsfException(@NotNull String message, @NotNull Throwable cause, @NotNull JsfExceptionData data, Object... formatArguments) {
+  public JsfException(@NotNull String message, @NotNull Throwable cause, @NotNull JsfExceptionDataContract data, Object... formatArguments) {
     super(message, cause);
     this.data = data;
     this.formatArguments = formatArguments;
@@ -51,7 +51,7 @@ public class JsfException extends RuntimeException {
   /**
    *
    */
-  public JsfException(@NotNull Throwable cause, @NotNull JsfExceptionData data, Object... formatArguments) {
+  public JsfException(@NotNull Throwable cause, @NotNull JsfExceptionDataContract data, Object... formatArguments) {
     super(cause);
     this.data = data;
     this.formatArguments = formatArguments;
@@ -61,7 +61,7 @@ public class JsfException extends RuntimeException {
    *
    */
   @NotNull
-  public JsfExceptionData getData() {
+  public JsfExceptionDataContract getData() {
     return data;
   }
 

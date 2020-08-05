@@ -41,7 +41,7 @@ public class JsfRestController extends JsfExceptionResolveController {
 
     // warn log
     if (LOG.isWarnEnabled()) {
-      LOG.warn("(Raw)JsfException({}, {}, {})", e.getData().getId(), e.getData().getCode(), e.formatMessage());
+      LOG.warn("(R)JsfException({}, {}, {})", e.getData().getId(), e.getData().getCode(), e.formatMessage(), e);
     }
 
     // 解析错误格式
@@ -52,7 +52,7 @@ public class JsfRestController extends JsfExceptionResolveController {
 
     // warn log
     if (LOG.isWarnEnabled()) {
-      LOG.warn("(Resolved)JsfException({}, {}, {})", e.getData().getId(), e.getData().getCode(), message);
+      LOG.warn("(P)JsfException({}, {}, {})", e.getData().getId(), e.getData().getCode(), message, e);
     }
 
     return message;

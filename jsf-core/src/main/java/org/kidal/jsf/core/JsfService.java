@@ -8,33 +8,33 @@ import org.jetbrains.annotations.NotNull;
  * @author kidal
  * @since 0.1.0
  */
-public interface JsfMicroServiceModule {
+public interface JsfService {
   /**
    * 获取模块ID
    *
    * @return 模块ID.
    */
   @NotNull
-  String getJsfMicroServiceModuleName();
+  String getJsfServiceName();
 
   /**
    * 初始化模块.
    */
-  default void initializeJsfMicroServiceModule() {
+  default void initializeJsfService() {
 
   }
 
   /**
    * 开始模块
    */
-  default void startJsfMicroServiceModule() {
+  default void startJsfService() {
 
   }
 
   /**
    * 关闭模块
    */
-  default void closeJsfMicroServiceModule() {
+  default void closeJsfService() {
 
   }
 }
