@@ -35,7 +35,7 @@ public class JsfExceptionDataUtils {
    */
   @NotNull
   public static String ofCode(@NotNull String microServiceName, @NotNull String microServiceModuleName, String serialName) {
-    return String.format("%s:%s:%s", microServiceName, microServiceModuleName, serialName);
+    return String.format("%s.%s.%s", microServiceName, microServiceModuleName, serialName);
   }
 
   /**

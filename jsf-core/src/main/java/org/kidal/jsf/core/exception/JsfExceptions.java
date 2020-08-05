@@ -25,8 +25,17 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   FAIL(
     ofId(0, 0, 1),
-    ofCode("jsf", "core", "FAIL"),
+    ofCode("jsf", "core", "Fail"),
     "失败"
+  ),
+
+  /**
+   * 失败
+   */
+  BAD_REQUEST(
+    ofId(0, 0, 2),
+    ofCode("jsf", "core", "BadRequest"),
+    "错误的请求"
   );
 
   /**

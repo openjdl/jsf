@@ -59,7 +59,7 @@ public class JsfMicroService {
   /**
    * 启动
    */
-  public static void bootstrap(
+  public static void run(
     @NotNull String group,
     @NotNull String name,
     int port,
@@ -77,7 +77,7 @@ public class JsfMicroService {
     final String lanIp = IpUtils.resolveLanIp();
 
     // 读取默认配置
-    final JsfMicroServiceMetadata metadata = new JsfMicroServiceMetadata();
+    metadata = new JsfMicroServiceMetadata();
     metadata.setGroup(group);
     metadata.setName(name);
     metadata.getInstance().setLanIp(lanIp);

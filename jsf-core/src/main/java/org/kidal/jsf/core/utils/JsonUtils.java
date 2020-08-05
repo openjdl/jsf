@@ -1,14 +1,16 @@
 package org.kidal.jsf.core.utils;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.type.*;
+import org.jetbrains.annotations.NotNull;
+import org.kidal.jsf.core.utils.json.DoubleSerializer;
+import org.kidal.jsf.core.utils.json.FloatSerializer;
+import org.kidal.jsf.core.utils.json.Iso8601JsonSerializer;
+import org.kidal.jsf.core.utils.json.UncertainDateJsonDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -93,17 +94,19 @@ public class JsonUtils {
     return DEFAULT.toMap(content);
   }
 
-  private static class MapperHolder {
-    final ObjectMapper mapper = new ObjectMapper();
+  public static class MapperHolder {
+    private final ObjectMapper mapper = new ObjectMapper();
 
     MapperHolder() {
 
       Version version = new Version(1, 0, 0, "RELEASE", "org.kidal", "jsf-core");
-      SimpleModule module = new SimpleModule("org.kidal.core", version)
+      SimpleModule module = new SimpleModule("org.kidal.jsf.core", version)
         .addSerializer(float.class, new FloatSerializer())
         .addSerializer(Float.class, new FloatSerializer())
         .addSerializer(double.class, new DoubleSerializer())
         .addSerializer(Double.class, new DoubleSerializer());
+//        .addSerializer(Date.class, new Iso8601JsonSerializer())
+//        .addDeserializer(Date.class, new UncertainDateJsonDeserializer());
 
       mapper.registerModule(module);
       mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
@@ -112,10 +115,15 @@ public class JsonUtils {
     void enableDefaultTypingAsProperty() {
       mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, null);
     }
+
+    @NotNull
+    public ObjectMapper getMapper() {
+      return mapper;
+    }
   }
 
   public static class Converter {
-    final MapperHolder mapperHolder;
+    private final MapperHolder mapperHolder;
 
     public Converter(MapperHolder mapperHolder) {
       this.mapperHolder = mapperHolder;
@@ -229,63 +237,10 @@ public class JsonUtils {
       //noinspection unchecked
       return toMap(content, HashMap.class, String.class, Object.class);
     }
-  }
 
-  /**
-   *
-   */
-  private static class FloatSerializer extends StdSerializer<Float> {
-    private static final long serialVersionUID = 7756202071506068464L;
-
-    // fields
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat();
-
-    /**
-     *
-     */
-    FloatSerializer() {
-      super(Float.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(Float value, JsonGenerator generator, SerializerProvider provider) throws IOException {
-      if (Float.isNaN(value) || Float.isInfinite(value)) {
-        generator.writeNumber(0);
-      } else {
-        generator.writeRawValue(DECIMAL_FORMAT.format(value).replace(",", ""));
-      }
-    }
-  }
-
-  /**
-   *
-   */
-  private static class DoubleSerializer extends StdSerializer<Double> {
-    private static final long serialVersionUID = -733245757544033360L;
-
-    // fields
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat();
-
-    /**
-     *
-     */
-    DoubleSerializer() {
-      super(Double.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(Double value, JsonGenerator generator, SerializerProvider provider) throws IOException {
-      if (Double.isNaN(value) || Double.isInfinite(value)) {
-        generator.writeNumber(0);
-      } else {
-        generator.writeRawValue(DECIMAL_FORMAT.format(value).replace(",", ""));
-      }
+    @NotNull
+    public MapperHolder getMapperHolder() {
+      return mapperHolder;
     }
   }
 }

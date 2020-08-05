@@ -1,0 +1,13 @@
+description = "Kidal's Java Server Foundation WebFlux"
+
+ext {
+
+}
+
+dependencies {
+    // core
+    compile project(':jsf-core')
+
+    // spring
+    compile "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+}

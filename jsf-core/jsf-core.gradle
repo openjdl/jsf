@@ -24,10 +24,6 @@ ext {
 }
 
 dependencies {
-  // kotlin
-//  optional "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
-//  optional "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
-
   // log
   compile "org.slf4j:slf4j-api:${slf4jVersion}"
   compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
