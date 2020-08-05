@@ -1,0 +1,13 @@
+description = "Kidal's Java Server Foundation GraphQL"
+
+ext {
+  graphQLVersion = '15.0'
+}
+
+dependencies {
+  // core
+  compile project(':jsf-core')
+
+  // graphQL
+  compile "com.graphql-java:graphql-java:${graphQLVersion}"
+}

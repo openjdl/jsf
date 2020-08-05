@@ -1,0 +1,12 @@
+description = "Kidal's Java Server Foundation GraphQL WebFlux"
+
+ext {
+
+}
+
+dependencies {
+  // core
+  compile project(':jsf-core')
+  compile project(':jsf-webflux')
+  compile project(':jsf-graphql')
+}
