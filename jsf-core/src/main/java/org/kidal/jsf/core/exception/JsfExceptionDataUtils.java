@@ -16,26 +16,26 @@ public class JsfExceptionDataUtils {
   /**
    * 创建错误ID
    *
-   * @param microserviceId 微服务实例ID
-   * @param moduleId       模块ID
-   * @param serialId       序号ID
+   * @param microServiceId       微服务实例ID
+   * @param microServiceModuleId 模块ID
+   * @param serialId             序号ID
    * @return 错误代号
    */
-  public static long ofId(int microserviceId, int moduleId, int serialId) {
-    return (long) microserviceId * 1000000 + moduleId * 1000 + serialId;
+  public static long ofId(int microServiceId, int microServiceModuleId, int serialId) {
+    return (long) microServiceId * 1000000 + microServiceModuleId * 1000 + serialId;
   }
 
   /**
    * 创建错误代号
    *
-   * @param microserviceName 微服务实例ID
-   * @param moduleName       模块ID
-   * @param serialName       序号
+   * @param microServiceName       微服务实例ID
+   * @param microServiceModuleName 模块ID
+   * @param serialName             序号
    * @return 错误代号
    */
   @NotNull
-  public static String ofCode(@NotNull String microserviceName, @NotNull String moduleName, String serialName) {
-    return String.format("%s:%s:%s", microserviceName, moduleName, serialName);
+  public static String ofCode(@NotNull String microServiceName, @NotNull String microServiceModuleName, String serialName) {
+    return String.format("%s:%s:%s", microServiceName, microServiceModuleName, serialName);
   }
 
   /**

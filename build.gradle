@@ -132,7 +132,7 @@ configure(allprojects) { project ->
 }
 
 configure(rootProject) {
-  description = "Kidal's Kotlin Server Foundation"
+  description = "Kidal's Java Server Foundation"
 
   apply plugin: "groovy"
 

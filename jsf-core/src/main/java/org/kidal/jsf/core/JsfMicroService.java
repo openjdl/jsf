@@ -49,7 +49,7 @@ public class JsfMicroService {
   /**
    * 服务
    */
-  static final CopyOnWriteArrayList<JsfService> SERVICES = new CopyOnWriteArrayList<>();
+  static final CopyOnWriteArrayList<JsfMicroServiceModule> SERVICES = new CopyOnWriteArrayList<>();
 
   /**
    * 监听
@@ -122,19 +122,19 @@ public class JsfMicroService {
   /**
    *
    */
-  public static synchronized void register(JsfService service) {
+  public static synchronized void register(JsfMicroServiceModule service) {
     if (launched) {
       throw new IllegalStateException(
         MessageFormat.format("Can't register lifecycle service {0}: lifecycle system is launched",
-          service.getJsfServiceName()));
+          service.getJsfMicroServiceModuleName()));
     }
     boolean hasOne = SERVICES.contains(service) ||
       SERVICES.stream()
-        .anyMatch(it -> it.getJsfServiceName().equalsIgnoreCase(service.getJsfServiceName()));
+        .anyMatch(it -> it.getJsfMicroServiceModuleName().equalsIgnoreCase(service.getJsfMicroServiceModuleName()));
     if (hasOne) {
       throw new IllegalStateException(
         MessageFormat.format("Can't register lifecycle service {0}: already registered",
-          service.getJsfServiceName()));
+          service.getJsfMicroServiceModuleName()));
     }
     SERVICES.add(service);
   }

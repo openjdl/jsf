@@ -27,7 +27,7 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
   @Override
   public void onApplicationEvent(@NotNull ApplicationEvent applicationEvent) {
     // get sorted services
-    JsfService[] services = JsfMicroService.SERVICES.stream()
+    JsfMicroServiceModule[] services = JsfMicroService.SERVICES.stream()
       .sorted(Comparator.comparingInt(c -> {
         if (c instanceof Ordered) {
           return ((Ordered) c).getOrder();
@@ -37,7 +37,7 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
           return 0;
         }
       }))
-      .toArray(JsfService[]::new);
+      .toArray(JsfMicroServiceModule[]::new);
 
     // dispatch event
     if (applicationEvent instanceof ContextRefreshedEvent) {
@@ -74,17 +74,17 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
   /**
    *
    */
-  private void dispatchContextRefreshedEvent(JsfService[] services, ContextRefreshedEvent event) {
+  private void dispatchContextRefreshedEvent(JsfMicroServiceModule[] services, ContextRefreshedEvent event) {
     // services
-    for (JsfService service : services) {
+    for (JsfMicroServiceModule service : services) {
       try {
         long startTime = System.nanoTime();
-        service.initializeJsfService();
+        service.initializeJsfMicroServiceModule();
         long elapsedTime = System.nanoTime() - startTime;
-        JsfMicroService.logInitializing(service.getJsfServiceName(), elapsedTime);
+        JsfMicroService.logInitializing(service.getJsfMicroServiceModuleName(), elapsedTime);
       } catch (Exception e) {
         // log
-        JsfMicroService.LOG.error(" -> Initialize {} failed", service.getJsfServiceName(), e);
+        JsfMicroService.LOG.error(" -> Initialize {} failed", service.getJsfMicroServiceModuleName(), e);
 
         // close application
         ((ConfigurableApplicationContext) event.getApplicationContext()).close();
@@ -98,17 +98,17 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
   /**
    *
    */
-  private void dispatchApplicationReadyEvent(JsfService[] services, ApplicationReadyEvent event) {
-    for (JsfService service : services) {
+  private void dispatchApplicationReadyEvent(JsfMicroServiceModule[] services, ApplicationReadyEvent event) {
+    for (JsfMicroServiceModule service : services) {
       // do
       try {
         long startTime = System.nanoTime();
-        service.startJsfService();
+        service.startJsfMicroServiceModule();
         long elapsedTime = System.nanoTime() - startTime;
-        JsfMicroService.logRunning(service.getJsfServiceName(), elapsedTime);
+        JsfMicroService.logRunning(service.getJsfMicroServiceModuleName(), elapsedTime);
       } catch (Exception e) {
         // log
-        JsfMicroService.LOG.error(" -> Start {} failed", service.getJsfServiceName(), e);
+        JsfMicroService.LOG.error(" -> Start {} failed", service.getJsfMicroServiceModuleName(), e);
 
         // close application
         event.getApplicationContext().close();
@@ -122,17 +122,17 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
   /**
    *
    */
-  private void dispatchContextClosedEvent(JsfService[] services, ContextClosedEvent event) {
-    for (JsfService service : services) {
+  private void dispatchContextClosedEvent(JsfMicroServiceModule[] services, ContextClosedEvent event) {
+    for (JsfMicroServiceModule service : services) {
       // do
       try {
         long startTime = System.nanoTime();
-        service.closeJsfService();
+        service.closeJsfMicroServiceModule();
         long elapsedTime = System.nanoTime() - startTime;
-        JsfMicroService.logClosed(service.getJsfServiceName(), elapsedTime);
+        JsfMicroService.logClosed(service.getJsfMicroServiceModuleName(), elapsedTime);
       } catch (Exception e) {
         // log
-        JsfMicroService.LOG.error(" -> Close {} failed", service.getJsfServiceName(), e);
+        JsfMicroService.LOG.error(" -> Close {} failed", service.getJsfMicroServiceModuleName(), e);
       }
     }
 
