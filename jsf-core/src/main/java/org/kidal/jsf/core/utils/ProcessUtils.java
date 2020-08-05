@@ -26,7 +26,7 @@ public class ProcessUtils {
   public static boolean writeProcessId(String path) throws IOException {
     final String processId = getProcessId();
     if (processId != null) {
-      Files.write(Paths.get("pid"), processId.getBytes());
+      Files.write(Paths.get(path), processId.getBytes());
       return true;
     } else {
       return false;
