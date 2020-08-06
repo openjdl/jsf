@@ -50,6 +50,6 @@ public class JsfGraphqlPropertiesAutoConfiguration {
     @Qualifier(JsfCoreProperties.B_THREAD_POOL_TASK_EXECUTOR)
       ThreadPoolTaskExecutor threadPoolTaskExecutor
   ) {
-    return new GraphqlServiceImpl(springUtils, threadPoolTaskExecutor);
+    return new GraphqlServiceImpl(properties, springUtils, threadPoolTaskExecutor);
   }
 }

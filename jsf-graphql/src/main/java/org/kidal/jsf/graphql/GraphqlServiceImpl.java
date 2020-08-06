@@ -21,18 +21,24 @@ import org.kidal.jsf.core.utils.SpringUtils;
 import org.kidal.jsf.core.utils.StringUtils;
 import org.kidal.jsf.graphql.annotation.GraphqlFetcher;
 import org.kidal.jsf.graphql.annotation.GraphqlSchema;
+import org.kidal.jsf.graphql.boot.JsfGraphqlProperties;
 import org.kidal.jsf.graphql.fetcher.*;
 import org.kidal.jsf.graphql.query.*;
 import org.kidal.jsf.graphql.scalar.DateCoercing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,6 +64,12 @@ public class GraphqlServiceImpl implements GraphqlService {
    *
    */
   @NotNull
+  private final JsfGraphqlProperties properties;
+
+  /**
+   *
+   */
+  @NotNull
   private final SpringUtils springUtils;
 
   /**
@@ -74,9 +86,11 @@ public class GraphqlServiceImpl implements GraphqlService {
   /**
    *
    */
-  public GraphqlServiceImpl(@NotNull SpringUtils springUtils,
+  public GraphqlServiceImpl(@NotNull JsfGraphqlProperties properties,
+                            @NotNull SpringUtils springUtils,
                             @Nullable ThreadPoolTaskExecutor threadPoolTaskExecutor) {
     this.registerSelf();
+    this.properties = properties;
     this.springUtils = springUtils;
     this.threadPoolTaskExecutor = threadPoolTaskExecutor;
   }
@@ -130,6 +144,23 @@ public class GraphqlServiceImpl implements GraphqlService {
     }
 
     // 用户
+    if (properties.getPathsToScan().size() > 0) {
+      PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+      List<Resource> resources = new ArrayList<>();
+      for (String path : properties.getPathsToScan()) {
+        Resource[] resolverResources = resolver.getResources(path);
+        Collections.addAll(resources, resolverResources);
+      }
+      for (Resource resource : resources) {
+        try (InputStreamReader reader = new InputStreamReader(resource.getInputStream())) {
+          typeDefinitionRegistry.merge(schemaParser.parse(reader));
+        } catch (Exception e) {
+          throw new IllegalStateException("Merge schema file(" + resource.getFilename() +
+            ", " + resource.getDescription() + " failed", e);
+        }
+      }
+    }
+
     springUtils.getAllBeans(true)
       .forEach(bean -> {
         if (bean.getClass().isAnnotationPresent(GraphqlSchema.class)) {

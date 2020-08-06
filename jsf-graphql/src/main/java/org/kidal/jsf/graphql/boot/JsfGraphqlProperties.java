@@ -1,6 +1,10 @@
 package org.kidal.jsf.graphql.boot;
 
+import com.google.common.collect.Lists;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
 
 /**
  * Created at 2020-08-06 10:26:03
@@ -35,6 +39,12 @@ public class JsfGraphqlProperties {
    */
   private boolean enabled;
 
+  /**
+   * 扫描的目录
+   */
+  @NotNull
+  private List<String> pathsToScan = Lists.newArrayList();
+
   //--------------------------------------------------------------------------
   // Getters & Setters
   //--------------------------------------------------------------------------
@@ -45,5 +55,14 @@ public class JsfGraphqlProperties {
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  @NotNull
+  public List<String> getPathsToScan() {
+    return pathsToScan;
+  }
+
+  public void setPathsToScan(@NotNull List<String> pathsToScan) {
+    this.pathsToScan = pathsToScan;
   }
 }
