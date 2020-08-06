@@ -15,8 +15,8 @@ import java.util.Map;
  */
 @ConfigurationProperties(JsfJdbcProperties.P_PATH)
 public class JsfJdbcProperties {
-  public static final String P_PATH = "jsf.graphql";
-  public static final String B_PATH = "jsf-graphql";
+  public static final String P_PATH = "jsf.jdbc";
+  public static final String B_PATH = "jsf-jdbc";
 
   public static final String P_ENABLED = P_PATH + ".enabled";
   public static final String P_ASPECT_ENABLED = P_PATH + ".aspect.enabled";

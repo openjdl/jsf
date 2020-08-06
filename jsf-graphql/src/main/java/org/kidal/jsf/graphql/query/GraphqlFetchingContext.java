@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.cipher.UserPassport;
+import org.springframework.core.convert.ConversionService;
 
 import java.util.List;
 import java.util.Map;
@@ -52,16 +53,24 @@ public class GraphqlFetchingContext {
   private final Map<String, Object> variables = Maps.newHashMap();
 
   /**
+   * 转换服务
+   */
+  @NotNull
+  private final ConversionService conversionService;
+
+  /**
    *
    */
   public GraphqlFetchingContext(
     @Nullable UserPassport passport,
     @NotNull String clientIp,
-    @NotNull Map<String, String> xVariables
+    @NotNull Map<String, String> xVariables,
+    @NotNull ConversionService conversionService
   ) {
     this.passport = passport;
     this.clientIp = clientIp;
     this.xVariables = ImmutableMap.copyOf(xVariables);
+    this.conversionService = conversionService;
   }
 
   /**
@@ -132,5 +141,13 @@ public class GraphqlFetchingContext {
    */
   public Map<String, Object> getVariables() {
     return variables;
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public ConversionService getConversionService() {
+    return conversionService;
   }
 }

@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
@@ -48,8 +49,10 @@ public class JsfGraphqlPropertiesAutoConfiguration {
       SpringUtils springUtils,
     @Autowired(required = false)
     @Qualifier(JsfCoreProperties.B_THREAD_POOL_TASK_EXECUTOR)
-      ThreadPoolTaskExecutor threadPoolTaskExecutor
+      ThreadPoolTaskExecutor threadPoolTaskExecutor,
+    @Qualifier(JsfCoreProperties.B_CONVERSION_SERVICE)
+      ConversionService conversionService
   ) {
-    return new GraphqlServiceImpl(properties, springUtils, threadPoolTaskExecutor);
+    return new GraphqlServiceImpl(properties, springUtils, threadPoolTaskExecutor, conversionService);
   }
 }

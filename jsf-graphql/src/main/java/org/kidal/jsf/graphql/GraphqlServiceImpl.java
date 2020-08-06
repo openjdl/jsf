@@ -28,6 +28,7 @@ import org.kidal.jsf.graphql.scalar.DateCoercing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -81,6 +82,12 @@ public class GraphqlServiceImpl implements GraphqlService {
   /**
    *
    */
+  @NotNull
+  private final ConversionService conversionService;
+
+  /**
+   *
+   */
   private GraphQL graphql;
 
   /**
@@ -88,11 +95,13 @@ public class GraphqlServiceImpl implements GraphqlService {
    */
   public GraphqlServiceImpl(@NotNull JsfGraphqlProperties properties,
                             @NotNull SpringUtils springUtils,
-                            @Nullable ThreadPoolTaskExecutor threadPoolTaskExecutor) {
+                            @Nullable ThreadPoolTaskExecutor threadPoolTaskExecutor,
+                            @NotNull ConversionService conversionService) {
     this.registerSelf();
     this.properties = properties;
     this.springUtils = springUtils;
     this.threadPoolTaskExecutor = threadPoolTaskExecutor;
+    this.conversionService = conversionService;
   }
 
   /**
@@ -248,7 +257,7 @@ public class GraphqlServiceImpl implements GraphqlService {
    */
   @NotNull
   private GraphqlFetchingContext createFetchingContext(@NotNull GraphqlQueryArgs args) {
-    return new GraphqlFetchingContext(args.getPassport(), args.getClientIp(), args.getXVariables());
+    return new GraphqlFetchingContext(args.getPassport(), args.getClientIp(), args.getXVariables(), conversionService);
   }
 
   /**

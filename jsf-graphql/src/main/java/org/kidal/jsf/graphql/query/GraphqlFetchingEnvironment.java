@@ -9,6 +9,7 @@ import org.kidal.jsf.core.utils.StringUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created at 2020-08-05 17:42:46
@@ -32,7 +33,8 @@ public class GraphqlFetchingEnvironment {
   /**
    *
    */
-  public GraphqlFetchingEnvironment(@NotNull DataFetchingEnvironment environment, @NotNull GraphqlFetchingContext context) {
+  public GraphqlFetchingEnvironment(@NotNull DataFetchingEnvironment environment,
+                                    @NotNull GraphqlFetchingContext context) {
     this.environment = environment;
     this.context = context;
   }
@@ -42,11 +44,11 @@ public class GraphqlFetchingEnvironment {
    */
   @SuppressWarnings("unchecked")
   public <T> T getSourceObject() {
-    Object environmentSource = environment.getSource();
-    if (!(environmentSource instanceof Map)) {
-      return null;
+    Object sourceObject = environment.getSource();
+    if (sourceObject instanceof Map) {
+      return (T) ((Map<String, Object>) sourceObject).getOrDefault(".source", null);
     }
-    return (T) ((Map<String, Object>) environmentSource).getOrDefault("__root", null);
+    return (T) sourceObject;
   }
 
   /**
@@ -72,6 +74,66 @@ public class GraphqlFetchingEnvironment {
 
     // done
     return PageArgs.of(page, limit, pageSortArgs);
+  }
+
+  /**
+   *
+   */
+  public Optional<Boolean> getAsBoolean(String name) {
+    Object argument = environment.getArgument(name);
+    if (argument == null) {
+      return Optional.empty();
+    }
+    if (context.getConversionService().canConvert(argument.getClass(), Boolean.class)) {
+      return Optional.ofNullable(context.getConversionService().convert(argument, Boolean.class));
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   *
+   */
+  public Optional<Integer> getAsInteger(String name) {
+    Object argument = environment.getArgument(name);
+    if (argument == null) {
+      return Optional.empty();
+    }
+    if (context.getConversionService().canConvert(argument.getClass(), Integer.class)) {
+      return Optional.ofNullable(context.getConversionService().convert(argument, Integer.class));
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   *
+   */
+  public Optional<Long> getAsLong(String name) {
+    Object argument = environment.getArgument(name);
+    if (argument == null) {
+      return Optional.empty();
+    }
+    if (context.getConversionService().canConvert(argument.getClass(), Long.class)) {
+      return Optional.ofNullable(context.getConversionService().convert(argument, Long.class));
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   *
+   */
+  public Optional<String> getAsString(String name) {
+    Object argument = environment.getArgument(name);
+    if (argument == null) {
+      return Optional.empty();
+    }
+    if (context.getConversionService().canConvert(argument.getClass(), String.class)) {
+      return Optional.ofNullable(context.getConversionService().convert(argument, String.class));
+    } else {
+      return Optional.empty();
+    }
   }
 
   /**

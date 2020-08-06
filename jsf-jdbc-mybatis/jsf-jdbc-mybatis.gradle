@@ -1,10 +1,17 @@
 description = "Kidal's Java Server Foundation JDBC MyBatis"
 
 ext {
-
+  // mybatis
+  mybatisVersion = '3.5.5'
+  mybatisSpringVersion = '2.0.5'
 }
 
 dependencies {
-    // core
-    compile project(':jsf-core')
+  // core
+  compile project(':jsf-core')
+  compile project(':jsf-jdbc')
+
+  // mybatis
+  compile "org.mybatis:mybatis:${mybatisVersion}"
+  compile "org.mybatis:mybatis-spring:${mybatisSpringVersion}"
 }

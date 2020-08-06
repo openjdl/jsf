@@ -85,7 +85,7 @@ public class UserPassport implements Serializable {
    */
   @Override
   public String toString() {
-    return getString4();
+    return getString1();
   }
 
   /**
@@ -119,7 +119,7 @@ public class UserPassport implements Serializable {
   /**
    * 获取第四版字符串
    */
-  public String getString4() {
+  public String getString1() {
     String desKey = scope.getDesKey();
     byte[] encryptedAccessTokenBytes = CryptoUtils.encryptByDes(desKey.getBytes(), token.getBytes());
     String encodedAccessToken = Base64.encodeBase64URLSafeString(encryptedAccessTokenBytes);
