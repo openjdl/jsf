@@ -1,10 +1,23 @@
 description = "Kidal's Java Server Foundation JDBC"
 
 ext {
+  // mysql
+  mysqlConnectorVersion = "8.0.21"
 
+  // apache
+  apacheCommonsDbcp2Version = "2.7.0"
 }
 
 dependencies {
-    // core
-    compile project(':jsf-core')
+  // core
+  compile project(':jsf-core')
+
+  // mysql
+  compile "mysql:mysql-connector-java:${mysqlConnectorVersion}"
+
+  // apache
+  compile "org.apache.commons:commons-dbcp2:${apacheCommonsDbcp2Version}"
+
+  // springboot
+  compile "org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}"
 }

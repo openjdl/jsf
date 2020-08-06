@@ -21,6 +21,9 @@ ext {
   // google
   googleGuavaVersion = "23.0"
   gsonVersion = "2.8.0"
+
+  // aspectj
+  aspectjVersion = "1.9.6"
 }
 
 dependencies {
@@ -51,4 +54,8 @@ dependencies {
   // google
   compile "com.google.guava:guava:${googleGuavaVersion}"
   compile "com.google.code.gson:gson:${gsonVersion}"
+
+  // aspectj
+  compile "org.aspectj:aspectjrt:${aspectjVersion}"
+  compile "org.aspectj:aspectjweaver:${aspectjVersion}"
 }
