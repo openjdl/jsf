@@ -1,9 +1,8 @@
-package org.kidal.jsf.graphql;
+package org.kidal.jsf.graphql.fetcher;
 
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kidal.jsf.graphql.fetcher.BaseUnitFetcherFactory;
 
 import java.util.Map;
 
@@ -13,7 +12,7 @@ import java.util.Map;
  * @author kidal
  * @since 0.1.0
  */
-public class GraphqlUnitFetcherFactoryStaticRegistry {
+public class UnitFetcherFactoryStaticRegistry {
   /**
    *
    */
@@ -44,7 +43,7 @@ public class GraphqlUnitFetcherFactoryStaticRegistry {
   /**
    *
    */
-  private GraphqlUnitFetcherFactoryStaticRegistry() {
+  private UnitFetcherFactoryStaticRegistry() {
     throw new IllegalStateException("UnitFetcherFactoryStaticRegistry is a static class");
   }
 }

@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql.webflux;
+package org.kidal.jsf.graphql.webflux.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.NotNull;

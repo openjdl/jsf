@@ -14,6 +14,7 @@ import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.utils.ReflectionUtils;
@@ -21,16 +22,13 @@ import org.kidal.jsf.core.utils.SpringUtils;
 import org.kidal.jsf.core.utils.StringUtils;
 import org.kidal.jsf.graphql.annotation.GraphqlFetcher;
 import org.kidal.jsf.graphql.annotation.GraphqlSchema;
-import org.kidal.jsf.graphql.fetcher.ByteUnitFetcher;
-import org.kidal.jsf.graphql.fetcher.EmptyMap;
+import org.kidal.jsf.graphql.fetcher.*;
+import org.kidal.jsf.graphql.query.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,6 @@ import java.util.stream.Collectors;
  * @author kidal
  * @since 0.1.0
  */
-@Service
 public class GraphqlServiceImpl implements GraphqlService {
   /**
    * 日志
@@ -63,7 +60,7 @@ public class GraphqlServiceImpl implements GraphqlService {
   /**
    *
    */
-  @NotNull
+  @Nullable
   private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
   /**
@@ -75,7 +72,8 @@ public class GraphqlServiceImpl implements GraphqlService {
    *
    */
   public GraphqlServiceImpl(@NotNull SpringUtils springUtils,
-                            @NotNull ThreadPoolTaskExecutor threadPoolTaskExecutor) {
+                            @Nullable ThreadPoolTaskExecutor threadPoolTaskExecutor) {
+    this.registerSelf();
     this.springUtils = springUtils;
     this.threadPoolTaskExecutor = threadPoolTaskExecutor;
   }
@@ -90,10 +88,10 @@ public class GraphqlServiceImpl implements GraphqlService {
   }
 
   /**
-   * 初始化
+   *
    */
-  @PostConstruct
-  public void initialize() {
+  @Override
+  public void initializeJsfService() {
     // TODO: 添加Date类型
 
     final TypeDefinitionRegistry typeDefinitionRegistry = createTypeDefinitionRegistry();
@@ -169,7 +167,17 @@ public class GraphqlServiceImpl implements GraphqlService {
                 ? method.getName()
                 : fieldAnnotation.value();
 
-              builder.dataFetcher(fieldName, new GraphqlDelegatedDataFetcher(bean, method));
+              // 类型处理
+              DelegatedDataFetcher fetcher = new DelegatedDataFetcher(bean, method);
+              if (fieldAnnotation.unitFactory() != BaseUnitFetcherFactory.class) {
+                BaseUnitFetcherFactory factory = UnitFetcherFactoryStaticRegistry.get(fieldAnnotation.unitFactory());
+                if (factory != null) {
+                  fetcher = (DelegatedDataFetcher) factory.withUnitFetcher(fetcher);
+                }
+              }
+
+              // 注册fetcher
+              builder.dataFetcher(fieldName, fetcher);
             },
             method -> method.isAnnotationPresent(GraphqlFetcher.class)
           );
@@ -241,7 +249,7 @@ public class GraphqlServiceImpl implements GraphqlService {
   /**
    *
    */
-  @NotNull
+  @Nullable
   public ThreadPoolTaskExecutor getThreadPoolTaskExecutor() {
     return threadPoolTaskExecutor;
   }

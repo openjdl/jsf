@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql;
+package org.kidal.jsf.graphql.query;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;

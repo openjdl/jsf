@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.kidal.jsf.core.converter.StringToDateConverter;
+import org.kidal.jsf.core.utils.SpringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,15 @@ public class JsfCorePropertiesAutoConfiguration {
    */
   public JsfCorePropertiesAutoConfiguration(JsfCoreProperties properties) {
     this.properties = properties;
+  }
+
+  /**
+   *
+   */
+  @Primary
+  @Bean(JsfCoreProperties.B_SPRING_UTILS)
+  public SpringUtils springUtils() {
+    return new SpringUtils();
   }
 
   /**

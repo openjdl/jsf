@@ -8,22 +8,27 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author kidal
  * @since 0.1.0
  */
-@ConfigurationProperties("jsf.core")
+@ConfigurationProperties(JsfCoreProperties.P_PATH)
 public class JsfCoreProperties {
   /**
-   * 配置参数路径
+   *
    */
   public static final String P_PATH = "jsf.core";
 
   /**
-   * 豆子路径
+   *
    */
   public static final String B_PATH = "jsf-core";
 
   /**
-   * 启用并发
+   *
    */
   public static final String P_CONCURRENT_ENABLED = P_PATH + ".concurrent.enabled";
+
+  /**
+   *
+   */
+  public static final String B_SPRING_UTILS = B_PATH + "-SpringUtils";
 
   /**
    * 转换服务
@@ -38,7 +43,7 @@ public class JsfCoreProperties {
   /**
    *
    */
-  public static final String B_LISTENING_EXECUTOR_SERVICE = B_PATH + "-ListeningExecutorService";
+  public static final String B_LISTENING_EXECUTOR_SERVICE = B_PATH + "-listening-executor-service";
 
   /**
    *

@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql;
+package org.kidal.jsf.graphql.utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

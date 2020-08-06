@@ -2,6 +2,8 @@ package org.kidal.jsf.graphql;
 
 import org.jetbrains.annotations.NotNull;
 import org.kidal.jsf.core.JsfService;
+import org.kidal.jsf.graphql.query.GraphqlQueryArgs;
+import org.kidal.jsf.graphql.query.GraphqlQueryResults;
 
 /**
  * Created at 2020-08-05 21:12:06

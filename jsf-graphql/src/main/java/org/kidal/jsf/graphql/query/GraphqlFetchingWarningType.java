@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql;
+package org.kidal.jsf.graphql.query;
 
 /**
  * Created at 2020-08-05 17:21:07

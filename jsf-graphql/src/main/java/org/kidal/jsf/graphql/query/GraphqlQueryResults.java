@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql;
+package org.kidal.jsf.graphql.query;
 
 import graphql.ExecutionResult;
 import org.jetbrains.annotations.NotNull;

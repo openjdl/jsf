@@ -1,9 +1,14 @@
-package org.kidal.jsf.graphql;
+package org.kidal.jsf.graphql.fetcher;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.graphql.query.GraphqlFetchingContext;
+import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
+import org.kidal.jsf.graphql.query.GraphqlFetchingWarningType;
 
 /**
  * Created at 2020-08-05 17:41:07
@@ -40,9 +45,10 @@ public abstract class BaseGraphqlDataFetcher<T> implements DataFetcher<T> {
 
     // 添加否决警告
     if (environment.getFieldDefinition().isDeprecated()) {
-      // TODO: type
+      GraphQLType parentType = environment.getParentType();
+      String typeName = parentType instanceof GraphQLObjectType ? ((GraphQLObjectType) parentType).getName() : "?";
       context.addWarning(GraphqlFetchingWarningType.DEPRECATED,
-        "TODO",
+        typeName,
         environment.getFieldDefinition().getName(),
         environment.getFieldDefinition().getDeprecationReason()
       );

@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql.webflux;
+package org.kidal.jsf.graphql.webflux.controller;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
  * @author kidal
  * @since 0.1.0
  */
-@Component
 public class SpringUtils implements ApplicationContextAware, EnvironmentAware {
   /**
    * 用于开发者开发的环境

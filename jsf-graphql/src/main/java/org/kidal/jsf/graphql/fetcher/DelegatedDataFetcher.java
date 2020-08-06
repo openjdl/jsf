@@ -1,7 +1,8 @@
-package org.kidal.jsf.graphql;
+package org.kidal.jsf.graphql.fetcher;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
 import java.lang.reflect.Method;
 
@@ -11,7 +12,7 @@ import java.lang.reflect.Method;
  * @author kidal
  * @since 0.1.0
  */
-public class GraphqlDelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
+public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
    * 豆子
    */
@@ -27,7 +28,7 @@ public class GraphqlDelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> 
   /**
    *
    */
-  public GraphqlDelegatedDataFetcher(@NotNull Object bean, @NotNull Method method) {
+  public DelegatedDataFetcher(@NotNull Object bean, @NotNull Method method) {
     this.bean = bean;
     this.method = method;
   }

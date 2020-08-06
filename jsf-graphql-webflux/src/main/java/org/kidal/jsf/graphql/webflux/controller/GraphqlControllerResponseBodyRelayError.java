@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql.webflux;
+package org.kidal.jsf.graphql.webflux.controller;
 
 import com.google.common.collect.Lists;
 import graphql.ErrorType;

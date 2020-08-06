@@ -18,23 +18,30 @@ public interface JsfService {
   String getJsfServiceName();
 
   /**
+   *
+   */
+  default void registerSelf() {
+    JsfMicroService.register(this);
+  }
+
+  /**
    * 初始化模块.
    */
-  default void initializeJsfService() {
+  default void initializeJsfService() throws Exception {
 
   }
 
   /**
    * 开始模块
    */
-  default void startJsfService() {
+  default void startJsfService() throws Exception {
 
   }
 
   /**
    * 关闭模块
    */
-  default void closeJsfService() {
+  default void closeJsfService() throws Exception {
 
   }
 }

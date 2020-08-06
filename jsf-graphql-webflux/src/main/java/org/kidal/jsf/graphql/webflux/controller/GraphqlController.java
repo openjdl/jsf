@@ -1,4 +1,4 @@
-package org.kidal.jsf.graphql.webflux;
+package org.kidal.jsf.graphql.webflux.controller;
 
 import com.google.common.collect.Lists;
 import graphql.ErrorType;
@@ -11,7 +11,11 @@ import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.exception.JsfResolvedException;
 import org.kidal.jsf.core.utils.StringUtils;
-import org.kidal.jsf.graphql.*;
+import org.kidal.jsf.graphql.GraphqlService;
+import org.kidal.jsf.graphql.query.GraphqlFetchingWarningType;
+import org.kidal.jsf.graphql.query.GraphqlQueryArgs;
+import org.kidal.jsf.graphql.query.GraphqlQueryResults;
+import org.kidal.jsf.graphql.utils.GraphqlUtils;
 import org.kidal.jsf.webflux.controller.JsfRestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -33,27 +37,24 @@ import java.util.stream.Collectors;
  * @author kidal
  * @since 0.1.0
  */
-@RestController
-@RequestMapping
+@ResponseBody
 public class GraphqlController extends JsfRestController {
   /**
    *
    */
-  @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-  @Autowired
-  private GraphqlService graphqlService;
+  private final GraphqlService graphqlService;
 
   /**
    *
    */
-  public GraphqlController() {
+  public GraphqlController(GraphqlService graphqlService) {
+    this.graphqlService = graphqlService;
   }
 
   /**
    * 查询
    */
   @NotNull
-  @PostMapping(value = "/graphql", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public Mono<GraphqlControllerResponseBody> query(@NotNull @RequestBody GraphqlControllerRequestBody requestBody,
                                                    @NotNull ServerWebExchange exchange) {

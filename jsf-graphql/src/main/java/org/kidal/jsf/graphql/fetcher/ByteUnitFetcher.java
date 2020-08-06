@@ -6,9 +6,7 @@ import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kidal.jsf.graphql.BaseGraphqlDataFetcher;
-import org.kidal.jsf.graphql.GraphqlFetchingEnvironment;
-import org.kidal.jsf.graphql.GraphqlUnitFetcherFactoryStaticRegistry;
+import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,7 +20,7 @@ import java.util.Map;
  */
 public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
   static {
-    GraphqlUnitFetcherFactoryStaticRegistry.register(new Factory());
+    UnitFetcherFactoryStaticRegistry.register(new Factory());
   }
 
   /**
