@@ -1,3 +1,5 @@
+scalar Date
+
 directive @map on FIELD_DEFINITION
 directive @byte on FIELD_DEFINITION
 directive @time on FIELD_DEFINITION
