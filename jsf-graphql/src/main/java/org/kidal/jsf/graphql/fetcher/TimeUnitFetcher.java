@@ -6,6 +6,7 @@ import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.utils.DateUtils;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
 import java.math.BigDecimal;
@@ -13,12 +14,12 @@ import java.math.RoundingMode;
 import java.util.Map;
 
 /**
- * Created at 2020-08-05 17:40:48
+ * Created at 2020-08-06 14:26:48
  *
  * @author kidal
  * @since 0.1.0
  */
-public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
+public class TimeUnitFetcher extends BaseGraphqlDataFetcher<Object> {
   static {
     UnitFetcherFactoryStaticRegistry.register(new Factory());
   }
@@ -38,7 +39,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
    *
    */
-  public ByteUnitFetcher(@Nullable DataFetcher<?> fetcher, @Nullable String fieldName) {
+  public TimeUnitFetcher(@Nullable DataFetcher<?> fetcher, @Nullable String fieldName) {
     this.fetcher = fetcher;
     this.fieldName = fieldName;
   }
@@ -82,19 +83,20 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
     // format
     double result;
     switch (unit) {
-      case "kb":
-        result = value / 1024L;
+      case "seconds":
+        result = value / DateUtils.MILLIS_PER_SECOND;
         break;
-      case "mb":
-        result = value / (1024L * 1024L);
+      case "minutes":
+        result = value / DateUtils.MILLIS_PER_MINUTE;
         break;
-      case "GM":
-        result = value / (1024L * 1024L * 1024L);
+      case "hours":
+        result = value / DateUtils.MILLIS_PER_HOUR;
         break;
-      case "b":
+      case "days":
+        result = value / DateUtils.MILLIS_PER_DAY;
+        break;
       default:
         result = value;
-        break;
     }
 
     // precision
@@ -131,7 +133,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
     @NotNull
     @Override
     public DataFetcher<?> withUnitFetcher(@NotNull DataFetcher<?> fetcher) {
-      return new ByteUnitFetcher(fetcher, null);
+      return new TimeUnitFetcher(fetcher, null);
     }
   }
 
@@ -142,7 +144,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
     /**
      *
      */
-    public static final String NAME = "byte";
+    public static final String NAME = "time";
 
     /**
      *
@@ -153,7 +155,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
       GraphQLFieldsContainer parentType = environment.getFieldsContainer();
 
       DataFetcher<?> originalFetcher = environment.getCodeRegistry().getDataFetcher(parentType, field);
-      ByteUnitFetcher fetcher = new ByteUnitFetcher(originalFetcher, null);
+      TimeUnitFetcher fetcher = new TimeUnitFetcher(originalFetcher, null);
 
       // 使用新fetcher
       FieldCoordinates coordinates = FieldCoordinates.coordinates(parentType, field);

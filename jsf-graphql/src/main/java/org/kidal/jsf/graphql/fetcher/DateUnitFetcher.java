@@ -6,19 +6,21 @@ import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.utils.DateUtils;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 import java.util.Map;
 
 /**
- * Created at 2020-08-05 17:40:48
+ * Created at 2020-08-06 14:26:48
  *
  * @author kidal
  * @since 0.1.0
  */
-public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
+public class DateUnitFetcher extends BaseGraphqlDataFetcher<Object> {
   static {
     UnitFetcherFactoryStaticRegistry.register(new Factory());
   }
@@ -38,7 +40,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
    *
    */
-  public ByteUnitFetcher(@Nullable DataFetcher<?> fetcher, @Nullable String fieldName) {
+  public DateUnitFetcher(@Nullable DataFetcher<?> fetcher, @Nullable String fieldName) {
     this.fetcher = fetcher;
     this.fieldName = fieldName;
   }
@@ -74,34 +76,32 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
     if (unit == null) {
       return valueObject;
     }
-    Integer precision = env.getEnvironment().getArgument("precision");
 
-    // transform value
-    double value = (double) Long.parseLong(valueObject.toString());
-
-    // format
-    double result;
-    switch (unit) {
-      case "kb":
-        result = value / 1024L;
-        break;
-      case "mb":
-        result = value / (1024L * 1024L);
-        break;
-      case "GM":
-        result = value / (1024L * 1024L * 1024L);
-        break;
-      case "b":
-      default:
-        result = value;
-        break;
+    // value
+    Date value;
+    if (valueObject.getClass() == Long.class) {
+      value = new Date((long) valueObject);
+    } else if (valueObject instanceof Date) {
+      value = (Date) valueObject;
+    } else if (valueObject.getClass() == String.class) {
+      value = DateUtils.uncertainToDateSafely((String) valueObject);
+    } else {
+      return null;
     }
 
-    // precision
-    if (precision == null) {
-      return (long) result;
-    } else {
-      return BigDecimal.valueOf(result).setScale(precision, RoundingMode.DOWN).doubleValue();
+    switch (unit) {
+      case "short-time":
+        return DateUtils.toString(value, DateUtils.PATTERN_SHORT_TIME);
+      case "time":
+        return DateUtils.toString(value, DateUtils.PATTERN_TIME);
+      case "date":
+        return DateUtils.toString(value, DateUtils.PATTERN_DATE);
+      case "datetime":
+        return DateUtils.toString(value, DateUtils.PATTERN_DATE_TIME);
+      case "short-datetime":
+        return DateUtils.toString(value, "yyyy-MM-dd HH:mm");
+      default:
+        return DateUtils.toString(value, DateUtils.PATTERN_ISO8601);
     }
   }
 
@@ -131,7 +131,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
     @NotNull
     @Override
     public DataFetcher<?> withUnitFetcher(@NotNull DataFetcher<?> fetcher) {
-      return new ByteUnitFetcher(fetcher, null);
+      return new DateUnitFetcher(fetcher, null);
     }
   }
 
@@ -142,7 +142,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
     /**
      *
      */
-    public static final String NAME = "byte";
+    public static final String NAME = "date";
 
     /**
      *
@@ -153,7 +153,7 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
       GraphQLFieldsContainer parentType = environment.getFieldsContainer();
 
       DataFetcher<?> originalFetcher = environment.getCodeRegistry().getDataFetcher(parentType, field);
-      ByteUnitFetcher fetcher = new ByteUnitFetcher(originalFetcher, null);
+      DateUnitFetcher fetcher = new DateUnitFetcher(originalFetcher, null);
 
       // 使用新fetcher
       FieldCoordinates coordinates = FieldCoordinates.coordinates(parentType, field);
@@ -162,7 +162,6 @@ public class ByteUnitFetcher extends BaseGraphqlDataFetcher<Object> {
       // 在参数列表末尾添加unit、precision字段
       return field.transform(it -> it
         .argument(GraphQLArgument.newArgument().name("unit").type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name("precision").type(Scalars.GraphQLInt))
       );
     }
   }

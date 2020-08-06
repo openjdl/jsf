@@ -8,15 +8,14 @@ import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.execution.AsyncSerialExecutionStrategy;
 import graphql.execution.SubscriptionExecutionStrategy;
+import graphql.language.ScalarTypeDefinition;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.idl.RuntimeWiring;
-import graphql.schema.idl.SchemaGenerator;
-import graphql.schema.idl.SchemaParser;
-import graphql.schema.idl.TypeDefinitionRegistry;
+import graphql.schema.idl.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
+import org.kidal.jsf.core.utils.IOUtils;
 import org.kidal.jsf.core.utils.ReflectionUtils;
 import org.kidal.jsf.core.utils.SpringUtils;
 import org.kidal.jsf.core.utils.StringUtils;
@@ -24,12 +23,16 @@ import org.kidal.jsf.graphql.annotation.GraphqlFetcher;
 import org.kidal.jsf.graphql.annotation.GraphqlSchema;
 import org.kidal.jsf.graphql.fetcher.*;
 import org.kidal.jsf.graphql.query.*;
+import org.kidal.jsf.graphql.scalar.DateCoercing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.util.ResourceUtils;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,13 +94,17 @@ public class GraphqlServiceImpl implements GraphqlService {
    *
    */
   @Override
-  public void initializeJsfService() {
-    // TODO: 添加Date类型
+  public void initializeJsfService() throws Exception {
+    // 添加额外的内建类型
+    ScalarInfo.GRAPHQL_SPECIFICATION_SCALARS.add(DateCoercing.GraphQLDate);
+    ScalarInfo.GRAPHQL_SPECIFICATION_SCALARS_DEFINITIONS.put("Date", new ScalarTypeDefinition("Date"));
 
+    // 注册格式和Fetcher
     final TypeDefinitionRegistry typeDefinitionRegistry = createTypeDefinitionRegistry();
     final RuntimeWiring runtimeWiring = createRuntimeWiring();
-    final SchemaGenerator schemaGenerator = new SchemaGenerator();
 
+    // 创建
+    final SchemaGenerator schemaGenerator = new SchemaGenerator();
     final GraphQLSchema schema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring);
 
     graphql = GraphQL.newGraphQL(schema)
@@ -110,10 +117,19 @@ public class GraphqlServiceImpl implements GraphqlService {
   /**
    * 创建类型定义注册器
    */
-  private TypeDefinitionRegistry createTypeDefinitionRegistry() {
+  @NotNull
+  private TypeDefinitionRegistry createTypeDefinitionRegistry() throws IOException {
     SchemaParser schemaParser = new SchemaParser();
     TypeDefinitionRegistry typeDefinitionRegistry = new TypeDefinitionRegistry();
 
+    // 内建
+    URL url = getClass().getClassLoader().getResource("graphql/built-in.graphql");
+    if (url != null) {
+      String builtIn = IOUtils.readAllText(ResourceUtils.getFile(url));
+      typeDefinitionRegistry.merge(schemaParser.parse(builtIn));
+    }
+
+    // 用户
     springUtils.getAllBeans(true)
       .forEach(bean -> {
         if (bean.getClass().isAnnotationPresent(GraphqlSchema.class)) {
@@ -146,7 +162,13 @@ public class GraphqlServiceImpl implements GraphqlService {
   private RuntimeWiring createRuntimeWiring() {
     final RuntimeWiring.Builder wiring = RuntimeWiring.newRuntimeWiring();
 
-    // fetchers
+    // 内建
+    wiring.directive(EmptyMap.Directive.NAME, new EmptyMap.Directive());
+    wiring.directive(ByteUnitFetcher.Directive.NAME, new ByteUnitFetcher.Directive());
+    wiring.directive(TimeUnitFetcher.Directive.NAME, new TimeUnitFetcher.Directive());
+    wiring.directive(DateUnitFetcher.Directive.NAME, new DateUnitFetcher.Directive());
+
+    // 用户
     springUtils
       .getAllBeans(true)
       .forEach(bean -> {
@@ -185,10 +207,6 @@ public class GraphqlServiceImpl implements GraphqlService {
           return builder;
         });
       });
-
-    // directives
-    wiring.directive("map", new EmptyMap.Directive());
-    wiring.directive("byte", new ByteUnitFetcher.Directive());
 
     // done
     return wiring.build();

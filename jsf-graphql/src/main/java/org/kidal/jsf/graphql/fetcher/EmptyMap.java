@@ -29,6 +29,11 @@ public class EmptyMap implements DataFetcher<Map<?, ?>> {
     /**
      *
      */
+    public static final String NAME = "map";
+
+    /**
+     *
+     */
     @Override
     public GraphQLFieldDefinition onField(@NotNull SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
       return environment.getElement().transform(it -> it.dataFetcher(singleton));
