@@ -4,8 +4,10 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.pagination.Page;
 import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.pagination.PageSortArg;
+import org.kidal.jsf.core.utils.callback.Action0;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +39,11 @@ public class BaseWhere {
    *
    */
   private int limit = 0;
+
+  /**
+   *
+   */
+  private boolean clearOrderOnNextSet = false;
 
   /**
    *
@@ -116,9 +123,16 @@ public class BaseWhere {
   /**
    *
    */
+  public void addOrder(@NotNull String field, boolean descending) {
+    addOrder(Collections.singletonList(field), descending);
+  }
+
+  /**
+   *
+   */
   public void addOrder(@NotNull List<String> fields, boolean descending) {
     // filter
-    final List<String> filtered = fields.stream().filter(this::canOrder).collect(Collectors.toList());
+    final List<String> filtered = fields.stream().filter(this::canSort).collect(Collectors.toList());
     if (filtered.isEmpty()) {
       return;
     }
@@ -128,13 +142,20 @@ public class BaseWhere {
 
     // add
     this.useOrder = true;
-    if (this.orders == null) {
-      this.orders = Lists.newArrayList();
+
+    if (orders == null) {
+      orders = Lists.newArrayList();
     }
-    this.orders.add(new Order(renamed, descending ? "DESC" : "ASC"));
+
+    if (clearOrderOnNextSet) {
+      clearOrderOnNextSet = false;
+      orders.clear();
+    }
+
+    orders.add(new Order(renamed, descending ? "DESC" : "ASC"));
 
     // distinct
-    this.orders = this.orders
+    orders = orders
       .stream()
       .distinct()
       .collect(Collectors.toList());
@@ -143,7 +164,23 @@ public class BaseWhere {
   /**
    *
    */
-  public boolean canOrder(@NotNull String field) {
+  public void setDefaultOrder(@NotNull String field, boolean descending) {
+    setDefaultOrder(Collections.singletonList(field), descending);
+  }
+
+  /**
+   *
+   */
+  public void setDefaultOrder(@NotNull List<String> fields, boolean descending) {
+    useOrder = true;
+    orders = Lists.newArrayList(new Order(fields, descending ? "DESC" : "ASC"));
+    clearOrderOnNextSet = true;
+  }
+
+  /**
+   *
+   */
+  public boolean canSort(@NotNull String field) {
     return false;
   }
 
@@ -152,6 +189,15 @@ public class BaseWhere {
    */
   public String renameOrderField(@NotNull String field) {
     return field;
+  }
+
+  /**
+   * 分页
+   */
+  public <T> Page<T> page(@NotNull Action0<Integer> counter,
+                          @NotNull Action0<List<T>> selector) {
+    normalize();
+    return Page.of(pageArgs, counter, selector);
   }
 
   //--------------------------------------------------------------------------
