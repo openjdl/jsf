@@ -105,15 +105,16 @@ public class PageArgs {
   public PageArgs(int page, int limit, @NotNull PageSortArg[] sorts) {
     setPage(page);
     setLimit(limit);
+    this.sorts = sorts;
   }
 
   /**
    * 遍历数据
    */
-  public <T> void forEach(@NotNull Action1<PageResults<T>, PageArgs> loader,
-                          @NotNull Action1<Void, PageResults<T>> consumer) {
+  public <T> void forEach(@NotNull Action1<Page<T>, PageArgs> loader,
+                          @NotNull Action1<Void, Page<T>> consumer) {
     PageArgs pageArgs = new PageArgs(getPage(), getLimit(), getSorts());
-    PageResults<T> results;
+    Page<T> results;
     do {
       results = loader.call(pageArgs);
       consumer.call(results);

@@ -2,6 +2,8 @@ package org.kidal.jsf.graphql.query;
 
 import graphql.schema.DataFetchingEnvironment;
 import org.jetbrains.annotations.NotNull;
+import org.kidal.jsf.core.exception.JsfException;
+import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.pagination.PageSortArg;
 import org.kidal.jsf.core.utils.StringUtils;
@@ -10,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created at 2020-08-05 17:42:46
@@ -79,13 +82,41 @@ public class GraphqlFetchingEnvironment {
   /**
    *
    */
-  public Optional<Boolean> getAsBoolean(String name) {
+  public Optional<Boolean> getBoolean(String name) {
+    return getAny(name, Boolean.class);
+  }
+
+  /**
+   *
+   */
+  public Optional<Integer> getInteger(String name) {
+    return getAny(name, Integer.class);
+  }
+
+  /**
+   *
+   */
+  public Optional<Long> getLong(String name) {
+    return getAny(name, Long.class);
+  }
+
+  /**
+   *
+   */
+  public Optional<String> getString(String name) {
+    return getAny(name, String.class);
+  }
+
+  /**
+   *
+   */
+  public <T> Optional<T> getAny(String name, Class<T> type) {
     Object argument = environment.getArgument(name);
     if (argument == null) {
       return Optional.empty();
     }
-    if (context.getConversionService().canConvert(argument.getClass(), Boolean.class)) {
-      return Optional.ofNullable(context.getConversionService().convert(argument, Boolean.class));
+    if (context.getConversionService().canConvert(argument.getClass(), type)) {
+      return Optional.ofNullable(context.getConversionService().convert(argument, type));
     } else {
       return Optional.empty();
     }
@@ -94,13 +125,24 @@ public class GraphqlFetchingEnvironment {
   /**
    *
    */
-  public Optional<Integer> getAsInteger(String name) {
+  @SuppressWarnings("unchecked")
+  public <T> Optional<List<T>> getList(String name, Class<T> contentClass) {
     Object argument = environment.getArgument(name);
     if (argument == null) {
       return Optional.empty();
     }
-    if (context.getConversionService().canConvert(argument.getClass(), Integer.class)) {
-      return Optional.ofNullable(context.getConversionService().convert(argument, Integer.class));
+    if (!(argument instanceof List)) {
+      return Optional.empty();
+    }
+    List<Object> list = (List<Object>) argument;
+    Object firstElement = list.get(0);
+
+    if (context.getConversionService().canConvert(firstElement.getClass(), contentClass)) {
+      List<T> converted = list
+        .stream()
+        .map(it -> context.getConversionService().convert(it, contentClass))
+        .collect(Collectors.toList());
+      return Optional.of(converted);
     } else {
       return Optional.empty();
     }
@@ -109,31 +151,46 @@ public class GraphqlFetchingEnvironment {
   /**
    *
    */
-  public Optional<Long> getAsLong(String name) {
-    Object argument = environment.getArgument(name);
-    if (argument == null) {
-      return Optional.empty();
-    }
-    if (context.getConversionService().canConvert(argument.getClass(), Long.class)) {
-      return Optional.ofNullable(context.getConversionService().convert(argument, Long.class));
-    } else {
-      return Optional.empty();
-    }
+  public boolean requireBoolean(String name) {
+    return getBoolean(name).orElseThrow(() -> new JsfException(JsfExceptions.BAD_REQUEST));
   }
 
   /**
    *
    */
-  public Optional<String> getAsString(String name) {
-    Object argument = environment.getArgument(name);
-    if (argument == null) {
-      return Optional.empty();
-    }
-    if (context.getConversionService().canConvert(argument.getClass(), String.class)) {
-      return Optional.ofNullable(context.getConversionService().convert(argument, String.class));
-    } else {
-      return Optional.empty();
-    }
+  public int requireInteger(String name) {
+    return getInteger(name).orElseThrow(() -> new JsfException(JsfExceptions.BAD_REQUEST));
+  }
+
+  /**
+   *
+   */
+  public long requireLong(String name) {
+    return getLong(name).orElseThrow(() -> new JsfException(JsfExceptions.BAD_REQUEST));
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public String requireString(String name) {
+    return getString(name).orElseThrow(() -> new JsfException(JsfExceptions.BAD_REQUEST));
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public <T> T requireAny(String name, Class<T> type) {
+    return getAny(name, type).orElseThrow(() -> new JsfException(JsfExceptions.BAD_REQUEST));
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public <T> List<T> requireList(String name, Class<T> contentClass) {
+    return getList(name, contentClass).orElseThrow(() -> new JsfException(JsfExceptions.BAD_REQUEST));
   }
 
   /**

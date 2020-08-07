@@ -3,6 +3,7 @@ package org.kidal.jsf.jdbc.mybatis.utils;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.pagination.PageSortArg;
 
@@ -17,6 +18,11 @@ import java.util.stream.Collectors;
  * @since 0.1.0
  */
 public class BaseWhere {
+  /**
+   *
+   */
+  private PageArgs pageArgs;
+
   /**
    *
    */
@@ -59,6 +65,13 @@ public class BaseWhere {
   /**
    * 标准化
    */
+  public void normalize() {
+
+  }
+
+  /**
+   * 标准化
+   */
   public <E> List<E> normalize(List<E> list) {
     if (list == null) {
       return null;
@@ -73,6 +86,8 @@ public class BaseWhere {
    * 分页
    */
   public void withPage(@NotNull PageArgs pageArgs, boolean withOrder) {
+    this.pageArgs = pageArgs;
+
     useLimit = true;
     start = (pageArgs.getPage() - 1) * pageArgs.getLimit();
     limit = pageArgs.getLimit();
@@ -85,7 +100,7 @@ public class BaseWhere {
   /**
    *
    */
-  public void withOrder(PageSortArg[] sorts) {
+  public void withOrder(@NotNull PageSortArg[] sorts) {
     for (PageSortArg sort : sorts) {
       addOrder(sort);
     }
@@ -94,14 +109,14 @@ public class BaseWhere {
   /**
    *
    */
-  public void addOrder(PageSortArg sort) {
+  public void addOrder(@NotNull PageSortArg sort) {
     addOrder(Collections.singletonList(sort.getName()), sort.isDescending());
   }
 
   /**
    *
    */
-  public void addOrder(List<String> fields, boolean descending) {
+  public void addOrder(@NotNull List<String> fields, boolean descending) {
     // filter
     final List<String> filtered = fields.stream().filter(this::canOrder).collect(Collectors.toList());
     if (filtered.isEmpty()) {
@@ -186,6 +201,26 @@ public class BaseWhere {
   //--------------------------------------------------------------------------
   //
   //--------------------------------------------------------------------------
+
+  public boolean isPaging() {
+    return useLimit && limit > 0;
+  }
+
+  public boolean isCounting() {
+    return useLimit && limit == 0;
+  }
+
+  //--------------------------------------------------------------------------
+  //
+  //--------------------------------------------------------------------------
+
+  public PageArgs getPageArgs() {
+    return pageArgs;
+  }
+
+  public void setPageArgs(@Nullable PageArgs pageArgs) {
+    this.pageArgs = pageArgs;
+  }
 
   public boolean isUseLimit() {
     return useLimit;

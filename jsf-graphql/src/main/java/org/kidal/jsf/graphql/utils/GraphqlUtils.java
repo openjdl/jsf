@@ -1,11 +1,14 @@
 package org.kidal.jsf.graphql.utils;
 
+import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.pagination.Page;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -44,5 +47,26 @@ public class GraphqlUtils {
         entry -> entry.getKey().substring(X_VARIABLE_PREFIX.length()),
         entry -> Objects.toString(entry.getValue()))
       );
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public static <T, V> Map<String, Object> toPageResults(@NotNull Page<T> page, @NotNull Function<T, V> transform) {
+    return ImmutableMap.of(
+      "page", page.getPageArgs().getPage(),
+      "limit", page.getPageArgs().getLimit(),
+      "totalCount", page.getTotalCount(),
+      "nodes", page.getNodes().stream().map(transform).toArray()
+    );
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public static <T> Map<String, Object> toPageResults(@NotNull Page<T> page) {
+    return toPageResults(page, node -> node);
   }
 }

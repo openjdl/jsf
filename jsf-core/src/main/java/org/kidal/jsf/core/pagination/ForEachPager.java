@@ -19,12 +19,12 @@ public class ForEachPager<T> {
   /**
    * 数据加载器
    */
-  private final Action1<PageResults<T>, PageArgs> loader;
+  private final Action1<Page<T>, PageArgs> loader;
 
   /**
    *
    */
-  public ForEachPager(@NotNull PageArgs beginPageArgs, @NotNull Action1<PageResults<T>, PageArgs> loader) {
+  public ForEachPager(@NotNull PageArgs beginPageArgs, @NotNull Action1<Page<T>, PageArgs> loader) {
     this.beginPageArgs = beginPageArgs;
     this.loader = loader;
   }
