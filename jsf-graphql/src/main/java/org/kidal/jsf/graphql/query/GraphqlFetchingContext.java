@@ -102,7 +102,6 @@ public class GraphqlFetchingContext {
    *
    */
   @Nullable
-
   public UserPassport getPassport() {
     return passport;
   }

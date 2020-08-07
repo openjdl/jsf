@@ -10,4 +10,5 @@ dependencies {
 
     // spring
     compile "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+//    compile "org.springframework.boot:spring-boot-starter-webflux-websocket:${springBootVersion}"
 }
