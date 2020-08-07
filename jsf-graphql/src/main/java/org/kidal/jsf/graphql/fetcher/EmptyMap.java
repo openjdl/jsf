@@ -1,8 +1,6 @@
 package org.kidal.jsf.graphql.fetcher;
 
-import graphql.schema.DataFetcher;
-import graphql.schema.DataFetchingEnvironment;
-import graphql.schema.GraphQLFieldDefinition;
+import graphql.schema.*;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +18,7 @@ public class EmptyMap implements DataFetcher<Map<?, ?>> {
   /**
    *
    */
-  public static final EmptyMap singleton = new EmptyMap();
+  public static final EmptyMap INSTANCE = new EmptyMap();
 
   /**
    *
@@ -36,7 +34,16 @@ public class EmptyMap implements DataFetcher<Map<?, ?>> {
      */
     @Override
     public GraphQLFieldDefinition onField(@NotNull SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
-      return environment.getElement().transform(it -> it.dataFetcher(singleton));
+      GraphQLFieldDefinition field = environment.getElement();
+      GraphQLFieldsContainer parentType = environment.getFieldsContainer();
+
+      DataFetcher<?> originalFetcher = environment.getCodeRegistry().getDataFetcher(parentType, field);
+
+      // 使用新fetcher
+      FieldCoordinates coordinates = FieldCoordinates.coordinates(parentType, field);
+      environment.getCodeRegistry().dataFetcher(coordinates, INSTANCE);
+
+      return field;
     }
   }
 

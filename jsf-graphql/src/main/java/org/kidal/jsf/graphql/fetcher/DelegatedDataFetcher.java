@@ -14,6 +14,17 @@ import java.lang.reflect.Method;
  */
 public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
+   * 类型名
+   */
+  @NotNull
+  private final String typeName;
+
+  /**
+   * 字段名
+   */
+  private final String fieldName;
+
+  /**
    * 豆子
    */
   @NotNull
@@ -28,7 +39,12 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
    *
    */
-  public DelegatedDataFetcher(@NotNull Object bean, @NotNull Method method) {
+  public DelegatedDataFetcher(@NotNull String typeName,
+                              @NotNull String fieldName,
+                              @NotNull Object bean,
+                              @NotNull Method method) {
+    this.typeName = typeName;
+    this.fieldName = fieldName;
     this.bean = bean;
     this.method = method;
   }
@@ -42,17 +58,24 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
     return method.invoke(bean, env);
   }
 
-  /**
-   *
-   */
+  //--------------------------------------------------------------------------
+  //
+  //--------------------------------------------------------------------------
+
+  @NotNull
+  public String getTypeName() {
+    return typeName;
+  }
+
+  public String getFieldName() {
+    return fieldName;
+  }
+
   @NotNull
   public Object getBean() {
     return bean;
   }
 
-  /**
-   *
-   */
   @NotNull
   public Method getMethod() {
     return method;

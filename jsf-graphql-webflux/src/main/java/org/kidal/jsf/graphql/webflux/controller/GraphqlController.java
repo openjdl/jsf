@@ -173,8 +173,8 @@ public class GraphqlController extends JsfRestController {
     return errors
       .stream()
       .map(it -> {
-        long id = JsfExceptions.BAD_REQUEST.getId();
-        String code = JsfExceptions.BAD_REQUEST.getCode();
+        long id = JsfExceptions.SERVER_INTERNAL_ERROR.getId();
+        String code = JsfExceptions.SERVER_INTERNAL_ERROR.getCode();
         String message = it.getMessage();
 
         if (it instanceof ExceptionWhileDataFetching && ((ExceptionWhileDataFetching) it).getException() instanceof JsfException) {

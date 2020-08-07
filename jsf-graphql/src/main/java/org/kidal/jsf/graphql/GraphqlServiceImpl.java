@@ -1,6 +1,7 @@
 package org.kidal.jsf.graphql;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import graphql.AssertException;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
@@ -209,6 +210,8 @@ public class GraphqlServiceImpl implements GraphqlService {
     wiring.directive(DateUnitFetcher.Directive.NAME, new DateUnitFetcher.Directive());
 
     // 用户
+    Map<String, List<DelegatedDataFetcher>> fetchersMap = Maps.newHashMap();
+
     springUtils
       .getAllBeans(true)
       .forEach(bean -> {
@@ -221,32 +224,36 @@ public class GraphqlServiceImpl implements GraphqlService {
           ? bean.getClass().getSimpleName()
           : typeAnnotation.value();
 
-        wiring.type(typeName, builder -> {
-          ReflectionUtils.doWithMethods(bean.getClass(),
-            method -> {
-              final GraphqlFetcher fieldAnnotation = method.getAnnotation(GraphqlFetcher.class);
-              final String fieldName = StringUtils.isBlank(fieldAnnotation.value())
-                ? method.getName()
-                : fieldAnnotation.value();
+        ReflectionUtils.doWithMethods(bean.getClass(),
+          method -> {
+            final GraphqlFetcher fieldAnnotation = method.getAnnotation(GraphqlFetcher.class);
+            final String fieldName = StringUtils.isBlank(fieldAnnotation.value())
+              ? method.getName()
+              : fieldAnnotation.value();
 
-              // 类型处理
-              DelegatedDataFetcher fetcher = new DelegatedDataFetcher(bean, method);
-              if (fieldAnnotation.unitFactory() != BaseUnitFetcherFactory.class) {
-                BaseUnitFetcherFactory factory = UnitFetcherFactoryStaticRegistry.get(fieldAnnotation.unitFactory());
-                if (factory != null) {
-                  fetcher = (DelegatedDataFetcher) factory.withUnitFetcher(fetcher);
-                }
+            // 类型处理
+            DelegatedDataFetcher fetcher = new DelegatedDataFetcher(typeName, fieldName, bean, method);
+            if (fieldAnnotation.unitFactory() != BaseUnitFetcherFactory.class) {
+              BaseUnitFetcherFactory factory = UnitFetcherFactoryStaticRegistry.get(fieldAnnotation.unitFactory());
+              if (factory != null) {
+                fetcher = (DelegatedDataFetcher) factory.withUnitFetcher(fetcher);
               }
+            }
 
-              // 注册fetcher
-              builder.dataFetcher(fieldName, fetcher);
-            },
-            method -> method.isAnnotationPresent(GraphqlFetcher.class)
-          );
-
-          return builder;
-        });
+            // 添加
+            List<DelegatedDataFetcher> fetchers = fetchersMap.computeIfAbsent(typeName, k -> Lists.newArrayList());
+            fetchers.add(fetcher);
+          },
+          method -> method.isAnnotationPresent(GraphqlFetcher.class)
+        );
       });
+
+    fetchersMap.forEach((typeName, fetchers) ->
+      wiring.type(typeName, builder -> {
+        fetchers.forEach(fetcher -> builder.dataFetcher(fetcher.getFieldName(), fetcher));
+        return builder;
+      })
+    );
 
     // done
     return wiring.build();

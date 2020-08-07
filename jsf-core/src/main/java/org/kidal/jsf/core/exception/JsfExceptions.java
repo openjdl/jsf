@@ -54,6 +54,15 @@ public enum JsfExceptions implements JsfExceptionDataContract {
     ofId(0, 0, 4),
     ofCode("jsf", "core", "IncorrectCipher"),
     "无效的暗号"
+  ),
+
+  /**
+   * 服务器内部错误
+   */
+  SERVER_INTERNAL_ERROR(
+    ofId(0, 0, 5),
+    ofCode("jsf", "core", "ServerInternalError"),
+    "服务器内部错误"
   )
 
   //
