@@ -186,6 +186,20 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     }
 
+    // datetime
+    try {
+      return toDate(s, "yyyy/MM/dd HH:mm:ss");
+    } catch (IllegalArgumentException ignored) {
+
+    }
+
+    // date
+    try {
+      return toDate(s, "yyyy/MM/dd");
+    } catch (IllegalArgumentException ignored) {
+
+    }
+
     // not correct
     return null;
   }
