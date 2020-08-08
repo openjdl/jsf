@@ -131,10 +131,15 @@ public class GraphqlFetchingEnvironment {
     if (argument == null) {
       return Optional.empty();
     }
+
     if (!(argument instanceof List)) {
       return Optional.empty();
     }
     List<Object> list = (List<Object>) argument;
+    if (list.isEmpty()) {
+      return Optional.of(Collections.emptyList());
+    }
+
     Object firstElement = list.get(0);
 
     if (context.getConversionService().canConvert(firstElement.getClass(), contentClass)) {
