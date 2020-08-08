@@ -107,6 +107,20 @@ public class BaseWhere {
   /**
    *
    */
+  public void withPageZero() {
+    withPage(PageArgs.ofZero(), false);
+  }
+
+  /**
+   *
+   */
+  public void withPageOne() {
+    withPage(PageArgs.ofOne(), false);
+  }
+
+  /**
+   *
+   */
   public void withOrder(@NotNull PageSortArg[] sorts) {
     for (PageSortArg sort : sorts) {
       addOrder(sort);
