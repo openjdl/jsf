@@ -1,5 +1,6 @@
 package org.kidal.jsf.jdbc.mybatis.entity;
 
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.*;
@@ -7,6 +8,8 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,11 @@ import java.util.Properties;
   )
 })
 public class ListenedEntityInterceptor implements Interceptor {
+  /**
+   *
+   */
+  private static final Logger LOG = LoggerFactory.getLogger(ListenedEntityInterceptor.class);
+
   /**
    *
    */
@@ -100,7 +108,27 @@ public class ListenedEntityInterceptor implements Interceptor {
         && ms.getParameterMap().getType() != null
         && ListenedEntity.class.isAssignableFrom(ms.getParameterMap().getType())
     ) {
-      ((ListenedEntity) invocation.getArgs()[1]).onBeforeUpdate();
+      Object arg = invocation.getArgs()[1];
+      if (arg instanceof ListenedEntity) {
+        ((ListenedEntity) arg).onBeforeUpdate();
+      } else if (arg instanceof MapperMethod.ParamMap<?>) {
+        // 列表
+        @SuppressWarnings("unchecked")
+        MapperMethod.ParamMap<Object> map = (MapperMethod.ParamMap<Object>) arg;
+        if (map.containsKey("param1")) {
+          Object param1 = map.get("param1");
+          if (param1 instanceof Iterable) {
+            //noinspection unchecked
+            ((Iterable<ListenedEntity>) param1).forEach(ListenedEntity::onBeforeUpdate);
+          } else {
+            LOG.warn("ListenedEntity is not affected on: {}", ms.getId());
+          }
+        } else {
+          LOG.warn("ListenedEntity is not affected on: {}", ms.getId());
+        }
+      } else {
+        LOG.warn("ListenedEntity is not affected on: {}", ms.getId());
+      }
     }
     return invocation.proceed();
   }
