@@ -1,7 +1,7 @@
 package org.kidal.jsf.webflux.controller;
 
 import org.jetbrains.annotations.NotNull;
-import org.kidal.jsf.core.exception.JsfExceptionData;
+import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.exception.JsfExceptionDataContract;
 import org.kidal.jsf.core.exception.JsfExceptionDataResolver;
 import org.kidal.jsf.core.exception.JsfExceptions;
@@ -25,15 +25,15 @@ public class JsfExceptionResolveController extends JsfBaseController {
   /**
    * 解析异常数据
    */
+  @Nullable
   protected JsfExceptionDataContract resolveJsfExceptionData(long id, @NotNull String code) {
     if (jsfExceptionDataResolver != null) {
       return jsfExceptionDataResolver.resolveJsfExceptionData(id, code);
     } else {
-      final JsfExceptions data = Arrays.stream(JsfExceptions.values())
+      return Arrays.stream(JsfExceptions.values())
         .filter(it -> it.getId() == id || it.getCode().equals(code))
         .findFirst()
         .orElse(null);
-      return data != null ? data : new JsfExceptionData(id, code, JsfExceptions.FAIL.getFormat());
     }
   }
 

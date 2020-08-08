@@ -17,13 +17,13 @@ import org.kidal.jsf.graphql.query.GraphqlQueryArgs;
 import org.kidal.jsf.graphql.query.GraphqlQueryResults;
 import org.kidal.jsf.graphql.utils.GraphqlUtils;
 import org.kidal.jsf.webflux.controller.JsfRestController;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
@@ -176,17 +176,30 @@ public class GraphqlController extends JsfRestController {
         long id = JsfExceptions.SERVER_INTERNAL_ERROR.getId();
         String code = JsfExceptions.SERVER_INTERNAL_ERROR.getCode();
         String message = it.getMessage();
+        JsfException jsfException = null;
 
-        if (it instanceof ExceptionWhileDataFetching && ((ExceptionWhileDataFetching) it).getException() instanceof JsfException) {
-          JsfException exception = (JsfException) ((ExceptionWhileDataFetching) it).getException();
+        if (it instanceof ExceptionWhileDataFetching) {
+          Throwable innerException = ((ExceptionWhileDataFetching) it).getException();
+
+          if (innerException instanceof JsfException) {
+            jsfException = (JsfException) innerException;
+          } else if (
+            innerException instanceof InvocationTargetException
+              && (((InvocationTargetException) innerException).getTargetException()) instanceof JsfException
+          ) {
+            jsfException = (JsfException) ((InvocationTargetException) innerException).getTargetException();
+          }
+        }
+        if (jsfException != null) {
           try {
-            if (exception instanceof JsfResolvedException) {
-              id = exception.getData().getId();
-              code = exception.getData().getCode();
-              message = exception.getMessage();
+            if (jsfException instanceof JsfResolvedException) {
+              id = jsfException.getData().getId();
+              code = jsfException.getData().getCode();
+              message = jsfException.getMessage();
             } else {
-              id = exception.getData().getId();
-              code = exception.getData().getCode();
+              id = jsfException.getData().getId();
+              code = jsfException.getData().getCode();
+              message = resolveJsfExceptionMessage(jsfException);
             }
           } catch (Exception ignored) {
 

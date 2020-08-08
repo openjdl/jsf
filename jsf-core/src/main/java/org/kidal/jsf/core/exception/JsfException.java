@@ -94,4 +94,13 @@ public class JsfException extends RuntimeException {
   public String formatMessage() {
     return formatMessage(null);
   }
+
+  @Override
+  public String getMessage() {
+    if (super.getMessage() == null || super.getMessage().equals("")) {
+      return this.formatMessage();
+    } else {
+      return null;
+    }
+  }
 }
