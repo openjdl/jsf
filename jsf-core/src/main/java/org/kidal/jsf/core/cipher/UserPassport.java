@@ -123,7 +123,7 @@ public class UserPassport implements Serializable {
     String desKey = scope.getDesKey();
     byte[] encryptedAccessTokenBytes = CryptoUtils.encryptByDes(desKey.getBytes(), token.getBytes());
     String encodedAccessToken = Base64.encodeBase64URLSafeString(encryptedAccessTokenBytes);
-    return String.format("4-%d-%s-%s", uin, scope.name(), encodedAccessToken);
+    return String.format("1-%d-%s-%s", uin, scope.name(), encodedAccessToken);
   }
 
   /**
