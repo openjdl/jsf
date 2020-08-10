@@ -1,5 +1,7 @@
 package org.kidal.jsf.jdbc.mybatis.utils;
 
+import org.kidal.jsf.core.utils.StringUtils;
+
 /**
  * Created at 2020-08-06 21:39:03
  *
@@ -9,6 +11,10 @@ package org.kidal.jsf.jdbc.mybatis.utils;
 public class SqlAdapter {
   public static SqlAdapter of(String sql) {
     return new SqlAdapter(sql);
+  }
+
+  public static SqlAdapter of(String... sql) {
+    return new SqlAdapter(StringUtils.join(sql, "\n"));
   }
 
   private String sql;
