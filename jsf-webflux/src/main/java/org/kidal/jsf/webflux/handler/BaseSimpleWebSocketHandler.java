@@ -281,14 +281,14 @@ public abstract class BaseSimpleWebSocketHandler implements WebSocketHandler, Co
    */
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
-  protected @interface OnClientMessage {
+  public  @interface OnClientMessage {
     String value() default "";
   }
 
   /**
    * 载荷
    */
-  protected static class Payload {
+  public static class Payload {
     public static final String SC = "sc";
     public static final String CS = "cs";
 
