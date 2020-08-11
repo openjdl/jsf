@@ -6,13 +6,13 @@ import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.pagination.PageSortArg;
+import org.kidal.jsf.core.utils.MapLikeArgumentsGetter;
 import org.kidal.jsf.core.utils.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Created at 2020-08-05 17:42:46
@@ -36,10 +36,21 @@ public class GraphqlFetchingEnvironment {
   /**
    *
    */
+  @NotNull
+  private final MapLikeArgumentsGetter getter;
+
+  /**
+   *
+   */
   public GraphqlFetchingEnvironment(@NotNull DataFetchingEnvironment environment,
                                     @NotNull GraphqlFetchingContext context) {
     this.environment = environment;
     this.context = context;
+    this.getter = new MapLikeArgumentsGetter(
+      environment::getArgument,
+      context.getConversionService(),
+      () -> new JsfException(JsfExceptions.BAD_REQUEST)
+    );
   }
 
   /**
@@ -111,46 +122,14 @@ public class GraphqlFetchingEnvironment {
    *
    */
   public <T> Optional<T> getAny(String name, Class<T> type) {
-    Object argument = environment.getArgument(name);
-    if (argument == null) {
-      return Optional.empty();
-    }
-    if (context.getConversionService().canConvert(argument.getClass(), type)) {
-      return Optional.ofNullable(context.getConversionService().convert(argument, type));
-    } else {
-      return Optional.empty();
-    }
+    return getter.getAny(name, type);
   }
 
   /**
    *
    */
-  @SuppressWarnings("unchecked")
   public <T> Optional<List<T>> getList(String name, Class<T> contentClass) {
-    Object argument = environment.getArgument(name);
-    if (argument == null) {
-      return Optional.empty();
-    }
-
-    if (!(argument instanceof List)) {
-      return Optional.empty();
-    }
-    List<Object> list = (List<Object>) argument;
-    if (list.isEmpty()) {
-      return Optional.of(Collections.emptyList());
-    }
-
-    Object firstElement = list.get(0);
-
-    if (context.getConversionService().canConvert(firstElement.getClass(), contentClass)) {
-      List<T> converted = list
-        .stream()
-        .map(it -> context.getConversionService().convert(it, contentClass))
-        .collect(Collectors.toList());
-      return Optional.of(converted);
-    } else {
-      return Optional.empty();
-    }
+    return getter.getList(name, contentClass);
   }
 
   /**
