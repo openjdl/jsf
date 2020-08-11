@@ -10,6 +10,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public class SpringUtils implements ApplicationContextAware, EnvironmentAware {
   /**
    * 应用上下文
    */
-  private ApplicationContext applicationContext;
+  private GenericApplicationContext applicationContext;
 
   /**
    * 应用环境
@@ -153,7 +154,7 @@ public class SpringUtils implements ApplicationContextAware, EnvironmentAware {
   /**
    *
    */
-  public ApplicationContext getApplicationContext() {
+  public GenericApplicationContext getApplicationContext() {
     return applicationContext;
   }
 
@@ -180,7 +181,9 @@ public class SpringUtils implements ApplicationContextAware, EnvironmentAware {
    */
   @Override
   public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
-    this.applicationContext = applicationContext;
+    if (applicationContext instanceof GenericApplicationContext) {
+      this.applicationContext = (GenericApplicationContext) applicationContext;
+    }
   }
 
   /**
