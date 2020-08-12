@@ -19,7 +19,8 @@ ext {
   snappyVersion = "1.1.4"
 
   // google
-  googleGuavaVersion = "23.0"
+//  googleGuavaVersion = "23.0"
+  googleGuavaVersion = "29.0-jre"
   gsonVersion = "2.8.0"
 
   // aspectj
