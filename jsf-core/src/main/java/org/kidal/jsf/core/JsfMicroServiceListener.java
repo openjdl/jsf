@@ -8,6 +8,20 @@ package org.kidal.jsf.core;
  */
 public interface JsfMicroServiceListener {
   /**
+   *
+   */
+  default void registerSelf() {
+    JsfMicroService.listen(this);
+  }
+
+  /**
+   *
+   */
+  default void deregisterSelf() {
+    JsfMicroService.deaf(this);
+  }
+
+  /**
    * 全部服务初始化完成
    */
   default void onMicroServiceInitialized() {
