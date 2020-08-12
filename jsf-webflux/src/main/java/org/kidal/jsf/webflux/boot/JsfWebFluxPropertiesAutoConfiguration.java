@@ -15,6 +15,7 @@ import org.kidal.jsf.core.utils.json.Iso8601JsonSerializer;
 import org.kidal.jsf.core.utils.json.UncertainDateJsonDeserializer;
 import org.kidal.jsf.webflux.WebFluxService;
 import org.kidal.jsf.webflux.WebFluxServiceImpl;
+import org.kidal.jsf.webflux.websocket.SessionManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,6 +23,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
@@ -33,7 +35,6 @@ import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,7 +113,7 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
    *
    */
   @Bean
-  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true", matchIfMissing = true)
+  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true", matchIfMissing = false)
   public WebSocketHandlerAdapter webSocketHandlerAdapter() {
     return new WebSocketHandlerAdapter();
   }
@@ -121,25 +122,15 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
    *
    */
   @Bean
-  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true", matchIfMissing = true)
+  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true", matchIfMissing = false)
   public HandlerMapping handlerMapping(
     @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
-      SpringUtils springUtils
+      SpringUtils springUtils,
+    @Qualifier(JsfCoreProperties.B_CONVERSION_SERVICE)
+      ConversionService conversionService
   ) {
     Map<String, WebSocketHandler> handlerMap = Maps.newHashMap();
-    List<JsfWebFluxProperties.WebSocket.Handler> handlers = properties.getWebsocket().getHandlers();
-    for (JsfWebFluxProperties.WebSocket.Handler config : handlers) {
-      WebSocketHandler handler;
-      try {
-        handler = (WebSocketHandler) springUtils
-          .getApplicationContext()
-          .getBeanFactory()
-          .createBean(Class.forName(config.getHandlerClass()));
-      } catch (ClassNotFoundException e) {
-        throw new IllegalStateException(e);
-      }
-      handlerMap.put(config.getPath(), handler);
-    }
+    handlerMap.put(properties.getWebsocket().getPath(), new SessionManager(springUtils, conversionService));
 
     SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
     mapping.setUrlMap(handlerMap);

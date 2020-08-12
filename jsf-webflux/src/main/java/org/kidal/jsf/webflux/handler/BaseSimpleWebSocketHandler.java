@@ -164,7 +164,7 @@ public abstract class BaseSimpleWebSocketHandler implements WebSocketHandler, Co
    * 分发消息
    */
   @NotNull
-  private Payload dispatch(@NotNull Payload payload) {
+  private Payload dispatch(String sessionId, @NotNull Payload payload) {
     if (typeHandlers == null) {
       synchronized (typeHandlersLock) {
         if (typeHandlers == null) {
@@ -191,7 +191,7 @@ public abstract class BaseSimpleWebSocketHandler implements WebSocketHandler, Co
     }
 
     try {
-      return (Payload) method.invoke(this, payload);
+      return (Payload) method.invoke(this, sessionId, payload);
     } catch (IllegalAccessException | InvocationTargetException e) {
       log.error("", e);
       return payload.toResponse(null);
@@ -256,7 +256,7 @@ public abstract class BaseSimpleWebSocketHandler implements WebSocketHandler, Co
       }
       return payload.toResponse(null);
     } else if (payload.getDirection().equals(Payload.CS)) {
-      return dispatch(payload);
+      return dispatch(sessionId, payload);
     } else {
       return payload.toResponse(null);
     }
@@ -281,7 +281,7 @@ public abstract class BaseSimpleWebSocketHandler implements WebSocketHandler, Co
    */
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
-  public  @interface OnClientMessage {
+  public @interface OnClientMessage {
     String value() default "";
   }
 

@@ -112,29 +112,8 @@ public class JsfWebFluxProperties {
   }
 
   public static class WebSocket {
-    private boolean enabled = true;
-    private List<Handler> handlers = Lists.newArrayList();
-
-    public static class Handler {
-      private String path;
-      private String handlerClass;
-
-      public String getPath() {
-        return path;
-      }
-
-      public void setPath(String path) {
-        this.path = path;
-      }
-
-      public String getHandlerClass() {
-        return handlerClass;
-      }
-
-      public void setHandlerClass(String handlerClass) {
-        this.handlerClass = handlerClass;
-      }
-    }
+    private boolean enabled = false;
+    private String path = "";
 
     public boolean isEnabled() {
       return enabled;
@@ -144,12 +123,12 @@ public class JsfWebFluxProperties {
       this.enabled = enabled;
     }
 
-    public List<Handler> getHandlers() {
-      return handlers;
+    public String getPath() {
+      return path;
     }
 
-    public void setHandlers(List<Handler> handlers) {
-      this.handlers = handlers;
+    public void setPath(String path) {
+      this.path = path;
     }
   }
 
