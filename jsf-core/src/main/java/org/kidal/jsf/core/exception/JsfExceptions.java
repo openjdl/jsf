@@ -30,7 +30,7 @@ public enum JsfExceptions implements JsfExceptionDataContract {
   ),
 
   /**
-   * 失败
+   * 错误的请求
    */
   BAD_REQUEST(
     ofId(0, 0, 2),
@@ -63,7 +63,16 @@ public enum JsfExceptions implements JsfExceptionDataContract {
     ofId(0, 0, 5),
     ofCode("jsf", "core", "ServerInternalError"),
     "服务器内部错误"
-  )
+  ),
+
+  /**
+   * 错误的参数
+   */
+  BAD_PARAMETER(
+    ofId(0, 0, 6),
+    ofCode("jsf", "core", "BadParameter"),
+    "错误的请求"
+  ),
 
   //
   ;
