@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.unify.UnifiedApiContext;
+import org.kidal.jsf.core.utils.ReflectionUtils;
 import org.kidal.jsf.graphql.annotation.GraphqlParameters;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
@@ -75,13 +76,14 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
       } else {
         Annotation[] annotations = method.getParameterAnnotations()[i];
         if (annotations.length > 0 && annotations[0] instanceof GraphqlParameters) {
-          try {
-            Object parameter = type.newInstance();
-            BeanUtils.populate(parameter, env.getEnvironment().getArguments());
-            parameters[i] = parameter;
-          } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            ExceptionUtils.rethrow(e);
-          }
+//          try {
+//            Object parameter = type.newInstance();
+//            BeanUtils.populate(parameter, env.getEnvironment().getArguments());
+//            parameters[i] = parameter;
+//          } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+//            ExceptionUtils.rethrow(e);
+//          }
+          parameters[i] = ReflectionUtils.mapToPojo(env.getEnvironment().getArguments(), type);
         }
       }
     }

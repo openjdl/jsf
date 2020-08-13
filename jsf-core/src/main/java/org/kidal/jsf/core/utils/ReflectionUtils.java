@@ -228,7 +228,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
    *
    */
   public static Set<Class<?>> loadClassesByAnnotation(Class<? extends Annotation> annotationType,
-                                                   String... packageNames) throws IOException, ClassNotFoundException {
+                                                      String... packageNames) throws IOException, ClassNotFoundException {
     String annotationClassName = annotationType.getName();
     PathMatchingResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver();
     CachingMetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(patternResolver);
@@ -324,8 +324,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
   /**
    *
    */
-  public static Object mapToPojo(Map<String, Object> in, Class<?> type, ConversionService conversionService) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-    Object obj = type.getEnclosingConstructor().newInstance();
+  public static Object mapToPojo(Map<String, Object> in, Class<?> type, ConversionService conversionService) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+//    Object obj = type.getEnclosingConstructor().newInstance();
+    Object obj = type.getConstructor().newInstance();
     setPojoFields(obj, in, conversionService);
     return obj;
   }
@@ -333,14 +334,14 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
   /**
    *
    */
-  public static Object mapToPojo(Map<String, Object> in, Class<?> type) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+  public static Object mapToPojo(Map<String, Object> in, Class<?> type) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
     return mapToPojo(in, type, null);
   }
 
   /**
    *
    */
-  public static Object mapToPojo(Map<String, Object> in) throws IllegalAccessException, InstantiationException, ClassNotFoundException, InvocationTargetException {
+  public static Object mapToPojo(Map<String, Object> in) throws IllegalAccessException, InstantiationException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
     if (in == null) {
       return null;
     }
