@@ -1,6 +1,8 @@
 package org.kidal.jsf.webflux.websocket;
 
 import org.jetbrains.annotations.NotNull;
+import org.kidal.jsf.core.exception.JsfException;
+import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.sugar.BeanAccessor;
 import org.kidal.jsf.core.sugar.BeanPropertyAccessor;
 import org.kidal.jsf.core.sugar.EmptyBeanAccessor;
@@ -50,9 +52,9 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
     this.payload = payload;
 
     if (payload.getData() != null) {
-      parameters = new GenericBeanAccessor(payload.getData(), null);
+      parameters = new GenericBeanAccessor(payload.getData(), () -> new JsfException(JsfExceptions.BAD_REQUEST));
     } else {
-      parameters = new EmptyBeanAccessor(null);
+      parameters = new EmptyBeanAccessor(() -> new JsfException(JsfExceptions.BAD_REQUEST));
     }
   }
 

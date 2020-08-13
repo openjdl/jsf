@@ -2,6 +2,7 @@ package org.kidal.jsf.graphql.fetcher;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.unify.UnifiedApiContext;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
 import java.lang.reflect.Method;
@@ -39,6 +40,11 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
    *
    */
+  private final boolean unified;
+
+  /**
+   *
+   */
   public DelegatedDataFetcher(@NotNull String typeName,
                               @NotNull String fieldName,
                               @NotNull Object bean,
@@ -47,6 +53,7 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
     this.fieldName = fieldName;
     this.bean = bean;
     this.method = method;
+    this.unified = method.getParameterTypes()[0] == UnifiedApiContext.class;
   }
 
   /**
@@ -55,7 +62,11 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   @Nullable
   @Override
   public Object fetch(@NotNull GraphqlFetchingEnvironment env) throws Exception {
-    return method.invoke(bean, env);
+    if (unified) {
+      return method.invoke(bean, new UnifiedApiContext(env, env.getParameters()));
+    } else {
+      return method.invoke(bean, env);
+    }
   }
 
   //--------------------------------------------------------------------------

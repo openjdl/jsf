@@ -239,4 +239,15 @@ public interface BeanAccessor {
   default <T> Optional<T> getAny(@NotNull String propertyName, Class<T> propertyType) {
     return get(propertyName, propertyType);
   }
+
+  /**
+   * 获取属性
+   *
+   * @deprecated 使用 {{@link #require(String, Class)}} 方法
+   */
+  @Deprecated
+  @NotNull
+  default <T> T requireAny(@NotNull String propertyName, Class<T> propertyType) {
+    return get(propertyName, propertyType).orElseThrow(getExceptionSupplier());
+  }
 }
