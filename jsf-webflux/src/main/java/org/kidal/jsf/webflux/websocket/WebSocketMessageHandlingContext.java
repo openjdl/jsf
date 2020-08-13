@@ -1,9 +1,12 @@
 package org.kidal.jsf.webflux.websocket;
 
 import org.jetbrains.annotations.NotNull;
-import org.kidal.jsf.core.utils.MapLikeArgumentsGetter;
+import org.kidal.jsf.core.sugar.BeanAccessor;
+import org.kidal.jsf.core.sugar.BeanPropertyAccessor;
+import org.kidal.jsf.core.sugar.EmptyBeanAccessor;
+import org.kidal.jsf.core.sugar.GenericBeanAccessor;
 
-import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Created at 2020-08-12 22:26:43
@@ -11,7 +14,7 @@ import java.util.Map;
  * @author kidal
  * @since 0.1.0
  */
-public class WebSocketMessageHandlingContext {
+public class WebSocketMessageHandlingContext implements BeanAccessor {
   /**
    *
    */
@@ -34,7 +37,7 @@ public class WebSocketMessageHandlingContext {
    *
    */
   @NotNull
-  private final MapLikeArgumentsGetter parameters;
+  private final BeanAccessor parameters;
 
   /**
    *
@@ -46,31 +49,28 @@ public class WebSocketMessageHandlingContext {
     this.session = session;
     this.payload = payload;
 
-    if (payload.getData() != null && payload.getData() instanceof Map) {
-      //noinspection unchecked
-      parameters = new MapLikeArgumentsGetter(
-        (Map<String, Object>) payload.getData(),
-        sessionManager.getConversionService(),
-        null
-      );
+    if (payload.getData() != null) {
+      parameters = new GenericBeanAccessor(payload.getData(), null);
     } else {
-      parameters = new MapLikeArgumentsGetter(
-        new MapLikeArgumentsGetter.DataHolder() {
-          @Override
-          public <T> T getArgument(@NotNull String key) {
-            return null;
-          }
-        }
-        ,
-        sessionManager.getConversionService(),
-        null
-      );
+      parameters = new EmptyBeanAccessor(null);
     }
   }
 
   //--------------------------------------------------------------------------
   //
   //--------------------------------------------------------------------------
+
+  @NotNull
+  @Override
+  public BeanPropertyAccessor getPropertyAccessor() {
+    return getParameters().getPropertyAccessor();
+  }
+
+  @NotNull
+  @Override
+  public Supplier<RuntimeException> getExceptionSupplier() {
+    return getParameters().getExceptionSupplier();
+  }
 
   @NotNull
   public SessionManager getSessionManager() {
@@ -88,7 +88,7 @@ public class WebSocketMessageHandlingContext {
   }
 
   @NotNull
-  public MapLikeArgumentsGetter getParameters() {
+  public BeanAccessor getParameters() {
     return parameters;
   }
 }
