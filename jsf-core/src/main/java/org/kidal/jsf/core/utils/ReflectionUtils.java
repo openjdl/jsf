@@ -1,5 +1,6 @@
 package org.kidal.jsf.core.utils;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
@@ -302,12 +303,20 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             field.setAccessible(true);
           }
           try {
-            if (conversionService != null) {
+            if (value instanceof Map) {
+              //noinspection unchecked
+              value = mapToPojo((Map<String, Object>) value, field.getType());
+            }
+            if (
+              conversionService != null
+                && value != null
+                && conversionService.canConvert(value.getClass(), field.getType())
+            ) {
               value = conversionService.convert(value, field.getType());
             }
             field.set(pojo, value);
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
+          } catch (Exception e) {
+            ExceptionUtils.rethrow(e);
           }
         }
       });

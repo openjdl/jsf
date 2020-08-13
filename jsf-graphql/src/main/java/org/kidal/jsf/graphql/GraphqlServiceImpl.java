@@ -232,7 +232,7 @@ public class GraphqlServiceImpl implements GraphqlService {
               : fieldAnnotation.value();
 
             // 类型处理
-            DelegatedDataFetcher fetcher = new DelegatedDataFetcher(typeName, fieldName, bean, method);
+            DelegatedDataFetcher fetcher = new DelegatedDataFetcher(conversionService, typeName, fieldName, bean, method);
             if (fieldAnnotation.unitFactory() != BaseUnitFetcherFactory.class) {
               BaseUnitFetcherFactory factory = UnitFetcherFactoryStaticRegistry.get(fieldAnnotation.unitFactory());
               if (factory != null) {

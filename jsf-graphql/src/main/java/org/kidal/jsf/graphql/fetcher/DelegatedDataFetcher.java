@@ -1,7 +1,5 @@
 package org.kidal.jsf.graphql.fetcher;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.pagination.PageArgs;
@@ -9,9 +7,9 @@ import org.kidal.jsf.core.unify.UnifiedApiContext;
 import org.kidal.jsf.core.utils.ReflectionUtils;
 import org.kidal.jsf.graphql.annotation.GraphqlParameters;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
+import org.springframework.core.convert.ConversionService;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -21,6 +19,12 @@ import java.lang.reflect.Method;
  * @since 0.1.0
  */
 public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
+  /**
+   * 类型转换服务
+   */
+  @NotNull
+  private final ConversionService conversionService;
+
   /**
    * 类型名
    */
@@ -47,10 +51,12 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
    *
    */
-  public DelegatedDataFetcher(@NotNull String typeName,
+  public DelegatedDataFetcher(@NotNull ConversionService conversionService,
+                              @NotNull String typeName,
                               @NotNull String fieldName,
                               @NotNull Object bean,
                               @NotNull Method method) {
+    this.conversionService = conversionService;
     this.typeName = typeName;
     this.fieldName = fieldName;
     this.bean = bean;
@@ -76,14 +82,7 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
       } else {
         Annotation[] annotations = method.getParameterAnnotations()[i];
         if (annotations.length > 0 && annotations[0] instanceof GraphqlParameters) {
-//          try {
-//            Object parameter = type.newInstance();
-//            BeanUtils.populate(parameter, env.getEnvironment().getArguments());
-//            parameters[i] = parameter;
-//          } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-//            ExceptionUtils.rethrow(e);
-//          }
-          parameters[i] = ReflectionUtils.mapToPojo(env.getEnvironment().getArguments(), type);
+          parameters[i] = ReflectionUtils.mapToPojo(env.getEnvironment().getArguments(), type, conversionService);
         }
       }
     }
