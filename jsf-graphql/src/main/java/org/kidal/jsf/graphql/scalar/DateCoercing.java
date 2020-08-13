@@ -1,5 +1,6 @@
 package org.kidal.jsf.graphql.scalar;
 
+import graphql.language.StringValue;
 import graphql.schema.Coercing;
 import graphql.schema.GraphQLScalarType;
 import org.kidal.jsf.core.utils.DateUtils;
@@ -43,8 +44,8 @@ public class DateCoercing implements Coercing<Date, String> {
   public Date parseLiteral(Object input) {
     if (input == null) {
       return null;
-    } else if (input.getClass() == String.class) {
-      return DateUtils.uncertainToDateSafely((String) input);
+    } else if (input.getClass() == StringValue.class) {
+      return DateUtils.uncertainToDateSafely(((StringValue) input).getValue());
     } else {
       return null;
     }
