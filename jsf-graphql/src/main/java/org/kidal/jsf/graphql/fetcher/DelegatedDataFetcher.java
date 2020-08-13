@@ -1,14 +1,16 @@
 package org.kidal.jsf.graphql.fetcher;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.unify.UnifiedApiContext;
-import org.kidal.jsf.core.utils.JsonUtils;
 import org.kidal.jsf.graphql.annotation.GraphqlParameters;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -73,10 +75,13 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
       } else {
         Annotation[] annotations = method.getParameterAnnotations()[i];
         if (annotations.length > 0 && annotations[0] instanceof GraphqlParameters) {
-          // TODO: 优化性能
-          String argumentsJson = JsonUtils.toString(env.getEnvironment().getArguments());
-          Object parameter = JsonUtils.toObject(argumentsJson, type);
-          parameters[i] = parameter;
+          try {
+            Object parameter = type.newInstance();
+            BeanUtils.populate(parameter, env.getEnvironment().getArguments());
+            parameters[i] = parameter;
+          } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            ExceptionUtils.rethrow(e);
+          }
         }
       }
     }
