@@ -2,6 +2,7 @@ package org.kidal.jsf.graphql.query;
 
 import graphql.schema.DataFetchingEnvironment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.pagination.PageArgs;
@@ -50,10 +51,12 @@ public class GraphqlFetchingEnvironment implements BeanAccessor {
     this.environment = environment;
     this.context = context;
     this.parameters = new BeanAccessor() {
+      private final BeanPropertyAccessor beanPropertyAccessor = new MapBeanPropertyAccessor(environment.getArguments());
+
       @NotNull
       @Override
       public BeanPropertyAccessor getPropertyAccessor() {
-        return new MapBeanPropertyAccessor(environment.getArguments());
+        return beanPropertyAccessor;
       }
 
       @Override
@@ -137,6 +140,15 @@ public class GraphqlFetchingEnvironment implements BeanAccessor {
   @Override
   public BeanPropertyAccessor getPropertyAccessor() {
     return parameters.getPropertyAccessor();
+  }
+
+  /**
+   *
+   */
+  @Nullable
+  @Override
+  public ConversionService getConversionService() {
+    return parameters.getConversionService();
   }
 
   /**

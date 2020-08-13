@@ -1,10 +1,16 @@
 package org.kidal.jsf.graphql.fetcher;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.unify.UnifiedApiContext;
+import org.kidal.jsf.graphql.annotation.GraphqlParameters;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -40,11 +46,6 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   /**
    *
    */
-  private final boolean unified;
-
-  /**
-   *
-   */
   public DelegatedDataFetcher(@NotNull String typeName,
                               @NotNull String fieldName,
                               @NotNull Object bean,
@@ -53,7 +54,6 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
     this.fieldName = fieldName;
     this.bean = bean;
     this.method = method;
-    this.unified = method.getParameterTypes()[0] == UnifiedApiContext.class;
   }
 
   /**
@@ -62,11 +62,30 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
   @Nullable
   @Override
   public Object fetch(@NotNull GraphqlFetchingEnvironment env) throws Exception {
-    if (unified) {
-      return method.invoke(bean, new UnifiedApiContext(env, env.getParameters()));
-    } else {
-      return method.invoke(bean, env);
+    Object[] parameters = new Object[method.getParameterCount()];
+    for (int i = 0; i < method.getParameterCount(); i++) {
+      Class<?> type = method.getParameterTypes()[i];
+      if (type == GraphqlFetchingEnvironment.class) {
+        parameters[i] = env;
+      } else if (type == PageArgs.class) {
+        parameters[i] = env.getPageArgs();
+      } else if (type == UnifiedApiContext.class) {
+        parameters[i] = new UnifiedApiContext(env, env.getParameters());
+      } else {
+        Annotation[] annotations = method.getParameterAnnotations()[i];
+        if (annotations.length > 0 && annotations[0] instanceof GraphqlParameters) {
+          try {
+            Object parameter = type.newInstance();
+            BeanUtils.populate(parameter, env.getEnvironment().getArguments());
+            parameters[i] = parameter;
+          } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            ExceptionUtils.rethrow(e);
+          }
+        }
+      }
     }
+
+    return method.invoke(bean, parameters);
   }
 
   //--------------------------------------------------------------------------
