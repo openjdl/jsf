@@ -6,7 +6,7 @@ import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.language.SourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.kidal.jsf.core.cipher.UserPassport;
+import org.kidal.jsf.core.cipher.UserIdentificationNumber;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.exception.JsfResolvedException;
@@ -88,11 +88,11 @@ public class GraphqlController extends JsfRestController {
     );
 
     // 解析通行证
-    final String passport = xVariables.get("passport");
+    final String uin = xVariables.get("uin");
 
     // 准备查询参数
     final GraphqlQueryArgs args = new GraphqlQueryArgs(
-      UserPassport.tryParse(passport),
+      UserIdentificationNumber.tryParse(uin),
       query,
       variables,
       clientIp,

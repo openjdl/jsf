@@ -3,6 +3,8 @@ package org.kidal.jsf.webflux.websocket;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.exception.JsfException;
+import org.kidal.jsf.core.exception.JsfExceptionDataContract;
 import org.kidal.jsf.core.utils.JsonUtils;
 
 import java.util.UUID;
@@ -211,6 +213,20 @@ public class Payload {
       this.id = id;
       this.code = code;
       this.message = message;
+    }
+
+    /**
+     *
+     */
+    public Error(@NotNull JsfExceptionDataContract data) {
+      this(data.getId(), data.getCode(), data.getFormat());
+    }
+
+    /**
+     *
+     */
+    public Error(@NotNull JsfException e) {
+      this(e.getData().getId(), e.getData().getCode(), e.formatMessage());
     }
 
     /**

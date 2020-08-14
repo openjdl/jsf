@@ -3,6 +3,8 @@ package org.kidal.jsf.core.boot;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import org.jetbrains.annotations.NotNull;
+import org.kidal.jsf.core.cipher.UserIdentificationNumber;
 import org.kidal.jsf.core.converter.StringToDateConverter;
 import org.kidal.jsf.core.utils.SpringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,13 +30,17 @@ public class JsfCorePropertiesAutoConfiguration {
   /**
    * 参数
    */
+  @NotNull
   private final JsfCoreProperties properties;
 
   /**
    *
    */
-  public JsfCorePropertiesAutoConfiguration(JsfCoreProperties properties) {
+  public JsfCorePropertiesAutoConfiguration(@NotNull JsfCoreProperties properties) {
     this.properties = properties;
+
+    // 设置密钥
+    UserIdentificationNumber.UIN_SECRET_KEY = properties.getUinSecretKey();
   }
 
   /**

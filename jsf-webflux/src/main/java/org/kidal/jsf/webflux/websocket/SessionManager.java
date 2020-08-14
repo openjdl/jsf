@@ -205,32 +205,15 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
       Object responseData = handler.handle(context);
       return payload.toResponse(responseData);
     } catch (InvocationTargetException e) {
-      Throwable targetException = e.getTargetException();
-      if (targetException instanceof JsfException) {
-        return payload.toResponse(
-          new Payload.Error(
-            ((JsfException) targetException).getData().getId(),
-            ((JsfException) targetException).getData().getCode(),
-            ((JsfException) targetException).formatMessage()
-          )
-        );
+      if (e.getTargetException() instanceof JsfException) {
+        return payload.toResponse(new Payload.Error((JsfException) e.getTargetException()));
       } else {
-        return payload.toResponse(
-          new Payload.Error(
-            JsfExceptions.SERVER_INTERNAL_ERROR.getId(),
-            JsfExceptions.SERVER_INTERNAL_ERROR.getCode(),
-            JsfExceptions.SERVER_INTERNAL_ERROR.getFormat()
-          )
-        );
+        return payload.toResponse(new Payload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
       }
-    } catch (IllegalAccessException e) {
-      return payload.toResponse(
-        new Payload.Error(
-          JsfExceptions.SERVER_INTERNAL_ERROR.getId(),
-          JsfExceptions.SERVER_INTERNAL_ERROR.getCode(),
-          JsfExceptions.SERVER_INTERNAL_ERROR.getFormat()
-        )
-      );
+    } catch (JsfException e) {
+      return payload.toResponse(new Payload.Error(e));
+    } catch (Exception e) {
+      return payload.toResponse(new Payload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
     }
   }
 

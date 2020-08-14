@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kidal.jsf.core.cipher.UserPassport;
+import org.kidal.jsf.core.cipher.UserIdentificationNumber;
 import org.springframework.core.convert.ConversionService;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class GraphqlFetchingContext {
    * 用户通行证
    */
   @Nullable
-  private final UserPassport passport;
+  private final UserIdentificationNumber uin;
 
   /**
    * 客户端IP地址
@@ -62,12 +62,12 @@ public class GraphqlFetchingContext {
    *
    */
   public GraphqlFetchingContext(
-    @Nullable UserPassport passport,
+    @Nullable UserIdentificationNumber uin,
     @NotNull String clientIp,
     @NotNull Map<String, String> xVariables,
     @NotNull ConversionService conversionService
   ) {
-    this.passport = passport;
+    this.uin = uin;
     this.clientIp = clientIp;
     this.xVariables = ImmutableMap.copyOf(xVariables);
     this.conversionService = conversionService;
@@ -102,8 +102,8 @@ public class GraphqlFetchingContext {
    *
    */
   @Nullable
-  public UserPassport getPassport() {
-    return passport;
+  public UserIdentificationNumber getUin() {
+    return uin;
   }
 
   /**

@@ -39,12 +39,12 @@ public enum JsfExceptions implements JsfExceptionDataContract {
   ),
 
   /**
-   * 无效的通信证
+   * 无效的用户身份识别码
    */
-  INCORRECT_PASSPORT(
+  INCORRECT_UIN(
     ofId(0, 0, 3),
-    ofCode("jsf", "core", "IncorrectPassport"),
-    "无效的通信证"
+    ofCode("jsf", "core", "IncorrectUin"),
+    "无效的用户身份识别码"
   ),
 
   /**

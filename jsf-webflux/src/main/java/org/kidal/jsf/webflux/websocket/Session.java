@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.cipher.UserIdentificationNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -54,7 +55,7 @@ public class Session {
    * 用户身份识别码
    */
   @Nullable
-  private Object uin;
+  private UserIdentificationNumber uin;
 
   /**
    * 认证于
@@ -100,7 +101,7 @@ public class Session {
   /**
    * 设置UIN
    */
-  private void setUin(@Nullable Object uin) {
+  private void setUin(@Nullable UserIdentificationNumber uin) {
     this.uin = uin;
     this.signInAt = uin != null ? new Date(System.currentTimeMillis()) : null;
   }
@@ -108,7 +109,7 @@ public class Session {
   /**
    * 用户登录
    */
-  public void signIn(@NotNull Object uin) {
+  public void signIn(@NotNull UserIdentificationNumber uin) {
     // 登出一登录的其他账号
     if (isSignedIn()) {
       if (uin.equals(this.uin)) {
@@ -144,7 +145,7 @@ public class Session {
       return;
     }
 
-    Object uin = this.getUin();
+    UserIdentificationNumber uin = this.getUin();
     sessionManager.onSignOut(this);
     setUin(null);
 
@@ -161,7 +162,7 @@ public class Session {
    * 关闭
    */
   public void close() {
-    Object uin = this.uin;
+    UserIdentificationNumber uin = this.uin;
     signOut(SignOutReason.CLOSE);
     webSocketSession.close();
     closedAt = new Date(System.currentTimeMillis());
@@ -230,7 +231,7 @@ public class Session {
   }
 
   @NotNull
-  public Object getUin() {
+  public UserIdentificationNumber getUin() {
     return Objects.requireNonNull(uin);
   }
 

@@ -2,10 +2,12 @@ package org.kidal.jsf.graphql.fetcher;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kidal.jsf.core.cipher.UserIdentificationNumber;
 import org.kidal.jsf.core.pagination.PageArgs;
 import org.kidal.jsf.core.unify.UnifiedApiContext;
 import org.kidal.jsf.core.utils.ReflectionUtils;
 import org.kidal.jsf.graphql.annotation.GraphqlParameters;
+import org.kidal.jsf.graphql.query.GraphqlFetchingContext;
 import org.kidal.jsf.graphql.query.GraphqlFetchingEnvironment;
 import org.springframework.core.convert.ConversionService;
 
@@ -77,6 +79,10 @@ public class DelegatedDataFetcher extends BaseGraphqlDataFetcher<Object> {
         parameters[i] = env;
       } else if (type == PageArgs.class) {
         parameters[i] = env.getPageArgs();
+      } else if (type == UserIdentificationNumber.class) {
+        parameters[i] = env.getContext().getUin();
+      } else if (type == GraphqlFetchingContext.class) {
+        parameters[i] = env.getContext();
       } else if (type == UnifiedApiContext.class) {
         parameters[i] = new UnifiedApiContext(env, env.getParameters());
       } else {

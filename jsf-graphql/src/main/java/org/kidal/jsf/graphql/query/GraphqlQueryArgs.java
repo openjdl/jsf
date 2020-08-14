@@ -2,7 +2,7 @@ package org.kidal.jsf.graphql.query;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kidal.jsf.core.cipher.UserPassport;
+import org.kidal.jsf.core.cipher.UserIdentificationNumber;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public class GraphqlQueryArgs {
    * 通行证
    */
   @Nullable
-  private final UserPassport passport;
+  private final UserIdentificationNumber uin;
 
   /**
    * 查询语句
@@ -46,13 +46,13 @@ public class GraphqlQueryArgs {
   /**
    *
    */
-  public GraphqlQueryArgs(@Nullable UserPassport passport,
+  public GraphqlQueryArgs(@Nullable UserIdentificationNumber uin,
                           @NotNull String query,
                           @NotNull Map<String, Object> variables,
                           @NotNull String clientIp,
                           @NotNull Map<String, String> xVariables
   ) {
-    this.passport = passport;
+    this.uin = uin;
     this.query = query;
     this.variables = variables;
     this.clientIp = clientIp;
@@ -63,8 +63,8 @@ public class GraphqlQueryArgs {
    *
    */
   @Nullable
-  public UserPassport getPassport() {
-    return passport;
+  public UserIdentificationNumber getUin() {
+    return uin;
   }
 
   /**

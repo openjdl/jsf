@@ -51,6 +51,11 @@ public class JsfCoreProperties {
   private Concurrent concurrent = new Concurrent();
 
   /**
+   * UIN密钥
+   */
+  private String uinSecretKey = "b9RUqhN4O2322MxGw";
+
+  /**
    * 并发参数
    */
   public static class Concurrent {
@@ -166,5 +171,19 @@ public class JsfCoreProperties {
    */
   public void setConcurrent(Concurrent concurrent) {
     this.concurrent = concurrent;
+  }
+
+  /**
+   *
+   */
+  public String getUinSecretKey() {
+    return uinSecretKey;
+  }
+
+  /**
+   *
+   */
+  public void setUinSecretKey(String uinSecretKey) {
+    this.uinSecretKey = uinSecretKey;
   }
 }

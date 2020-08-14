@@ -3,11 +3,16 @@ package org.kidal.jsf.webflux.websocket;
 import org.jetbrains.annotations.NotNull;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
+import org.kidal.jsf.core.pagination.PageArgs;
+import org.kidal.jsf.core.pagination.PageSortArg;
 import org.kidal.jsf.core.sugar.BeanAccessor;
 import org.kidal.jsf.core.sugar.BeanPropertyAccessor;
 import org.kidal.jsf.core.sugar.EmptyBeanAccessor;
 import org.kidal.jsf.core.sugar.GenericBeanAccessor;
+import org.kidal.jsf.core.utils.StringUtils;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -56,6 +61,31 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
     } else {
       parameters = new EmptyBeanAccessor(() -> new JsfException(JsfExceptions.BAD_REQUEST));
     }
+  }
+
+  /**
+   * 获取分页参数
+   *
+   * @return 分页参数
+   */
+  @NotNull
+  public PageArgs getPageArgs() {
+    // 页码
+    int page = parameters.getInteger("page").orElse(PageArgs.DEFAULT_PAGE);
+
+    // 每页个数
+    int limit = parameters.getInteger("limit").orElse(PageArgs.DEFAULT_LIMIT);
+
+    // 排序
+    List<String> sorts = parameters.getList("sorts", String.class).orElse(Collections.emptyList());
+    PageSortArg[] pageSortArgs = sorts.stream()
+      .map(it -> it.split(" "))
+      .filter(it -> it.length == 2 && StringUtils.isNoneBlank(it[0], it[1]))
+      .map(pair -> new PageSortArg(pair[0], "desc".equals(pair[1].toLowerCase())))
+      .toArray(PageSortArg[]::new);
+
+    // done
+    return PageArgs.of(page, limit, pageSortArgs);
   }
 
   //--------------------------------------------------------------------------

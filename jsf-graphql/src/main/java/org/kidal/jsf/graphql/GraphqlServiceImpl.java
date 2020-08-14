@@ -264,7 +264,7 @@ public class GraphqlServiceImpl implements GraphqlService {
    */
   @NotNull
   private GraphqlFetchingContext createFetchingContext(@NotNull GraphqlQueryArgs args) {
-    return new GraphqlFetchingContext(args.getPassport(), args.getClientIp(), args.getXVariables(), conversionService);
+    return new GraphqlFetchingContext(args.getUin(), args.getClientIp(), args.getXVariables(), conversionService);
   }
 
   /**
