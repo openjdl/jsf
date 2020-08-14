@@ -25,6 +25,9 @@ ext {
 
   // aspectj
   aspectjVersion = "1.9.6"
+
+  // hibernate
+  hibernateValidatorVersion = '6.1.5.Final'
 }
 
 dependencies {
@@ -59,4 +62,7 @@ dependencies {
   // aspectj
   compile "org.aspectj:aspectjrt:${aspectjVersion}"
   compile "org.aspectj:aspectjweaver:${aspectjVersion}"
+
+  // hibernate
+  compile "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
 }
