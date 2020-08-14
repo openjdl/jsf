@@ -95,7 +95,7 @@ public class Payload {
    */
   @NotNull
   public String toRawPayload() {
-    return JsonUtils.toString(this);
+    return JsonUtils.toPrettyString(this);
   }
 
   /**

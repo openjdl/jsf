@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.JsfMicroServiceListener;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
-import org.kidal.jsf.core.utils.MapLikeArgumentsGetter;
 import org.kidal.jsf.core.utils.ReflectionUtils;
 import org.kidal.jsf.core.utils.SpringUtils;
 import org.kidal.jsf.core.utils.StringUtils;
@@ -16,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
-import org.springframework.web.reactive.socket.CloseStatus;
-import org.springframework.web.reactive.socket.HandshakeInfo;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.server.ServerWebExchange;
@@ -25,13 +22,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 /**
  * Created at 2020-08-12 10:16:47
@@ -141,20 +134,6 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
   @NotNull
   @Override
   public Mono<Void> handle(@NotNull WebSocketSession webSocketSession) {
-    // 获取查询
-    HandshakeInfo handshakeInfo = webSocketSession.getHandshakeInfo();
-    URI uri = handshakeInfo.getUri();
-    String query = uri.getQuery();
-    if (query == null) {
-      return webSocketSession.close(CloseStatus.REQUIRED_EXTENSION);
-    }
-
-    // 解析查询参数
-    String[] parts = query.split("&");
-    List<String[]> pairs = Arrays.stream(parts).map(pair -> pair.split("=")).collect(Collectors.toList());
-    Map<String, Object> queryParameters = pairs.stream().collect(Collectors.toMap(it -> it[0], it -> it.length > 1 ? it[1] : ""));
-    MapLikeArgumentsGetter parameters = new MapLikeArgumentsGetter(queryParameters, conversionService, null);
-
     // 添加到匿名会话
     Session session = new Session(this, webSocketSession);
     anonymousSessionMap.put(session.getId(), session);
@@ -187,6 +166,11 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
   @NotNull
   Payload handleIncomingPayload(@NotNull Session session,
                                 @NotNull Payload payload) {
+    // 内建消息处理
+    if ("$heartbeat".equals(payload.getType())) {
+      return payload.toResponse((Object) null);
+    }
+
     // 获取处理器
     MessageHandler handler = handlerMap.get(payload.getType());
     if (handler == null) {
