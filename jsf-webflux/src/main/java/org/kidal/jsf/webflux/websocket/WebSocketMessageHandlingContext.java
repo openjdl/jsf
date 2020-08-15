@@ -1,6 +1,7 @@
 package org.kidal.jsf.webflux.websocket;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
 import org.kidal.jsf.core.pagination.PageArgs;
@@ -10,6 +11,7 @@ import org.kidal.jsf.core.sugar.BeanPropertyAccessor;
 import org.kidal.jsf.core.sugar.EmptyBeanAccessor;
 import org.kidal.jsf.core.sugar.GenericBeanAccessor;
 import org.kidal.jsf.core.utils.StringUtils;
+import org.springframework.core.convert.ConversionService;
 
 import java.util.Collections;
 import java.util.List;
@@ -96,6 +98,15 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
   @Override
   public BeanPropertyAccessor getPropertyAccessor() {
     return getParameters().getPropertyAccessor();
+  }
+
+  /**
+   *
+   */
+  @Nullable
+  @Override
+  public ConversionService getConversionService() {
+    return getParameters().getConversionService();
   }
 
   @NotNull
