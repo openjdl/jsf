@@ -1,5 +1,6 @@
 package org.kidal.jsf.core.utils;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.*;
@@ -303,9 +301,27 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             field.setAccessible(true);
           }
           try {
-            if (value instanceof Map) {
+            if (value instanceof List) {
+              ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+              Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+
+              if (actualTypeArguments.length > 0) {
+                List<Object> list = Lists.newArrayList();
+                //noinspection unchecked
+                for (Object it : (List<Object>) value) {
+                  if (it instanceof Map) {
+                    //noinspection unchecked
+                    Object item = mapToPojo((Map<String, Object>) it, (Class<?>) actualTypeArguments[0], conversionService);
+                    list.add(item);
+                  } else {
+                    list.add(it);
+                  }
+                }
+                value = list;
+              }
+            } else if (value instanceof Map) {
               //noinspection unchecked
-              value = mapToPojo((Map<String, Object>) value, field.getType());
+              value = mapToPojo((Map<String, Object>) value, field.getType(), conversionService);
             }
             if (
               conversionService != null
