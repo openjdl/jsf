@@ -1,5 +1,6 @@
 package org.kidal.jsf.webflux.websocket;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -209,6 +210,22 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.addAllowedOrigin("*");
     return configuration;
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public ImmutableList<Session> getAnonymousSessions() {
+    return ImmutableList.copyOf(anonymousSessionMap.values());
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public ImmutableList<Session> getAuthenticatedSessions() {
+    return ImmutableList.copyOf(authenticatedSessionMapByUin.values());
   }
 
   /**

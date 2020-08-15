@@ -113,7 +113,7 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
    *
    */
   @Bean
-  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true", matchIfMissing = false)
+  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true")
   public WebSocketHandlerAdapter webSocketHandlerAdapter() {
     return new WebSocketHandlerAdapter();
   }
@@ -121,8 +121,22 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
   /**
    *
    */
+  @Bean(JsfWebFluxProperties.B_SESSION_MANAGER)
+  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true")
+  public SessionManager sessionManager(
+    @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
+      SpringUtils springUtils,
+    @Qualifier(JsfCoreProperties.B_CONVERSION_SERVICE)
+      ConversionService conversionService
+  ) {
+    return new SessionManager(springUtils, conversionService);
+  }
+
+  /**
+   *
+   */
   @Bean
-  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true", matchIfMissing = false)
+  @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true")
   public HandlerMapping handlerMapping(
     @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
       SpringUtils springUtils,
@@ -130,7 +144,7 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
       ConversionService conversionService
   ) {
     Map<String, WebSocketHandler> handlerMap = Maps.newHashMap();
-    handlerMap.put(properties.getWebsocket().getPath(), new SessionManager(springUtils, conversionService));
+    handlerMap.put(properties.getWebsocket().getPath(), sessionManager(springUtils, conversionService));
 
     SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
     mapping.setUrlMap(handlerMap);

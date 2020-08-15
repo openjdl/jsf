@@ -24,6 +24,7 @@ public class JsfWebFluxProperties {
 
   public static final String B_WEBFLUX_SERVICE = B_PATH + "-WebFluxService";
   public static final String B_WEBSOCKET_HANDLER_BEAN_PREFIX = B_PATH + "-WebSocketHandler-";
+  public static final String B_SESSION_MANAGER = B_PATH + "-SessionManager";
 
   public static String makeWebSocketHandlerBeanName(@NotNull String name) {
     return String.format("%s-%s", B_WEBSOCKET_HANDLER_BEAN_PREFIX, name);
