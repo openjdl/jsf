@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
+import org.springframework.core.convert.ConversionService;
 
 import java.util.function.Supplier;
 
@@ -26,6 +27,11 @@ public class EmptyBeanAccessor implements BeanAccessor {
     }
   };
 
+  /**
+   *
+   */
+  @NotNull
+  private final ConversionService conversionService;
 
   /**
    *
@@ -36,7 +42,8 @@ public class EmptyBeanAccessor implements BeanAccessor {
   /**
    *
    */
-  public EmptyBeanAccessor(@Nullable Supplier<RuntimeException> exceptionSupplier) {
+  public EmptyBeanAccessor(@NotNull ConversionService conversionService, @Nullable Supplier<RuntimeException> exceptionSupplier) {
+    this.conversionService = conversionService;
     this.exceptionSupplier = exceptionSupplier != null
       ? exceptionSupplier
       : () -> new JsfException(JsfExceptions.BAD_PARAMETER);
@@ -49,6 +56,15 @@ public class EmptyBeanAccessor implements BeanAccessor {
   @Override
   public BeanPropertyAccessor getPropertyAccessor() {
     return beanPropertyAccessor;
+  }
+
+  /**
+   *
+   */
+  @Override
+  @NotNull
+  public ConversionService getConversionService() {
+    return conversionService;
   }
 
   /**

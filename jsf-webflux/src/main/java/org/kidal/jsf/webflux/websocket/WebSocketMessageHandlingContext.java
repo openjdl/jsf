@@ -59,9 +59,9 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
     this.payload = payload;
 
     if (payload.getData() != null) {
-      parameters = new GenericBeanAccessor(payload.getData(), () -> new JsfException(JsfExceptions.BAD_REQUEST));
+      parameters = new GenericBeanAccessor(payload.getData(), sessionManager.getConversionService(), () -> new JsfException(JsfExceptions.BAD_REQUEST));
     } else {
-      parameters = new EmptyBeanAccessor(() -> new JsfException(JsfExceptions.BAD_REQUEST));
+      parameters = new EmptyBeanAccessor(sessionManager.getConversionService(), () -> new JsfException(JsfExceptions.BAD_REQUEST));
     }
   }
 

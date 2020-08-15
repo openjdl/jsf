@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.exception.JsfException;
 import org.kidal.jsf.core.exception.JsfExceptions;
+import org.springframework.core.convert.ConversionService;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -25,16 +26,23 @@ public class GenericBeanAccessor implements BeanAccessor {
    *
    */
   @NotNull
+  private final ConversionService conversionService;
+
+  /**
+   *
+   */
+  @NotNull
   private final Supplier<RuntimeException> exceptionSupplier;
 
   /**
    *
    */
   @SuppressWarnings("unchecked")
-  public GenericBeanAccessor(@NotNull Object bean, @Nullable Supplier<RuntimeException> exceptionSupplier) {
+  public GenericBeanAccessor(@NotNull Object bean, @NotNull ConversionService conversionService, @Nullable Supplier<RuntimeException> exceptionSupplier) {
     this.beanPropertyAccessor = bean instanceof Map
       ? new MapBeanPropertyAccessor((Map<String, ?>) bean)
       : new ObjectBeanPropertyAccessor(bean);
+    this.conversionService = conversionService;
     this.exceptionSupplier = exceptionSupplier != null
       ? exceptionSupplier
       : () -> new JsfException(JsfExceptions.BAD_PARAMETER);
@@ -47,6 +55,15 @@ public class GenericBeanAccessor implements BeanAccessor {
   @Override
   public BeanPropertyAccessor getPropertyAccessor() {
     return beanPropertyAccessor;
+  }
+
+  /**
+   *
+   */
+  @Nullable
+  @Override
+  public ConversionService getConversionService() {
+    return conversionService;
   }
 
   /**
