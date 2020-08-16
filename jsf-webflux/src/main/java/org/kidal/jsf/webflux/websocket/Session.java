@@ -129,7 +129,7 @@ public class Session {
     sessionManager.onSignIn(this);
 
     // 发送登录载荷
-    sendData("$SignIn", ImmutableMap.of("uin", uin.toString()));
+    sendData("$signIn", ImmutableMap.of("uin", uin.toString()));
 
     // log
     if (LOG.isDebugEnabled()) {
@@ -150,7 +150,7 @@ public class Session {
     setUin(null);
 
     // 发送登出载荷
-    sendData("$SignOut", ImmutableMap.of("reason", reason.getValue()));
+    sendData("$signOut", ImmutableMap.of("reason", reason.getValue()));
 
     // log
     if (LOG.isDebugEnabled()) {
