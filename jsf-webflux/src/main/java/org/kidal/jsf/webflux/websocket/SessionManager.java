@@ -99,8 +99,8 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
           return;
         }
         String typeName = StringUtils.isBlank(typeMapping.value())
-          ? StringUtils.uncapitalize(bean.getClass().getSimpleName())
-          : null;
+          ? null
+          : typeMapping.value();
 
         ReflectionUtils.doWithMethods(
           bean.getClass(),
