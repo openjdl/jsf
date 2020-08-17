@@ -100,7 +100,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
         }
         String typeName = StringUtils.isBlank(typeMapping.value())
           ? StringUtils.uncapitalize(bean.getClass().getSimpleName())
-          : typeMapping.value();
+          : null;
 
         ReflectionUtils.doWithMethods(
           bean.getClass(),
@@ -109,7 +109,9 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
             String methodName = StringUtils.isBlank(methodMapping.value())
               ? StringUtils.uncapitalize(method.getName())
               : methodMapping.value();
-            String type = String.format("%s/%s", typeName, methodName);
+            String type = typeName != null
+              ? String.format("%s/%s", typeName, methodName)
+              : methodName;
 
             MessageHandler prevHandler = handlerMap.put(type, new MessageHandler(bean, method));
             if (prevHandler != null) {
