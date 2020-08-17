@@ -167,14 +167,15 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
   @NotNull
   Payload handleIncomingPayload(@NotNull Session session,
                                 @NotNull Payload payload) {
-    // 内建消息处理
-    if ("$heartbeat".equals(payload.getType())) {
-      return payload.toResponse((Object) null);
-    }
-
     // 获取处理器
     MessageHandler handler = handlerMap.get(payload.getType());
     if (handler == null) {
+      // 使用内建消息处理
+      if ("$heartbeat".equals(payload.getType())) {
+        return payload.toResponse((Object) null);
+      }
+
+      // 报错
       return payload.toResponse(
         new Payload.Error(
           JsfExceptions.BAD_REQUEST.getId(),
