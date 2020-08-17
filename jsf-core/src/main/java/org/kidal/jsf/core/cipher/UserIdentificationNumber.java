@@ -102,7 +102,7 @@ public class UserIdentificationNumber implements Serializable {
   @NotNull
   private static UserIdentificationNumber parse1(@NotNull String text) {
     // split
-    String[] parts = text.split("-", 3);
+    String[] parts = text.split("&", 3);
 
     if (parts.length < 2 || StringUtils.isAnyEmpty(parts[0], parts[1], parts[2])) {
       throw new JsfException(JsfExceptions.INCORRECT_UIN);
