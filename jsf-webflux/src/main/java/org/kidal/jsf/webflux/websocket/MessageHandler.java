@@ -53,7 +53,9 @@ public class MessageHandler {
       } else if (type == PageArgs.class) {
         parameters[i] = context.getPageArgs();
       } else if (type == UserIdentificationNumber.class) {
-        parameters[i] = context.getSession().getUin();
+        parameters[i] = context.getSession().isSignedIn()
+          ? context.getSession().getUin()
+          : null;
       } else if (type == Session.class) {
         parameters[i] = context.getSession();
       } else if (type == UnifiedApiContext.class) {
