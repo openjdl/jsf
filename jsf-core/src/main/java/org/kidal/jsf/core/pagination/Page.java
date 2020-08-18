@@ -1,5 +1,6 @@
 package org.kidal.jsf.core.pagination;
 
+import com.google.common.base.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.kidal.jsf.core.utils.callback.Action0;
 import org.kidal.jsf.core.utils.callback.Action1;
@@ -81,6 +82,27 @@ public class Page<T> {
     this.pageArgs = pageArgs;
     this.totalCount = totalCount;
     this.nodes = nodes;
+  }
+
+  /**
+   *
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Page<?> page = (Page<?>) o;
+    return totalCount == page.totalCount &&
+      Objects.equal(pageArgs, page.pageArgs) &&
+      Objects.equal(nodes, page.nodes);
+  }
+
+  /**
+   *
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(pageArgs, totalCount, nodes);
   }
 
   /**

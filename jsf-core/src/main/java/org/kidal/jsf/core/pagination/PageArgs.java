@@ -1,8 +1,12 @@
 package org.kidal.jsf.core.pagination;
 
+import com.google.common.base.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.kidal.jsf.core.utils.MathUtils;
 import org.kidal.jsf.core.utils.callback.Action1;
+
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -40,7 +44,7 @@ public class PageArgs {
   /**
    * 排序参数
    */
-  private PageSortArg[] sorts;
+  private List<PageSortArg> sorts;
 
   /**
    * 空分页
@@ -49,7 +53,7 @@ public class PageArgs {
    */
   @NotNull
   public static PageArgs ofZero() {
-    return new PageArgs(1, 0, new PageSortArg[0]);
+    return new PageArgs(1, 0, Collections.emptyList());
   }
 
   /**
@@ -59,7 +63,7 @@ public class PageArgs {
    */
   @NotNull
   public static PageArgs ofOne() {
-    return new PageArgs(1, 1, new PageSortArg[0]);
+    return new PageArgs(1, 1, Collections.emptyList());
   }
 
   /**
@@ -69,7 +73,7 @@ public class PageArgs {
    */
   @NotNull
   public static PageArgs of(int page) {
-    return new PageArgs(page, DEFAULT_LIMIT, new PageSortArg[0]);
+    return new PageArgs(page, DEFAULT_LIMIT, Collections.emptyList());
   }
 
   /**
@@ -79,7 +83,7 @@ public class PageArgs {
    */
   @NotNull
   public static PageArgs of(int page, int limit) {
-    return new PageArgs(page, limit, new PageSortArg[0]);
+    return new PageArgs(page, limit, Collections.emptyList());
   }
 
   /**
@@ -88,7 +92,7 @@ public class PageArgs {
    * @return 分页参数
    */
   @NotNull
-  public static PageArgs of(int page, int limit, @NotNull PageSortArg[] sorts) {
+  public static PageArgs of(int page, int limit, @NotNull List<PageSortArg> sorts) {
     return new PageArgs(page, limit, sorts);
   }
 
@@ -102,10 +106,43 @@ public class PageArgs {
   /**
    *
    */
-  public PageArgs(int page, int limit, @NotNull PageSortArg[] sorts) {
+  public PageArgs(int page, int limit, @NotNull List<PageSortArg> sorts) {
     setPage(page);
     setLimit(limit);
     this.sorts = sorts;
+  }
+
+  /**
+   *
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    PageArgs pageArgs = (PageArgs) o;
+    return page == pageArgs.page &&
+      limit == pageArgs.limit &&
+      Objects.equal(sorts, pageArgs.sorts);
+  }
+
+  /**
+   *
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(page, limit, sorts);
+  }
+
+  /**
+   *
+   */
+  @Override
+  public String toString() {
+    return "PageArgs{" +
+      "page=" + page +
+      ", limit=" + limit +
+      ", sorts=" + sorts +
+      '}';
   }
 
   /**
@@ -153,14 +190,14 @@ public class PageArgs {
   /**
    *
    */
-  public PageSortArg[] getSorts() {
+  public List<PageSortArg> getSorts() {
     return sorts;
   }
 
   /**
    *
    */
-  public void setSorts(PageSortArg[] sorts) {
+  public void setSorts(List<PageSortArg> sorts) {
     this.sorts = sorts;
   }
 }

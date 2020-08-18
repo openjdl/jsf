@@ -16,6 +16,7 @@ import org.springframework.core.convert.ConversionService;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Created at 2020-08-12 22:26:43
@@ -80,11 +81,11 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
 
     // 排序
     List<String> sorts = parameters.getList("sorts", String.class).orElse(Collections.emptyList());
-    PageSortArg[] pageSortArgs = sorts.stream()
+    List<PageSortArg> pageSortArgs = sorts.stream()
       .map(it -> it.split(" "))
       .filter(it -> it.length == 2 && StringUtils.isNoneBlank(it[0], it[1]))
       .map(pair -> new PageSortArg(pair[0], "desc".equals(pair[1].toLowerCase())))
-      .toArray(PageSortArg[]::new);
+      .collect(Collectors.toList());
 
     // done
     return PageArgs.of(page, limit, pageSortArgs);

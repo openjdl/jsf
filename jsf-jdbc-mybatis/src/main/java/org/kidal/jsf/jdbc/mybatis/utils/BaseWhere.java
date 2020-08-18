@@ -70,6 +70,51 @@ public class BaseWhere {
   //--------------------------------------------------------------------------
 
   /**
+   *
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    BaseWhere baseWhere = (BaseWhere) o;
+    return useLimit == baseWhere.useLimit &&
+      start == baseWhere.start &&
+      limit == baseWhere.limit &&
+      clearOrderOnNextSet == baseWhere.clearOrderOnNextSet &&
+      useOrder == baseWhere.useOrder &&
+      lockForShare == baseWhere.lockForShare &&
+      lockForUpdate == baseWhere.lockForUpdate &&
+      Objects.equal(pageArgs, baseWhere.pageArgs) &&
+      Objects.equal(orders, baseWhere.orders);
+  }
+
+  /**
+   *
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(pageArgs, useLimit, start, limit, clearOrderOnNextSet, useOrder, orders, lockForShare, lockForUpdate);
+  }
+
+  /**
+   *
+   */
+  @Override
+  public String toString() {
+    return "BaseWhere{" +
+      "pageArgs=" + pageArgs +
+      ", useLimit=" + useLimit +
+      ", start=" + start +
+      ", limit=" + limit +
+      ", clearOrderOnNextSet=" + clearOrderOnNextSet +
+      ", useOrder=" + useOrder +
+      ", orders=" + orders +
+      ", lockForShare=" + lockForShare +
+      ", lockForUpdate=" + lockForUpdate +
+      '}';
+  }
+
+  /**
    * 标准化
    */
   public void normalize() {
@@ -85,7 +130,7 @@ public class BaseWhere {
     } else if (list.isEmpty()) {
       return null;
     } else {
-      return list;
+      return list.stream().sorted().collect(Collectors.toList());
     }
   }
 
@@ -121,7 +166,7 @@ public class BaseWhere {
   /**
    *
    */
-  public void withOrder(@NotNull PageSortArg[] sorts) {
+  public void withOrder(@NotNull List<PageSortArg> sorts) {
     for (PageSortArg sort : sorts) {
       addOrder(sort);
     }
@@ -239,6 +284,14 @@ public class BaseWhere {
     @Override
     public int hashCode() {
       return Objects.hashCode(fields, order);
+    }
+
+    @Override
+    public String toString() {
+      return "Order{" +
+        "fields=" + fields +
+        ", order='" + order + '\'' +
+        '}';
     }
 
     public List<String> getFields() {

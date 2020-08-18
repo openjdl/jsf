@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Created at 2020-08-05 17:42:46
@@ -99,11 +100,11 @@ public class GraphqlFetchingEnvironment implements BeanAccessor {
 
     // 排序
     List<String> sorts = environment.getArgumentOrDefault("sorts", Collections.emptyList());
-    PageSortArg[] pageSortArgs = sorts.stream()
+    List<PageSortArg> pageSortArgs = sorts.stream()
       .map(it -> it.split(" "))
       .filter(it -> it.length == 2 && StringUtils.isNoneBlank(it[0], it[1]))
       .map(pair -> new PageSortArg(pair[0], "desc".equals(pair[1].toLowerCase())))
-      .toArray(PageSortArg[]::new);
+      .collect(Collectors.toList());
 
     // done
     return PageArgs.of(page, limit, pageSortArgs);
