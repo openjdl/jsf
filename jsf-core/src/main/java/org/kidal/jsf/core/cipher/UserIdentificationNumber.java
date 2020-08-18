@@ -1,5 +1,6 @@
 package org.kidal.jsf.core.cipher;
 
+import com.google.common.base.Objects;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 import org.kidal.jsf.core.exception.JsfException;
@@ -31,24 +32,6 @@ public class UserIdentificationNumber implements Serializable {
    */
   @NotNull
   public static String UIN_SECRET_KEY = "";
-
-  /**
-   * 分类
-   */
-  @NotNull
-  private String category = StringUtils.EMPTY;
-
-  /**
-   * 用户身份识别码
-   */
-  @NotNull
-  private String userId = StringUtils.EMPTY;
-
-  /**
-   * 原始密文
-   */
-  @NotNull
-  private String secret = StringUtils.EMPTY;
 
   /**
    * 尝试解析
@@ -122,6 +105,45 @@ public class UserIdentificationNumber implements Serializable {
     passport.setUserId(uin);
     passport.setSecret(secret);
     return passport;
+  }
+
+  /**
+   * 分类
+   */
+  @NotNull
+  private String category = StringUtils.EMPTY;
+
+  /**
+   * 用户身份识别码
+   */
+  @NotNull
+  private String userId = StringUtils.EMPTY;
+
+  /**
+   * 原始密文
+   */
+  @NotNull
+  private String secret = StringUtils.EMPTY;
+
+  /**
+   *
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    UserIdentificationNumber that = (UserIdentificationNumber) o;
+    return Objects.equal(category, that.category) &&
+      Objects.equal(userId, that.userId) &&
+      Objects.equal(secret, that.secret);
+  }
+
+  /**
+   *
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(category, userId, secret);
   }
 
   /**
