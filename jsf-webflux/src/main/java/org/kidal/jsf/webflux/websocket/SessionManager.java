@@ -196,11 +196,13 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
       if (e.getTargetException() instanceof JsfException) {
         return payload.toResponse(new Payload.Error((JsfException) e.getTargetException()));
       } else {
+        LOG.error("Handle incoming payload {} failed", payload.getType(), e);
         return payload.toResponse(new Payload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
       }
     } catch (JsfException e) {
       return payload.toResponse(new Payload.Error(e));
     } catch (Exception e) {
+      LOG.error("Handle incoming payload {} failed", payload.getType(), e);
       return payload.toResponse(new Payload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
     }
   }
