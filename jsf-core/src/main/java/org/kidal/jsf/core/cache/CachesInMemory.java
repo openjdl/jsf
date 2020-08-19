@@ -1,7 +1,6 @@
 package org.kidal.jsf.core.cache;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.kidal.jsf.core.pagination.Page;
 import org.kidal.jsf.core.utils.ReflectionUtils;
 import org.kidal.jsf.core.utils.StringUtils;
@@ -92,7 +91,8 @@ public class CachesInMemory<T, K, S>
 
     final String prefix = StringUtils.lowercaseAndSplitWith(type.getSimpleName(), "-");
     CacheStaticRegistry.register(prefix + ".single", this.single);
-    CacheStaticRegistry.register(prefix + ".connection", this.page);
+    CacheStaticRegistry.register(prefix + ".page", this.page);
+    CacheStaticRegistry.register(prefix + ".list", this.list);
     CacheStaticRegistry.register(prefix + ".computed-values", this.computedValues);
   }
 
