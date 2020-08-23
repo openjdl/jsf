@@ -130,7 +130,7 @@ public interface BeanAccessor {
     }
 
     Stream<Object> stream;
-    Class<?> incomingElementType;
+    Class<?> incomingElementType; //String
 
     if (property instanceof List) {
       List<Object> list = (List<Object>) property;
@@ -139,7 +139,7 @@ public interface BeanAccessor {
         return Optional.of(Lists.newArrayList());
       }
 
-      stream = Stream.of(list);
+      stream = list.stream();
       incomingElementType = list.get(0).getClass();
     } else if (property.getClass().isArray()) {
       if (Array.getLength(property) == 0) {
