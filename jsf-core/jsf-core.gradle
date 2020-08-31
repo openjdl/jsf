@@ -71,7 +71,7 @@ jar {
   doLast {
     copy {
       from configurations.compile
-      into 'build/libs/bin'
+      into 'build/libs'
     }
   }
 }

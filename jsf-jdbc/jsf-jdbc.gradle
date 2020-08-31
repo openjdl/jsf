@@ -21,3 +21,12 @@ dependencies {
   // springboot
   compile "org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}"
 }
+
+jar {
+  doLast {
+    copy {
+      from configurations.compile
+      into 'build/libs'
+    }
+  }
+}

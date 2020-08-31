@@ -42,6 +42,7 @@ configure(allprojects) { project ->
   apply plugin: "propdeps"
   apply plugin: "io.spring.dependency-management"
   apply from: "${gradleScriptDir}/ide.gradle"
+  apply plugin: "maven"
   apply plugin: "maven-publish"
 
   pluginManager.withPlugin("kotlin") {
@@ -111,6 +112,9 @@ configure(allprojects) { project ->
     }
     maven {
       url "https://maven.aliyun.com/repository/spring/"
+    }
+    maven {
+      url "https://jitpack.io"
     }
     mavenLocal()
     mavenCentral()
