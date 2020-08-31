@@ -36,6 +36,11 @@ public class IpUtils {
             continue;
           }
 
+          // TEMP: fix
+          if (netInterface.getName().equals("eth0")) {
+            return inetAddress.getHostAddress();
+          }
+
           // 不能是Loopback
           if (inetAddress.isLoopbackAddress()) {
             continue;
