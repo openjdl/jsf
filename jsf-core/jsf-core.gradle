@@ -66,3 +66,12 @@ dependencies {
   // hibernate
   compile "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
 }
+
+jar {
+  doLast {
+    copy {
+      from configurations.compile
+      into 'build/libs/bin'
+    }
+  }
+}
