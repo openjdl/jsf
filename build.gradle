@@ -33,7 +33,7 @@ ext {
 }
 
 configure(allprojects) { project ->
-  group = "org.kidal"
+  group = "io.tdi"
   sourceCompatibility = '1.8'
 
   apply plugin: "java"
