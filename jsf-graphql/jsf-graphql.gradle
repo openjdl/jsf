@@ -11,3 +11,12 @@ dependencies {
   // graphQL
   compile "com.graphql-java:graphql-java:${graphQLVersion}"
 }
+
+jar {
+  doLast {
+    copy {
+      from configurations.compile
+      into 'build/libs'
+    }
+  }
+}

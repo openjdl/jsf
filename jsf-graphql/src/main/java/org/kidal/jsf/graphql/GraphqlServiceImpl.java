@@ -33,9 +33,9 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -149,8 +149,10 @@ public class GraphqlServiceImpl implements GraphqlService {
     // 内建
     URL url = getClass().getClassLoader().getResource("graphql/built-in.graphql");
     if (url != null) {
-      String builtIn = IOUtils.readAllText(ResourceUtils.getFile(url));
-      typeDefinitionRegistry.merge(schemaParser.parse(builtIn));
+      try (InputStream stream = url.openStream()) {
+        String builtIn = IOUtils.readAllText(stream);
+        typeDefinitionRegistry.merge(schemaParser.parse(builtIn));
+      }
     }
 
     // 用户

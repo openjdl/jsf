@@ -10,3 +10,12 @@ dependencies {
   compile project(':jsf-webflux')
   compile project(':jsf-graphql')
 }
+
+jar {
+  doLast {
+    copy {
+      from configurations.compile
+      into 'build/libs'
+    }
+  }
+}

@@ -13,7 +13,7 @@ ext {
   fasterxmlJacksonVersion = "2.11.1"
 
   // yaml
-  snakeyamlVersion = "1.18"
+  snakeyamlVersion = "1.26"
 
   // snappy
   snappyVersion = "1.1.4"
@@ -65,4 +65,13 @@ dependencies {
 
   // hibernate
   compile "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
+}
+
+jar {
+  doLast {
+    copy {
+      from configurations.compile
+      into 'build/libs'
+    }
+  }
 }
