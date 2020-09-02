@@ -147,13 +147,13 @@ public class GraphqlServiceImpl implements GraphqlService {
     TypeDefinitionRegistry typeDefinitionRegistry = new TypeDefinitionRegistry();
 
     // 内建
-    URL url = getClass().getClassLoader().getResource("graphql/built-in.graphql");
-    if (url != null) {
-      try (InputStream stream = url.openStream()) {
-        String builtIn = IOUtils.readAllText(stream);
-        typeDefinitionRegistry.merge(schemaParser.parse(builtIn));
-      }
-    }
+//    URL url = getClass().getClassLoader().getResource("graphql/built-in.graphql");
+//    if (url != null) {
+//      try (InputStream stream = url.openStream()) {
+//        String builtIn = IOUtils.readAllText(stream);
+//        typeDefinitionRegistry.merge(schemaParser.parse(builtIn));
+//      }
+//    }
 
     // 用户
     if (properties.getPathsToScan().size() > 0) {
