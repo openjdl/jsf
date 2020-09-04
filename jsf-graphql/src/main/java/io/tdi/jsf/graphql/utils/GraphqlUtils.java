@@ -21,7 +21,7 @@ public class GraphqlUtils {
   /**
    * X系列参数前缀
    */
-  public static final String X_VARIABLE_PREFIX = "x-jsf-graphql-";
+  public static final String X_VARIABLE_PREFIX = "X-Jsf-Graphql-";
 
   /**
    *
