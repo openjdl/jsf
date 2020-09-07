@@ -1,9 +1,9 @@
 package io.tdi.jsf.graphql.utils;
 
 import com.google.common.collect.ImmutableMap;
+import io.tdi.jsf.core.pagination.Page;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import io.tdi.jsf.core.pagination.Page;
 
 import java.util.Collections;
 import java.util.Map;
@@ -21,13 +21,13 @@ public class GraphqlUtils {
   /**
    * X系列参数前缀
    */
-  public static final String X_VARIABLE_PREFIX = "X-Jsf-Graphql-";
+  public static final String X_VARIABLE_PREFIX = "x-jsf-graphql-";
 
   /**
    *
    */
   public static boolean isXVariable(@NotNull String key) {
-    return key.startsWith(X_VARIABLE_PREFIX);
+    return key.toLowerCase().startsWith(X_VARIABLE_PREFIX);
   }
 
   /**
@@ -44,7 +44,7 @@ public class GraphqlUtils {
       .stream()
       .filter(entry -> isXVariable(entry.getKey()))
       .collect(Collectors.toMap(
-        entry -> entry.getKey().substring(X_VARIABLE_PREFIX.length()),
+        entry -> entry.getKey().substring(X_VARIABLE_PREFIX.length()).toLowerCase(),
         entry -> Objects.toString(entry.getValue()))
       );
   }
