@@ -88,7 +88,7 @@ public class GraphqlController extends JsfRestController {
     );
 
     // 解析通行证
-    final String uin = xVariables.get("Uin");
+    final String uin = xVariables.get("uin");
 
     // 准备查询参数
     final GraphqlQueryArgs args = new GraphqlQueryArgs(
