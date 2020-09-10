@@ -11,12 +11,3 @@ dependencies {
   // spring
   compile "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
 }
-
-jar {
-  doLast {
-    copy {
-      from configurations.compile
-      into 'build/libs'
-    }
-  }
-}

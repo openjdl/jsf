@@ -15,12 +15,3 @@ dependencies {
   compile "org.mybatis:mybatis:${mybatisVersion}"
   compile "org.mybatis:mybatis-spring:${mybatisSpringVersion}"
 }
-
-jar {
-  doLast {
-    copy {
-      from configurations.compile
-      into 'build/libs'
-    }
-  }
-}

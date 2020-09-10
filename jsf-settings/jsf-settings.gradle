@@ -1,0 +1,10 @@
+description = "Kidal's Java Server Foundation Settings"
+
+ext {
+
+}
+
+dependencies {
+    // core
+    compile project(':jsf-core')
+}

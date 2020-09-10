@@ -1,0 +1,321 @@
+package io.tdi.jsf.settings;
+
+import io.tdi.jsf.core.JsfService;
+import io.tdi.jsf.core.utils.ReflectionUtils;
+import io.tdi.jsf.core.utils.SpringUtils;
+import io.tdi.jsf.settings.annotation.Settings;
+import io.tdi.jsf.settings.boot.JsfSettingsProperties;
+import io.tdi.jsf.settings.definition.SettingsDefinition;
+import io.tdi.jsf.settings.storage.InMemorySettingsStorageFactory;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.scheduling.TaskScheduler;
+
+import java.lang.reflect.Field;
+import java.util.*;
+
+/**
+ * Created at 2020-09-10 16:15:12
+ *
+ * @author kidal
+ * @since 0.3
+ */
+public class SettingsServiceImpl implements SettingsService, JsfService {
+  private static final Logger LOG = LoggerFactory.getLogger(SettingsServiceImpl.class);
+
+  @NotNull
+  private final JsfSettingsProperties properties;
+
+  @NotNull
+  private final ConversionService conversionService;
+
+  @NotNull
+  private final TaskScheduler taskScheduler;
+
+  @NotNull
+  private final SpringUtils springUtils;
+
+  private SettingsStorageValueSource valueSource;
+
+  private SettingsStorageFactory storageFactory;
+
+  @SuppressWarnings("rawtypes")
+  private final Map<Class, SettingsDefinition> typeDefinitionMap = new HashMap<>();
+
+  private final Map<String, SettingsDefinition> idDefinitionMap = new HashMap<>();
+
+  @SuppressWarnings("rawtypes")
+  private final Map<Class, SettingsStorage> typeStorageMap = new HashMap<>();
+
+  /**
+   *
+   */
+  public SettingsServiceImpl(@NotNull JsfSettingsProperties properties,
+                             @NotNull ConversionService conversionService,
+                             @NotNull TaskScheduler taskScheduler,
+                             @NotNull SpringUtils springUtils) {
+    this.registerSelf();
+
+    this.properties = properties;
+    this.conversionService = conversionService;
+    this.taskScheduler = taskScheduler;
+    this.springUtils = springUtils;
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  @Override
+  public String getJsfServiceName() {
+    return "SettingsService";
+  }
+
+  /**
+   *
+   */
+  @Override
+  public void initializeJsfService() throws Exception {
+    // 搜索数据源
+    valueSource = springUtils.getApplicationContext().getBean(SettingsStorageValueSource.class);
+
+    // 仓库工厂
+    storageFactory = springUtils.beanOrNull(SettingsStorageFactory.class);
+    if (storageFactory == null) {
+      storageFactory = new InMemorySettingsStorageFactory();
+    }
+
+    // 扫描全部设置类
+    Set<Class<?>> types = ReflectionUtils.loadClassesByAnnotation(Settings.class, properties.getPackagesToScan().split(","));
+
+    // 创建定义
+    SettingsDefinition[] definitions = types
+      .stream()
+      .map(type -> SettingsDefinition.parse(type, Objects.requireNonNull(AnnotationUtils.findAnnotation(type, Settings.class))))
+      .toArray(SettingsDefinition[]::new);
+
+    // 添加定义
+    addDefinitions(definitions);
+  }
+
+  /**
+   *
+   */
+  @Override
+  public void startJsfService() {
+    valueSource.initialize();
+  }
+
+  /**
+   *
+   */
+  private void addDefinitions(@NotNull SettingsDefinition... definitions) {
+    for (SettingsDefinition definition : definitions) {
+      Class<?> configurationType = definition.getType();
+      String id = definition.getId();
+
+      if (typeDefinitionMap.put(configurationType, definition) != null) {
+        throw new IllegalStateException(String.format(
+          "Definition type %s already exist", configurationType.getName()));
+      }
+      if (idDefinitionMap.put(id, definition) != null) {
+        throw new IllegalStateException(String.format(
+          "Definition id %s already exist", id));
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings("unchecked")
+  private <K, V> SettingsStorage<K, V> createStorage(@NotNull SettingsDefinition definition) {
+    if (typeStorageMap.containsKey(definition.getType())) {
+      return (SettingsStorage<K, V>) typeStorageMap.get(definition.getType());
+    }
+
+    // 注入静态字段
+    definition
+      .getInjectBeanDefinitions()
+      .forEach(item -> {
+        if (item.isStatic()) {
+          Field field = item.getField();
+          Object bean = item.getBean(springUtils.getApplicationContext());
+          try {
+            field.set(null, bean);
+          } catch (IllegalAccessException e) {
+            throw new IllegalStateException(String.format(
+              "Inject bean to configuration %s field %s failed",
+              definition.getType().getName(), field.getName()), e);
+          }
+        }
+      });
+
+    // create storage.
+    SettingsStorage<K, V> storage = getStorageFactory().createStorage(this, definition);
+
+    // cache
+    typeStorageMap.put(definition.getType(), storage);
+
+    // log
+    LOG.debug("Loaded storage `{}`", definition.toString());
+
+    // done
+    return storage;
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings("rawtypes")
+  @Override
+  public void refresh(String... ids) {
+    SettingsStorage[] targets = Arrays.stream(ids)
+      .map(this::getStorage)
+      .filter(Objects::nonNull)
+      .toArray(SettingsStorage[]::new);
+    refresh(targets);
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings("rawtypes")
+  @Override
+  public void refresh(Class... types) {
+    SettingsStorage[] targets = Arrays.stream(types)
+      .map(this::getStorage)
+      .filter(Objects::nonNull)
+      .toArray(SettingsStorage[]::new);
+    refresh(targets);
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings("rawtypes")
+  @Override
+  public void refresh(SettingsStorage... targets) {
+    // notify observers.
+    Arrays.stream(targets).forEach(
+      target -> target.notifyObservers(SettingsObserveTags.BEFORE_REFRESH_ALL));
+
+    // refresh targets.
+    Arrays.stream(targets).forEach(SettingsStorage::refresh);
+
+    // notify observers.
+    Arrays.stream(targets).forEach(
+      target -> target.notifyObservers(SettingsObserveTags.AFTER_REFRESH_ALL));
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings("rawtypes")
+  @Override
+  public void refreshAll() {
+    SettingsStorage[] targets = typeStorageMap.values().toArray(new SettingsStorage[0]);
+    refresh(targets);
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings({"rawtypes"})
+  @Override
+  public SettingsStorage getStorage(@NotNull String id) {
+    return idDefinitionMap.containsKey(id)
+      ? getStorage(idDefinitionMap.get(id).getType())
+      : null;
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings({"rawtypes"})
+  @Override
+  public SettingsStorage getStorage(@NotNull Class type) {
+    return typeStorageMap.get(type);
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings({"rawtypes"})
+  @Override
+  public SettingsStorage loadStorage(@NotNull String id) {
+    return idDefinitionMap.containsKey(id)
+      ? loadStorage(idDefinitionMap.get(id).getType())
+      : null;
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings({"rawtypes"})
+  @Override
+  public SettingsStorage loadStorage(@NotNull Class type) {
+    if (typeStorageMap.containsKey(type)) {
+      return typeStorageMap.get(type);
+    }
+
+    if (typeDefinitionMap.containsKey(type)) {
+      return createStorage(typeDefinitionMap.get(type));
+    }
+
+    return null;
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings({"rawtypes"})
+  @NotNull
+  @Override
+  public Collection<SettingsStorage> getAllStorage() {
+    return Collections.unmodifiableCollection(typeStorageMap.values());
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public TaskScheduler getTaskScheduler() {
+    return taskScheduler;
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public SpringUtils getSpringUtils() {
+    return springUtils;
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public SettingsStorageValueSource getValueSource() {
+    return Objects.requireNonNull(valueSource, "未初始化完成");
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public SettingsStorageFactory getStorageFactory() {
+    return Objects.requireNonNull(storageFactory, "未初始化完成");
+  }
+}

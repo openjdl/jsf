@@ -4,6 +4,7 @@ include 'jsf-graphql'
 include 'jsf-graphql-webflux'
 include 'jsf-jdbc'
 include 'jsf-jdbc-mybatis'
+include 'jsf-settings'
 
 rootProject.name = "jsf"
 rootProject.children.forEach { project ->

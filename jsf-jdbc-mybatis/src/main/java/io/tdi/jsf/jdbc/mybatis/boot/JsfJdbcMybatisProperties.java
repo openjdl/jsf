@@ -14,7 +14,7 @@ import java.util.List;
 @ConfigurationProperties(JsfJdbcMybatisProperties.B_PATH)
 public class JsfJdbcMybatisProperties {
   public static final String P_PATH = "jsf.jdbc.mybatis";
-  public static final String B_PATH = "jsf-jdbc.mybatis";
+  public static final String B_PATH = "jsf-jdbc-mybatis";
 
   public static final String P_ENABLED = P_PATH + ".enabled";
   public static final String B_JDBC_MYBATIS_SERVICE = B_PATH + "-JdbcMybatisService";
