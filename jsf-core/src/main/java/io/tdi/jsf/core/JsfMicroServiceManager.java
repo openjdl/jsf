@@ -1,5 +1,6 @@
 package io.tdi.jsf.core;
 
+import io.tdi.jsf.core.utils.JsonUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEvent;
@@ -9,6 +10,7 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -44,6 +46,20 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
       if (JsfMicroService.launched) {
         return;
       }
+
+      // 设置元数据
+      Environment environment = ((ContextRefreshedEvent) applicationEvent).getApplicationContext().getEnvironment();
+      Integer serverPort = environment.getProperty("server.port", Integer.class);
+      String springApplicationName = environment.getProperty("spring.application.name", String.class);
+
+      JsfMicroService.metadata.setName(springApplicationName);
+      JsfMicroService.metadata.getInstance().setPort(serverPort);
+      JsfMicroService.metadata.getInstance().setUuid(
+        String.format("%s:%d",
+          JsfMicroService.metadata.getInstance().getLanIp(),
+          JsfMicroService.metadata.getInstance().getPort()
+        ));
+      JsfMicroService.LOG.info("Launching\n{}", JsonUtils.toPrettyString(JsfMicroService.metadata));
 
       // record
       JsfMicroService.launched = true;

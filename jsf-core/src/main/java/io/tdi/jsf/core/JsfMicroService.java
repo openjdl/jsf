@@ -1,12 +1,13 @@
 package io.tdi.jsf.core;
 
+import io.tdi.jsf.core.crypto.BouncyCastleCryptoProvider;
+import io.tdi.jsf.core.exception.JsfException;
 import io.tdi.jsf.core.utils.IpUtils;
 import io.tdi.jsf.core.utils.JsonUtils;
 import io.tdi.jsf.core.utils.ProcessUtils;
-import org.jetbrains.annotations.NotNull;
-import io.tdi.jsf.core.crypto.BouncyCastleCryptoProvider;
-import io.tdi.jsf.core.exception.JsfException;
 import io.tdi.jsf.core.utils.YamlUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.WebApplicationType;
@@ -57,15 +58,27 @@ public class JsfMicroService {
   static final CopyOnWriteArrayList<JsfMicroServiceListener> LISTENERS = new CopyOnWriteArrayList<>();
 
   /**
+   *
+   */
+  public static void run(@NotNull Class<?> entryClass, @NotNull String[] args) throws Exception {
+    if (args.length < 1) {
+      throw new IllegalArgumentException("args.length < 1");
+    }
+
+    final String group = args[0];
+    final String[] fixedArgs = ArrayUtils.subarray(args, 1, args.length);
+
+    run(group, WebApplicationType.REACTIVE, entryClass, fixedArgs);
+  }
+
+  /**
    * 启动
    */
   public static void run(
     @NotNull String group,
-    @NotNull String name,
-    int port,
     @NotNull WebApplicationType webApplicationType,
     @NotNull Class<?> entryClass,
-    String... args
+    String[] args
   ) throws Exception {
     // 安装缺少的加密解密库
     BouncyCastleCryptoProvider.install();
@@ -79,14 +92,8 @@ public class JsfMicroService {
     // 读取默认配置
     metadata = new JsfMicroServiceMetadata();
     metadata.setGroup(group);
-    metadata.setName(name);
     metadata.getInstance().setLanIp(lanIp);
     metadata.getInstance().setWanIp(lanIp);
-    metadata.getInstance().setPort(port);
-    metadata.getInstance().setUuid(String.format("%s:%d", lanIp, metadata.getInstance().getPort()));
-
-    // log
-    LOG.info("Launching\n{}", JsonUtils.toPrettyString(metadata));
 
     // springboot
     try {
