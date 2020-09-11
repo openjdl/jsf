@@ -48,7 +48,7 @@ public interface BeanAccessor {
    * 获取属性
    */
   @NotNull
-  default <T> Optional<T> get(@NotNull String propertyName, Class<T> propertyType) {
+  default <T> Optional<T> get(@NotNull String propertyName, @NotNull Class<T> propertyType) {
     Object property = getPropertyAccessor().getProperty(propertyName);
 
     if (property == null) {
@@ -176,41 +176,42 @@ public interface BeanAccessor {
   /**
    * 获取布尔
    */
-  default Boolean requireBoolean(@NotNull String propertyName) {
+  default boolean requireBoolean(@NotNull String propertyName) {
     return getBoolean(propertyName).orElseThrow(getExceptionSupplier());
   }
 
   /**
    * 获取整数
    */
-  default Integer requireInteger(@NotNull String propertyName) {
+  default int requireInteger(@NotNull String propertyName) {
     return getInteger(propertyName).orElseThrow(getExceptionSupplier());
   }
 
   /**
    * 获取长整数
    */
-  default Long requireLong(@NotNull String propertyName) {
+  default long requireLong(@NotNull String propertyName) {
     return getLong(propertyName).orElseThrow(getExceptionSupplier());
   }
 
   /**
    * 获取浮点数
    */
-  default Float requireFloat(@NotNull String propertyName) {
+  default float requireFloat(@NotNull String propertyName) {
     return getFloat(propertyName).orElseThrow(getExceptionSupplier());
   }
 
   /**
    * 获取双精度浮点数
    */
-  default Double requireDouble(@NotNull String propertyName) {
+  default double requireDouble(@NotNull String propertyName) {
     return getDouble(propertyName).orElseThrow(getExceptionSupplier());
   }
 
   /**
    * 获取定点数
    */
+  @NotNull
   default BigDecimal requireBigDecimal(@NotNull String propertyName) {
     return getBigDecimal(propertyName).orElseThrow(getExceptionSupplier());
   }
@@ -218,6 +219,7 @@ public interface BeanAccessor {
   /**
    * 获取字符串
    */
+  @NotNull
   default String requireString(@NotNull String propertyName) {
     return getString(propertyName).orElseThrow(getExceptionSupplier());
   }
@@ -225,6 +227,7 @@ public interface BeanAccessor {
   /**
    * 获取列表
    */
+  @NotNull
   default <T> List<T> requireList(@NotNull String propertyName, @NotNull Class<T> elementType) {
     return getList(propertyName, elementType).orElseThrow(getExceptionSupplier());
   }
@@ -236,7 +239,7 @@ public interface BeanAccessor {
    */
   @Deprecated
   @NotNull
-  default <T> Optional<T> getAny(@NotNull String propertyName, Class<T> propertyType) {
+  default <T> Optional<T> getAny(@NotNull String propertyName, @NotNull Class<T> propertyType) {
     return get(propertyName, propertyType);
   }
 
