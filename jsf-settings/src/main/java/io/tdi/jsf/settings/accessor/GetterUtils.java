@@ -4,7 +4,6 @@ import io.tdi.jsf.core.utils.ReflectionUtils;
 import io.tdi.jsf.settings.annotation.SettingsIndex;
 import io.tdi.jsf.settings.annotation.SettingsKey;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.Field;
@@ -59,7 +58,7 @@ public class GetterUtils {
       getterMap.put(getter.getIndexName(), getter);
     }
 
-    Field[] fields = ReflectionUtils.getFieldsArray(type, SettingsKey.class, false);
+    Field[] fields = ReflectionUtils.getFieldsArray(type, SettingsIndex.class, false);
     for (Field field : fields) {
       SettingsIndex settingsIndex = Objects.requireNonNull(AnnotationUtils.findAnnotation(field, SettingsIndex.class));
       FieldIndexGetter getter = new FieldIndexGetter(

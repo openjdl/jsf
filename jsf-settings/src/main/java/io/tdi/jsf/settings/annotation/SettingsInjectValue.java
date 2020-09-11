@@ -19,7 +19,7 @@ public @interface SettingsInjectValue {
   /**
    *
    */
-  String id() default "";
+  String storageId() default "";
 
   /**
    *
@@ -34,10 +34,10 @@ public @interface SettingsInjectValue {
   /**
    *
    */
-  boolean applyDefaults() default true;
+  boolean applyDefaultsResolver() default true;
 
   /**
    *
    */
-  Class<? extends InjectSettingsValueProvider> providerClass() default InjectSettingsValueProvider.class;
+  Class<? extends InjectSettingsValueProvider> providerType() default InjectSettingsValueProvider.class;
 }

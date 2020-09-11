@@ -13,5 +13,5 @@ public interface TaggedObserver {
   /**
    *
    */
-  void onObservableChanged(@NotNull TaggedObservable o, @NotNull String tag, @Nullable Object arg);
+  void onObservableChanged(@NotNull TaggedObservable o, @NotNull String tag, @NotNull Object arg);
 }

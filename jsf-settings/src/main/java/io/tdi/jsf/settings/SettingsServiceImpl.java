@@ -3,18 +3,26 @@ package io.tdi.jsf.settings;
 import io.tdi.jsf.core.JsfService;
 import io.tdi.jsf.core.utils.ReflectionUtils;
 import io.tdi.jsf.core.utils.SpringUtils;
-import io.tdi.jsf.settings.annotation.Settings;
+import io.tdi.jsf.core.utils.StringUtils;
+import io.tdi.jsf.settings.annotation.*;
 import io.tdi.jsf.settings.boot.JsfSettingsProperties;
 import io.tdi.jsf.settings.definition.SettingsDefinition;
 import io.tdi.jsf.settings.storage.InMemorySettingsStorageFactory;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -41,6 +49,9 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
   private SettingsStorageValueSource valueSource;
 
   private SettingsStorageFactory storageFactory;
+
+  @Nullable
+  private SettingsDefaultsResolver defaultsResolver;
 
   @SuppressWarnings("rawtypes")
   private final Map<Class, SettingsDefinition> typeDefinitionMap = new HashMap<>();
@@ -88,6 +99,9 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
       storageFactory = new InMemorySettingsStorageFactory();
     }
 
+    // 默认值解析器
+    defaultsResolver = springUtils.beanOrNull(SettingsDefaultsResolver.class);
+
     // 扫描全部设置类
     Set<Class<?>> types = ReflectionUtils.loadClassesByAnnotation(Settings.class, properties.getPackagesToScan().split(","));
 
@@ -99,6 +113,20 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
 
     // 添加定义
     addDefinitions(definitions);
+
+    // 预加载全部仓储
+    typeDefinitionMap.values().forEach(this::createStorage);
+
+    // 注入
+    springUtils.getAllBeans(true).forEach(this::initializeBean);
+
+    // 通知观察者
+    typeStorageMap.values().forEach(o -> o.notifyObservers(SettingsObserveTags.INITIALIZING));
+
+    // 启动自动刷新任务
+    if (StringUtils.isNotBlank(properties.getAutoRefreshCron())) {
+      taskScheduler.schedule(this::refreshAll, new CronTrigger(properties.getAutoRefreshCron()));
+    }
   }
 
   /**
@@ -112,14 +140,254 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
   /**
    *
    */
+  @SuppressWarnings("rawtypes")
+  private void initializeBean(@NotNull Object bean) {
+    // 注入属性
+    ReflectionUtils.doWithFields(
+      bean.getClass(),
+      field -> {
+        if (field.isAnnotationPresent(SettingsInjectStorage.class)) {
+          injectStorage(bean, field, Objects.requireNonNull(AnnotationUtils.findAnnotation(field, SettingsInjectStorage.class)));
+        } else if (field.isAnnotationPresent(SettingsInjectValue.class)) {
+          injectValue(bean, field, Objects.requireNonNull(AnnotationUtils.findAnnotation(field, SettingsInjectValue.class)));
+        }
+      });
+
+    // 添加观察者
+    ReflectionUtils.doWithMethods(
+      bean.getClass(),
+      method -> {
+        SettingsStorageObserver annotation = AnnotationUtils.findAnnotation(method, SettingsStorageObserver.class);
+        if (annotation == null) {
+          return;
+        }
+
+        Set<SettingsStorage> storageSet = new HashSet<>();
+        if (annotation.ids().length == 0 && annotation.types().length == 0) {
+          storageSet.addAll(getAllStorage());
+        } else {
+          for (String id : annotation.ids()) {
+            SettingsStorage storage = getStorage(id);
+            if (storage == null) {
+              throw new IllegalStateException(MessageFormat.format(
+                "Incorrect SettingsStorageObserver(name={0}) at {1}{2}: storage not found",
+                id, bean.getClass().getName(), method.getName()));
+            }
+            storageSet.add(storage);
+          }
+
+          for (Class type : annotation.types()) {
+            SettingsStorage storage = getStorage(type);
+            if (storage == null) {
+              throw new IllegalStateException(MessageFormat.format(
+                "Incorrect SettingsStorageObserver(classes={0}) at {1}{2}: storage not found",
+                type, bean.getClass().getName(), method.getName()));
+            }
+            storageSet.add(storage);
+          }
+        }
+
+        if (storageSet.size() > 0) {
+          SettingsStorageObserverProxy proxy = new SettingsStorageObserverProxy(bean, method, annotation.keys(), annotation.order());
+          String[] tags = annotation.tags();
+
+          for (String tag : tags) {
+            storageSet.forEach(storage -> storage.addObserver(tag, proxy));
+          }
+        }
+      });
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings("rawtypes")
+  private void injectStorage(@NotNull Object bean, @NotNull Field field, @NotNull SettingsInjectStorage annotation) {
+    // 检查字段类型
+    if (!field.getType().equals(SettingsStorage.class)) {
+      throw new IllegalStateException(String.format(
+        "Can not inject %s.%s: Incorrect field type.",
+        bean.getClass().getName(), field.getName()));
+    }
+
+    // 获取泛型类型
+    Type genericType = field.getGenericType();
+    if (!(genericType instanceof ParameterizedType)) {
+      throw new IllegalStateException(String.format(
+        "Can not inject %s.%s: Incorrect generic type.",
+        bean.getClass().getName(), field.getName()));
+    }
+
+    // 获取实际的泛型类型
+    Type[] actualTypeArguments = ((ParameterizedType) genericType).getActualTypeArguments();
+    if (actualTypeArguments.length != 2 || !(actualTypeArguments[1] instanceof Class)) {
+      throw new IllegalStateException(String.format(
+        "Can not inject %s.%s: Incorrect generic type.",
+        bean.getClass().getName(), field.getName()));
+    }
+
+    // 获取注入器
+    Class<? extends InjectSettingsStorageProvider> providerType =
+      annotation.providerType() == InjectSettingsStorageProvider.class
+        ? DefaultInjectSettingsStorageProvider.class
+        : annotation.providerType();
+    InjectSettingsStorageProvider provider = createProvider(providerType);
+    provider.init(annotation.storageId(), annotation.required());
+
+    // 获取仓储
+    SettingsStorage storage = null;
+    if (provider.getStorageId() != null) {
+      storage = (Objects.equals(provider.getStorageId(), ""))
+        ? getStorage((Class) actualTypeArguments[1])
+        : getStorage(provider.getStorageId());
+    }
+
+    // 检查必要
+    if (storage == null) {
+      if (provider.isRequired()) {
+        throw new IllegalStateException(String.format(
+          "Inject configuration storage %s failed: storage not found.", provider));
+      }
+
+      // 直接返回，否则会修改到默认值
+      return;
+    }
+
+    // 注入
+    ReflectionUtils.makeAccessible(field);
+    ReflectionUtils.setField(field, bean, storage);
+  }
+
+  /**
+   *
+   */
+  @SuppressWarnings("rawtypes")
+  private void injectValue(@NotNull Object bean, @NotNull Field field, @NotNull SettingsInjectValue annotation) {
+    // 获取注入器
+    Class<? extends InjectSettingsValueProvider> providerType =
+      annotation.providerType() == InjectSettingsValueProvider.class
+        ? DefaultInjectSettingsValueProvider.class
+        : annotation.providerType();
+    InjectSettingsValueProvider provider = createProvider(providerType);
+    provider.init(annotation.storageId(), annotation.key(), annotation.required(), annotation.applyDefaultsResolver());
+
+    // 获取仓储
+    SettingsStorage storage = null;
+    if (provider.getStorageId() != null) {
+      storage = (Objects.equals(provider.getStorageId(), "")) ?
+        getStorage(field.getType()) :
+        getStorage(provider.getStorageId());
+    }
+
+    // 检查必须
+    if (storage == null) {
+      if (provider.isRequired()) {
+        throw new IllegalStateException(String.format(
+          "Inject configuration value %s %s <- %s %s failed: value not found",
+          field.getType().getName(), field.getName(), provider.getStorageId(), provider.getKey()));
+      }
+      return;
+    }
+
+    // 获取主键字段
+    Optional<Field> keyOptional = Arrays.stream(field.getType().getDeclaredFields())
+      .filter(f -> f.isAnnotationPresent(SettingsKey.class))
+      .findFirst();
+    if (!keyOptional.isPresent()) {
+      throw new IllegalStateException(String.format(
+        "Inject configuration value %s %s <- %s %s failed: key not found",
+        field.getType().getName(), field.getName(), provider.getStorageId(), provider.getKey()));
+    }
+    Class keyType = keyOptional.get().getType();
+
+    // 处理主键
+    Pair<Object, Object> keyValue = injectValueProcessKeyValue(keyType, bean, field, provider, storage);
+    Object key = keyValue.getLeft();
+    Object value = keyValue.getRight();
+
+    // inject
+    ReflectionUtils.makeAccessible(field);
+    if (value != null) {
+      ReflectionUtils.setField(field, bean, value);
+    }
+
+    // add observer
+    storage.addObserver(SettingsObserveTags.PROPERTY_CHANGED, new SettingsValueObserverProxy(bean, field, provider, key));
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private Pair<Object, Object> injectValueProcessKeyValue(Class keyType,
+                                                          Object bean,
+                                                          Field field,
+                                                          InjectSettingsValueProvider provider,
+                                                          SettingsStorage storage) {
+    Object originalKey, key, value;
+
+    if (String.class.equals(keyType)) {
+      originalKey = key = provider.getKey();
+      if (((String) key).length() > 0) {
+        value = storage.get(key);
+        if (value == null) {
+          value = storage.get(key = key + "." + field.getName());
+        }
+      } else {
+        key = field.getName();
+        value = storage.get(key);
+        if (value == null) {
+          value = storage.get(key = ((String) key).replace('_', '.'));
+        }
+      }
+    } else {
+      originalKey = key = conversionService.convert(provider.getKey(), keyType);
+
+      value = storage.get(Objects.requireNonNull(key));
+    }
+
+    // try apply defaults
+    if (value == null && provider.isApplyDefaultsResolver()) {
+      if (defaultsResolver != null) {
+        value = defaultsResolver.resolveSettingsDefaults(storage.getDefinition(), originalKey);
+      }
+    }
+
+    // check required
+    if (provider.isRequired() && value == null) {
+      throw new IllegalStateException(MessageFormat.format(
+        "Inject configuration value {0} {1} => {2} failed: value not found",
+        field.getType(), field.getName(), key));
+    }
+
+    // done
+    return Pair.of(key, value);
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  private <T> T createProvider(@NotNull Class<T> providerType) {
+    try {
+      return providerType.getDeclaredConstructor().newInstance();
+    } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+      throw new IllegalStateException("Instantiate provider failed", e);
+    }
+  }
+
+  /**
+   *
+   */
   private void addDefinitions(@NotNull SettingsDefinition... definitions) {
     for (SettingsDefinition definition : definitions) {
-      Class<?> configurationType = definition.getType();
+      Class<?> type = definition.getType();
       String id = definition.getId();
 
-      if (typeDefinitionMap.put(configurationType, definition) != null) {
+      if (typeDefinitionMap.put(type, definition) != null) {
         throw new IllegalStateException(String.format(
-          "Definition type %s already exist", configurationType.getName()));
+          "Definition type %s already exist", type.getName()));
       }
       if (idDefinitionMap.put(id, definition) != null) {
         throw new IllegalStateException(String.format(

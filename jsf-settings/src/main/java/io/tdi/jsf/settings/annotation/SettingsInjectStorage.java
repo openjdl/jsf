@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface SettingsInjectStorage {
   /**
-   * {@link #id()}
+   * {@link #storageId()}
    */
   @AliasFor("id")
   String value() default "";
@@ -27,7 +27,7 @@ public @interface SettingsInjectStorage {
    *
    */
   @AliasFor("value")
-  String id() default "";
+  String storageId() default "";
 
   /**
    *
@@ -37,5 +37,5 @@ public @interface SettingsInjectStorage {
   /**
    *
    */
-  Class<? extends InjectSettingsStorageProvider> providerClass() default InjectSettingsStorageProvider.class;
+  Class<? extends InjectSettingsStorageProvider> providerType() default InjectSettingsStorageProvider.class;
 }

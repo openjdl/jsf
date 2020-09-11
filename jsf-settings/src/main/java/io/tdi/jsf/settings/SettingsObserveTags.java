@@ -13,27 +13,27 @@ public class SettingsObserveTags {
   public static final String INITIALIZING = "Initializing";
 
   /**
-   * Before {@link ConfigurationManager#refresh(Storage[])}.
+   * Before {@link SettingsService#refresh(SettingsStorage[])}.
    */
   public static final String BEFORE_REFRESH_ALL = "BeforeRefreshAll";
 
   /**
-   * Before {@link Storage#refresh()}
+   * Before {@link SettingsStorage#refresh()}
    */
   public static final String BEFORE_REFRESH = "BeforeRefresh";
 
   /**
-   * After {@link Storage#refresh()} when any property changed.
+   * After {@link SettingsStorage#refresh()} when any property changed.
    */
   public static final String PROPERTY_CHANGED = "PropertyChanged";
 
   /**
-   * After {@link Storage#refresh()}
+   * After {@link SettingsStorage#refresh()}
    */
   public static final String AFTER_REFRESH = "AfterRefresh";
 
   /**
-   * After {@link ConfigurationManager#refresh(Storage[])}
+   * After {@link SettingsService#refresh(SettingsStorage[])}
    */
   public static final String AFTER_REFRESH_ALL = "AfterRefreshAll";
 

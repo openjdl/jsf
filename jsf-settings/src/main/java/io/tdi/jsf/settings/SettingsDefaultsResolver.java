@@ -14,5 +14,5 @@ public interface SettingsDefaultsResolver {
   /**
    *
    */
-  Object resolveSettingsDefaults(@NotNull SettingsDefinition definition, @Nullable Object originalKey);
+  Object resolveSettingsDefaults(@NotNull SettingsDefinition definition, @NotNull Object originalKey);
 }

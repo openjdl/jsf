@@ -1,6 +1,6 @@
 package io.tdi.jsf.settings;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created at 2020-09-10 14:16:06
@@ -12,13 +12,13 @@ public interface InjectSettingsStorageProvider {
   /**
    *
    */
-  void init(@NotNull String id, boolean required);
+  void init(@Nullable String storageId, boolean required);
 
   /**
    *
    */
-  @NotNull
-  String getId();
+  @Nullable
+  String getStorageId();
 
   /**
    *

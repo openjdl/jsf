@@ -32,7 +32,7 @@ public @interface SettingsStorageObserver {
   /**
    *
    */
-  Class<?>[] types() default {};
+  Class[] types() default {};
 
   /**
    * configuration key.

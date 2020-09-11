@@ -1,6 +1,7 @@
 package io.tdi.jsf.settings;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created at 2020-09-10 14:18:26
@@ -12,13 +13,13 @@ public interface InjectSettingsValueProvider {
   /**
    *
    */
-  void init(@NotNull String id, @NotNull String key, boolean required, boolean applyDefaults);
+  void init(@Nullable String storageId, @NotNull String key, boolean required, boolean applyDefaultsResolver);
 
   /**
    *
    */
-  @NotNull
-  String getId();
+  @Nullable
+  String getStorageId();
 
   /**
    *
@@ -34,5 +35,5 @@ public interface InjectSettingsValueProvider {
   /**
    *
    */
-  boolean isApplyDefaults();
+  boolean isApplyDefaultsResolver();
 }
