@@ -40,7 +40,7 @@ public class SettingsValueObserverProxy implements TaggedObserver, Ordered {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void inject(SettingsStorage storage, SettingsStoragePropertiesChangedEventArgs event) {
-    if (event.hasChanged() && event.getChangedProperties().containsKey(key)) {
+    if (event.has(key)) {
       Object value = storage.get(key);
       if (value == null && provider.isRequired()) {
         throw new IllegalStateException(MessageFormat.format(

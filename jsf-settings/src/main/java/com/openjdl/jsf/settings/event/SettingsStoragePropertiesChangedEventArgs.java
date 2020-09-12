@@ -1,5 +1,7 @@
 package com.openjdl.jsf.settings.event;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -42,6 +44,41 @@ public class SettingsStoragePropertiesChangedEventArgs<K, V> implements Settings
    */
   public boolean hasChanged() {
     return changedProperties.size() > 0;
+  }
+
+  /**
+   *
+   */
+  public boolean hasAdded(@NotNull K key) {
+    return addedProperties.containsKey(key);
+  }
+
+  /**
+   *
+   */
+  public boolean hasRemoved(@NotNull K key) {
+    return removedProperties.containsKey(key);
+  }
+
+  /**
+   *
+   */
+  public boolean hasChanged(@NotNull K key) {
+    return changedProperties.containsKey(key);
+  }
+
+  /**
+   *
+   */
+  public boolean has() {
+    return hasAdded() || hasChanged() || hasRemoved();
+  }
+
+  /**
+   *
+   */
+  public boolean has(@NotNull K key) {
+    return hasAdded(key) || hasChanged(key) || hasRemoved(key);
   }
 
   /**

@@ -105,7 +105,17 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
     }
 
     // 通知监听器
-    JsfMicroService.LISTENERS.forEach(JsfMicroServiceListener::onMicroServiceInitialized);
+    for (JsfMicroServiceListener listener : JsfMicroService.LISTENERS) {
+      try {
+        listener.onMicroServiceInitialized();
+      } catch (Exception e) {
+        // print error
+        JsfMicroService.LOG.error("", e);
+
+        // close application
+        ((ConfigurableApplicationContext) event.getApplicationContext()).close();
+      }
+    }
 
     // 注入
     for (JsfService service : services) {
@@ -121,7 +131,17 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
     }
 
     // 通知监听器
-    JsfMicroService.LISTENERS.forEach(JsfMicroServiceListener::onMicroServiceInjected);
+    for (JsfMicroServiceListener listener : JsfMicroService.LISTENERS) {
+      try {
+        listener.onMicroServiceInjected();
+      } catch (Exception e) {
+        // print error
+        JsfMicroService.LOG.error("", e);
+
+        // close application
+        ((ConfigurableApplicationContext) event.getApplicationContext()).close();
+      }
+    }
   }
 
   /**
@@ -142,7 +162,17 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
     }
 
     // listeners
-    JsfMicroService.LISTENERS.forEach(JsfMicroServiceListener::onMicroServiceStarted);
+    for (JsfMicroServiceListener listener : JsfMicroService.LISTENERS) {
+      try {
+        listener.onMicroServiceStarted();
+      } catch (Exception e) {
+        // print error
+        JsfMicroService.LOG.error("", e);
+
+        // close application
+        event.getApplicationContext().close();
+      }
+    }
   }
 
   /**
@@ -160,6 +190,16 @@ public class JsfMicroServiceManager implements ApplicationListener<ApplicationEv
     }
 
     // listeners
-    JsfMicroService.LISTENERS.forEach(JsfMicroServiceListener::onMicroServiceClosed);
+    for (JsfMicroServiceListener listener : JsfMicroService.LISTENERS) {
+      try {
+        listener.onMicroServiceClosed();
+      } catch (Exception e) {
+        // print error
+        JsfMicroService.LOG.error("", e);
+
+        // close application
+        ((ConfigurableApplicationContext) event.getApplicationContext()).close();
+      }
+    }
   }
 }

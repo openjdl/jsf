@@ -24,28 +24,28 @@ public interface JsfMicroServiceListener {
   /**
    * 全部服务初始化完成
    */
-  default void onMicroServiceInitialized() {
+  default void onMicroServiceInitialized() throws Exception {
 
   }
 
   /**
    * 全部服务注入完成
    */
-  default void onMicroServiceInjected() {
+  default void onMicroServiceInjected() throws Exception {
 
   }
 
   /**
    * 全部服务启动完成
    */
-  default void onMicroServiceStarted() {
+  default void onMicroServiceStarted() throws Exception {
 
   }
 
   /**
    * 全部服务关闭
    */
-  default void onMicroServiceClosed() {
+  default void onMicroServiceClosed() throws Exception {
 
   }
 }
