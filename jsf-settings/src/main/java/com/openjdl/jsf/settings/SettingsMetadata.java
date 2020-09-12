@@ -23,7 +23,15 @@ public class SettingsMetadata {
    */
   @NotNull
   public static SettingsMetadata of(@NotNull String id) {
-    return new SettingsMetadata(id, INITIAL_VERSION, new Date(DateUtils.LONG_BEFORE_TIME.getTime()));
+    return of(id, new Date(DateUtils.LONG_BEFORE_TIME.getTime()));
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public static SettingsMetadata of(@NotNull String id, Date updatedAt) {
+    return new SettingsMetadata(id, INITIAL_VERSION, updatedAt);
   }
 
   @NotNull

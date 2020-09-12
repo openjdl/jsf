@@ -27,4 +27,13 @@ public interface JsfExceptionDataContract {
    * @return 格式化格式
    */
   String getFormat();
+
+  /**
+   * 获取错误相信描述
+   *
+   * @since 0.3
+   */
+  default String getDescription() {
+    return null;
+  }
 }
