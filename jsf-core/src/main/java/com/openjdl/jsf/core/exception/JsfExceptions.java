@@ -13,7 +13,7 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   OK(
     JsfExceptionDataUtils.ofId(0, 0, 0),
-    JsfExceptionDataUtils.ofCode("jsf", "core", "OK"),
+    JsfExceptionDataUtils.ofCode("jsf", "core", "ok"),
     "成功"
   ),
 
@@ -22,7 +22,7 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   FAIL(
     JsfExceptionDataUtils.ofId(0, 0, 1),
-    JsfExceptionDataUtils.ofCode("jsf", "core", "Fail"),
+    JsfExceptionDataUtils.ofCode("jsf", "core", "fail"),
     "失败"
   ),
 
@@ -31,7 +31,7 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   BAD_REQUEST(
     JsfExceptionDataUtils.ofId(0, 0, 2),
-    JsfExceptionDataUtils.ofCode("jsf", "core", "BadRequest"),
+    JsfExceptionDataUtils.ofCode("jsf", "core", "bad-request"),
     "错误的请求"
   ),
 
@@ -40,7 +40,7 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   INCORRECT_UIN(
     JsfExceptionDataUtils.ofId(0, 0, 3),
-    JsfExceptionDataUtils.ofCode("jsf", "core", "IncorrectUin"),
+    JsfExceptionDataUtils.ofCode("jsf", "core", "incorrect-uin"),
     "无效的用户身份识别码"
   ),
 
@@ -49,7 +49,7 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   INCORRECT_CIPHER(
     JsfExceptionDataUtils.ofId(0, 0, 4),
-    JsfExceptionDataUtils.ofCode("jsf", "core", "IncorrectCipher"),
+    JsfExceptionDataUtils.ofCode("jsf", "core", "incorrect-cipher"),
     "无效的暗号"
   ),
 
@@ -58,7 +58,7 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   SERVER_INTERNAL_ERROR(
     JsfExceptionDataUtils.ofId(0, 0, 5),
-    JsfExceptionDataUtils.ofCode("jsf", "core", "ServerInternalError"),
+    JsfExceptionDataUtils.ofCode("jsf", "core", "server-internal-error"),
     "服务器内部错误"
   ),
 
@@ -67,8 +67,8 @@ public enum JsfExceptions implements JsfExceptionDataContract {
    */
   BAD_PARAMETER(
     JsfExceptionDataUtils.ofId(0, 0, 6),
-    JsfExceptionDataUtils.ofCode("jsf", "core", "BadParameter"),
-    "错误的请求"
+    JsfExceptionDataUtils.ofCode("jsf", "core", "bad-parameter"),
+    "错误的参数"
   ),
 
   //
