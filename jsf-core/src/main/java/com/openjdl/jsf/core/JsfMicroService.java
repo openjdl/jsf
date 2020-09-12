@@ -34,7 +34,7 @@ public class JsfMicroService {
   /**
    * 元数据
    */
-  static JsfMicroServiceMetadata metadata;
+  public static JsfMicroServiceMetadata metadata;
 
   /**
    * 已经启动

@@ -263,6 +263,9 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
     // 注入
     ReflectionUtils.makeAccessible(field);
     ReflectionUtils.setField(field, bean, storage);
+
+    // log
+    LOG.debug("Injected storage {} -> {}#{}", provider.getStorageId(), field.getType().getName(), field.getName());
   }
 
   /**
@@ -303,7 +306,7 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
     if (!keyOptional.isPresent()) {
       throw new IllegalStateException(String.format(
         "Inject configuration value %s %s <- %s %s failed: key not found",
-        field.getType().getName(), field.getName(), provider.getStorageId(), provider.getKey()));
+        field.getType().getName(), field.getName(), storage.getDefinition().getId(), provider.getKey()));
     }
     Class keyType = keyOptional.get().getType();
 
@@ -320,6 +323,9 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
 
     // add observer
     storage.addObserver(SettingsObserveTags.PROPERTY_CHANGED, new SettingsValueObserverProxy(bean, field, provider, key));
+
+    // log
+    LOG.debug("Injected storage value {}#{} -> {}#{}", storage.getDefinition().getId(), key, field.getType().getName(), field.getName());
   }
 
   /**
