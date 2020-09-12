@@ -24,6 +24,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created at 2020-09-10 16:15:12
@@ -341,29 +343,32 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
     Object originalKey, key, value;
 
     if (String.class.equals(keyType)) {
-      originalKey = key = provider.getKey();
+      originalKey = provider.getKey();
+      key = originalKey;
+
       if (((String) key).length() > 0) {
         value = storage.get(key);
-        if (value == null) {
-          value = storage.get(key = key + "." + field.getName());
-        }
       } else {
-        key = field.getName();
+        key = StringUtils.capitalize(field.getName());
         value = storage.get(key);
+
         if (value == null) {
-          value = storage.get(key = ((String) key).replace('_', '.'));
+          key = Stream.of(((String) key).split("_"))
+            .map(StringUtils::capitalize)
+            .collect(Collectors.joining("."));
+          value = storage.get(key);
         }
       }
     } else {
-      originalKey = key = conversionService.convert(provider.getKey(), keyType);
-
+      originalKey = conversionService.convert(provider.getKey(), keyType);
+      key = originalKey;
       value = storage.get(Objects.requireNonNull(key));
     }
 
     // try apply defaults
     if (value == null && provider.isApplyDefaultsResolver()) {
       if (defaultsResolver != null) {
-        value = defaultsResolver.resolveSettingsDefaults(storage.getDefinition(), originalKey);
+        value = defaultsResolver.resolveSettingsDefaults(storage.getDefinition(), originalKey, key);
       }
     }
 
