@@ -97,6 +97,8 @@ public enum JsfExceptions implements JsfExceptionDataContract {
     this.id = id;
     this.code = code;
     this.format = format;
+
+    JsfExceptionDataContractStaticRegistry.register(this);
   }
 
   /**
