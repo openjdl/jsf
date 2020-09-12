@@ -1,4 +1,4 @@
-description = "Kidal's Java Server Foundation GraphQL"
+description = "OpenJDL's Java Server Foundation GraphQL"
 
 ext {
   graphQLVersion = '15.0'

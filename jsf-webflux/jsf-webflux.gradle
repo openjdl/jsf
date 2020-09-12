@@ -1,4 +1,4 @@
-description = "Kidal's Java Server Foundation WebFlux"
+description = "OpenJDL's Java Server Foundation WebFlux"
 
 ext {
 

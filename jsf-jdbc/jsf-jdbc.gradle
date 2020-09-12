@@ -1,4 +1,4 @@
-description = "Kidal's Java Server Foundation JDBC"
+description = "OpenJDL's Java Server Foundation JDBC"
 
 ext {
   // mysql

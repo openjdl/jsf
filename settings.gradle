@@ -6,7 +6,7 @@ include 'jsf-jdbc'
 include 'jsf-jdbc-mybatis'
 include 'jsf-settings'
 
-rootProject.name = "jsf"
+rootProject.name = "OpenJDL's Java Server Foundation"
 rootProject.children.forEach { project ->
   project.buildFileName = "${project.name}.gradle"
 }

@@ -1,4 +1,4 @@
-description = "Kidal's Java Server Foundation Core"
+description = "OpenJDL's Java Server Foundation Core"
 
 ext {
   // crypto

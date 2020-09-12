@@ -33,7 +33,7 @@ ext {
 }
 
 configure(allprojects) { project ->
-  group = "io.tdi"
+  group = "com.openjdl"
   sourceCompatibility = '1.8'
 
   apply plugin: "java"
@@ -138,7 +138,7 @@ configure(allprojects) { project ->
 }
 
 configure(rootProject) {
-  description = "Kidal's Java Server Foundation"
+  description = "OpenJDL's Java Server Foundation"
 
   apply plugin: "groovy"
 
