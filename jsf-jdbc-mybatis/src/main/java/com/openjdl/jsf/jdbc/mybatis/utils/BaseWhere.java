@@ -166,6 +166,13 @@ public class BaseWhere {
   /**
    *
    */
+  public void withPageMax() {
+    withPage(PageArgs.ofMax(), false);
+  }
+
+  /**
+   *
+   */
   public void withOrder(@NotNull List<PageSortArg> sorts) {
     for (PageSortArg sort : sorts) {
       addOrder(sort);

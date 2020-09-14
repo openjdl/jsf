@@ -53,7 +53,7 @@ public class PageArgs {
    */
   @NotNull
   public static PageArgs ofZero() {
-    return new PageArgs(1, 0, Collections.emptyList());
+    return new PageArgs(DEFAULT_PAGE, 0, Collections.emptyList());
   }
 
   /**
@@ -63,7 +63,17 @@ public class PageArgs {
    */
   @NotNull
   public static PageArgs ofOne() {
-    return new PageArgs(1, 1, Collections.emptyList());
+    return new PageArgs(DEFAULT_PAGE, 1, Collections.emptyList());
+  }
+
+  /**
+   * 全部元素
+   *
+   * @return 分页参数
+   */
+  @NotNull
+  public static PageArgs ofMax() {
+    return new PageArgs(DEFAULT_PAGE, MAX_LIMIT, Collections.emptyList());
   }
 
   /**
