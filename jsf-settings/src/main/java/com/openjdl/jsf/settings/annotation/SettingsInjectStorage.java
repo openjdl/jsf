@@ -20,7 +20,7 @@ public @interface SettingsInjectStorage {
   /**
    * {@link #storageId()}
    */
-  @AliasFor("id")
+  @AliasFor("storageId")
   String value() default "";
 
   /**
