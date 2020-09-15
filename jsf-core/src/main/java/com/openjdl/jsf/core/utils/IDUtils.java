@@ -1,5 +1,8 @@
 package com.openjdl.jsf.core.utils;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Calendar;
 import java.util.UUID;
 
 /**
@@ -76,13 +79,9 @@ public class IDUtils {
       // 8字头：对内发布预览
       case SpringUtils.PROFILE_RC:
         return "8";
-      // 3字头：生产环境
+      // 2字头：生产环境
       case SpringUtils.PROFILE_PROD:
-        return "3";
-      // 2字头：不要使用（1.0系统占用）
-      case "DO_NOT_USE":
-        return "2";
-      // 1字头：未知
+        // 1字头：未知
       default:
         return "1";
     }
@@ -91,24 +90,32 @@ public class IDUtils {
   /**
    *
    */
+  @NotNull
   public static String getPrefix(String profile) {
-    return getEnvironmentPrefix(profile) + "01";
+    return getEnvironmentPrefix(profile) + "0";
   }
 
   /**
    *
    */
+  @NotNull
   public static String getBySerial(String profile, long serial, int digitCount) {
-    String format = String.format("%%s%%%02dd", digitCount);
-    return String.format(format, getPrefix(profile), serial);
+    Calendar c = Calendar.getInstance();
+    String prefix = getPrefix(profile);
+    String date = String.format("%02d%02d%02d%02d",
+      c.get(Calendar.YEAR) - 2000, c.get(Calendar.MONTH) + 1,
+      c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.HOUR_OF_DAY)
+    );
+    return String.format(String.format("%%s%%s%%0%dd", digitCount), prefix, date, serial);
   }
 
   /**
    *
    */
-  public static String getBySerial(SpringUtils springUtils, long serial) {
+  @NotNull
+  public static String getBySerial(@NotNull SpringUtils springUtils, long serial, int digitCount) {
     String[] activeProfiles = springUtils.getEnvironment().getActiveProfiles();
     String profile = activeProfiles.length > 1 ? activeProfiles[0] : "dev";
-    return getBySerial(profile, serial, 8);
+    return getBySerial(profile, serial, digitCount);
   }
 }
