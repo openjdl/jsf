@@ -144,4 +144,5 @@ configure(rootProject) {
 
   // Don't publish the default jar for the root project
   configurations.archives.artifacts.clear()
+
 }
