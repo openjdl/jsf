@@ -2,6 +2,7 @@ package com.openjdl.jsf.core.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -108,6 +109,9 @@ public class JsonUtils {
 
       mapper.registerModule(module);
       mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
+//      mapper.configure(JsonParser.Feature.ALLOW_MISSING_VALUES, true);
+//      mapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     void enableDefaultTypingAsProperty() {
