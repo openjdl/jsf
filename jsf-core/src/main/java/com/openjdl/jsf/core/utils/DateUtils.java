@@ -272,4 +272,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     intervals.setMilliseconds(milliseconds);
     return intervals;
   }
+
+  /**
+   *
+   */
+  public static DateIntervals calculateIntervals(long a, long b) {
+    return calculateIntervals(new Date(a), new Date(b));
+  }
 }

@@ -1,5 +1,7 @@
 package com.openjdl.jsf.core.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created at 2020-08-04 17:30:00
  *
@@ -28,6 +30,45 @@ public class DateIntervals {
     this.minutes = minutes;
     this.seconds = seconds;
     this.milliseconds = milliseconds;
+  }
+
+  @Override
+  public String toString() {
+    return "DateIntervals{" +
+      "days=" + days +
+      ", hours=" + hours +
+      ", minutes=" + minutes +
+      ", seconds=" + seconds +
+      ", milliseconds=" + milliseconds +
+      '}';
+  }
+
+  @NotNull
+  public String toDescriptionString(boolean withSeconds, boolean withMilliseconds) {
+    StringBuilder builder = new StringBuilder();
+    if (days > 0) {
+      builder.append(days).append("天");
+    }
+    if (days > 0 || hours > 0) {
+      builder.append(hours).append("小时");
+    }
+    if (days > 0 || hours > 0 || minutes > 0) {
+      builder.append(minutes).append("分钟");
+    }
+    if (withSeconds && (days > 0 || hours > 0 || minutes > 0 || seconds > 0)) {
+      builder.append(seconds).append("秒");
+    }
+    if (withSeconds && withMilliseconds && (days > 0 || hours > 0 || minutes > 0 || seconds > 0 || milliseconds > 0)) {
+      builder.append(milliseconds).append("毫秒");
+    }
+    return builder.length() == 0
+      ? "0分钟"
+      : builder.toString();
+  }
+
+  @NotNull
+  public String toDescriptionString() {
+    return toDescriptionString(false, false);
   }
 
   //--------------------------------------------------------------------------
