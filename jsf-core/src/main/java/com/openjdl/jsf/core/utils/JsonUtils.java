@@ -1,10 +1,12 @@
 package com.openjdl.jsf.core.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.*;
 import com.openjdl.jsf.core.utils.json.DoubleSerializer;
@@ -108,9 +110,9 @@ public class JsonUtils {
 //        .addDeserializer(Date.class, new UncertainDateJsonDeserializer());
 
       mapper.registerModule(module);
+      mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
-//      mapper.configure(JsonParser.Feature.ALLOW_MISSING_VALUES, true);
-//      mapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
