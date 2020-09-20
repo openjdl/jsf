@@ -1,5 +1,7 @@
 package com.openjdl.jsf.core.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -230,7 +232,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
   /**
    *
    */
-  public static Date getFirstTimeOfNextDay(Date a) {
+  @NotNull
+  public static Date getFirstTimeOfNextDay(@NotNull Date a) {
     Calendar c = Calendar.getInstance();
     c.setTimeInMillis(a.getTime());
     c.set(Calendar.HOUR_OF_DAY, 0);
@@ -244,7 +247,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
   /**
    *
    */
-  public static Date getLastTimeOfDay(Date a) {
+  @NotNull
+  public static Date getLastTimeOfDay(@NotNull Date a) {
     Calendar c = Calendar.getInstance();
     c.setTimeInMillis(a.getTime());
     c.set(Calendar.HOUR_OF_DAY, 23);
@@ -257,8 +261,24 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
   /**
    *
    */
-  public static DateIntervals calculateIntervals(Date a, Date b) {
-    long intervalMillis = a.getTime() - b.getTime();
+  @NotNull
+  public static DateIntervals calculateIntervals(@NotNull Date a, @NotNull Date b) {
+    return calculateIntervals(a.getTime(), b.getTime());
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public static DateIntervals calculateIntervals(long a, long b) {
+    return calculateIntervals(b - a);
+  }
+
+  /**
+   *
+   */
+  @NotNull
+  public static DateIntervals calculateIntervals(long intervalMillis) {
     int days = (int) (intervalMillis / MILLIS_PER_DAY);
     int hours = (int) ((intervalMillis - days * MILLIS_PER_DAY) / MILLIS_PER_HOUR);
     int minutes = (int) ((intervalMillis - days * MILLIS_PER_DAY - hours * MILLIS_PER_HOUR) / MILLIS_PER_MINUTE);
@@ -271,12 +291,5 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     intervals.setSeconds(seconds);
     intervals.setMilliseconds(milliseconds);
     return intervals;
-  }
-
-  /**
-   *
-   */
-  public static DateIntervals calculateIntervals(long a, long b) {
-    return calculateIntervals(new Date(a), new Date(b));
   }
 }
