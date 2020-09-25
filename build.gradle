@@ -136,6 +136,54 @@ configure(allprojects) { project ->
   }
 }
 
+configure(subprojects) { subproject ->
+  apply from: "${gradleScriptDir}/publish-maven.gradle"
+
+  jar {
+    manifest.attributes["Implementation-Title"] = subproject.name
+    manifest.attributes["Implementation-Version"] = subproject.version
+    manifest.attributes["Automatic-Module-Name"] = subproject.name.replace('-', '.')  // for Jigsaw
+    manifest.attributes["Created-By"] =
+            "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
+  }
+
+  task sourcesJar(type: Jar, dependsOn: classes) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    classifier = "sources"
+    from sourceSets.main.allSource
+    // Don't include or exclude anything explicitly by default. See SPR-12085.
+  }
+
+  artifacts {
+    archives sourcesJar
+  }
+
+  publishing {
+    publications {
+      everybodygame(MavenPublication) {
+        from components.java
+        artifact sourcesJar
+      }
+    }
+
+    repositories {
+      maven {
+        name = 'openjdl'
+        def releasesRepoUrl = "https://nexus.openjdl.com/repository/maven-releases/"
+        def snapshotsRepoUrl = "https://nexus.openjdl.com/repository/maven-snapshots/"
+        url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        // 可以配置在~/.gradle/gradle.properties
+        // NEXUS_USERNAME=maven-publisher
+        // NEXUS_PASSWORD=maven-publisher-lalalala-demaxiya
+        credentials {
+          username NEXUS_USERNAME
+          password NEXUS_PASSWORD
+        }
+      }
+    }
+  }
+}
+
 configure(rootProject) {
   description = "OpenJDL's Java Server Foundation"
 
