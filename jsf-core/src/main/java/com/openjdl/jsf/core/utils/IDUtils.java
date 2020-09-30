@@ -81,7 +81,8 @@ public class IDUtils {
         return "8";
       // 2字头：生产环境
       case SpringUtils.PROFILE_PROD:
-        // 1字头：未知
+        return "2";
+      // 1字头：未知
       default:
         return "1";
     }
@@ -115,7 +116,7 @@ public class IDUtils {
   @NotNull
   public static String getBySerial(@NotNull SpringUtils springUtils, long serial, int digitCount) {
     String[] activeProfiles = springUtils.getEnvironment().getActiveProfiles();
-    String profile = activeProfiles.length > 1 ? activeProfiles[0] : "dev";
+    String profile = activeProfiles.length > 0 ? activeProfiles[0] : "dev";
     return getBySerial(profile, serial, digitCount);
   }
 }
