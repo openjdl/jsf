@@ -1,0 +1,17 @@
+description = "OpenJDL's Java Server Foundation Demo"
+
+ext {
+
+}
+
+dependencies {
+  // core
+  compile project(':jsf-core')
+  compile project(':jsf-webflux')
+  compile project(':jsf-graphql')
+  compile project(':jsf-graphql-webflux')
+  compile project(':jsf-jdbc')
+  compile project(':jsf-jdbc-mybatis')
+  compile project(':jsf-jdbc-mybatis-migration')
+  compile project(':jsf-settings')
+}

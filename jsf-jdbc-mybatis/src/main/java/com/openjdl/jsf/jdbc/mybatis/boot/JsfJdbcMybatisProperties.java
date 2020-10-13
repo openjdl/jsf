@@ -1,8 +1,8 @@
 package com.openjdl.jsf.jdbc.mybatis.boot;
 
+import com.google.common.collect.Lists;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,13 +32,10 @@ public class JsfJdbcMybatisProperties {
   //--------------------------------------------------------------------------
 
   public static class SessionFactoryProperties {
-    private List<String> mapperLocations = new ArrayList<>();
+    private List<String> mapperLocations = Lists.newArrayList(
+      "classpath*:**/*Mapper.xml"
+    );
     private String configLocation;
-
-    public SessionFactoryProperties() {
-      mapperLocations.add("classpath:jdbc/mybatis/mapper/**/*.xml");
-      configLocation = "classpath:jdbc/mybatis/mybatis-config.xml";
-    }
 
     public List<String> getMapperLocations() {
       return mapperLocations;

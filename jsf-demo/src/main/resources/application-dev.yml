@@ -1,0 +1,45 @@
+server:
+  port: 8888
+spring:
+  codec:
+    max-in-memory-size: 100MB
+  profiles:
+    active: dev
+  application:
+    name: openjdl_jsf_demo
+  output:
+    ansi:
+      enabled: always
+logging:
+  config: classpath:logback-dev.xml
+jsf:
+  webflux:
+    websocket:
+      enabled: true
+      path: /.ws
+  jdbc:
+    default-data-source:
+      property-values:
+        url: jdbc:mysql://127.0.0.1:3306/dev_openjdl_jsf?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+        username: root
+        password: root
+    data-sources:
+      - name: quartz
+      - name: dev_openjdl_jsf
+    routing-data-source:
+      default-group-name: dev_openjdl_jsf
+      default-read-only: false
+      groups:
+        - name: quartz
+          masters:
+            - quartz
+          slaves:
+            - quartz
+        - name: dev_openjdl_jsf
+          masters:
+            - dev_openjdl_jsf
+          slaves:
+            - dev_openjdl_jsf
+  settings:
+    packages-to-scan: com.openjdl.greenway
+

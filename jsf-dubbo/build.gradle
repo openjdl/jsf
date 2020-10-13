@@ -1,0 +1,13 @@
+description = "OpenJDL's Java Server Foundation Dubbo"
+
+ext {
+  dubboVersion = '2.7.8'
+}
+
+dependencies {
+  // core
+  compile project(':jsf-core')
+
+  // spring
+  compile "org.apache.dubbo:dubbo:${dubboVersion}"
+}

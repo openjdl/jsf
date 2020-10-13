@@ -93,13 +93,10 @@ public class SettingsServiceImpl implements SettingsService, JsfService {
   @Override
   public void onJsfServiceInitializeStage() throws Exception {
     // 搜索数据源
-    valueSource = springUtils.getApplicationContext().getBean(SettingsStorageValueSource.class);
+    valueSource = springUtils.beanOrDefault(SettingsStorageValueSource.class, DefaultSettingsStorageValueSource::new);
 
     // 仓库工厂
-    storageFactory = springUtils.beanOrNull(SettingsStorageFactory.class);
-    if (storageFactory == null) {
-      storageFactory = new InMemorySettingsStorageFactory();
-    }
+    storageFactory = springUtils.beanOrDefault(SettingsStorageFactory.class, InMemorySettingsStorageFactory::new);
 
     // 默认值解析器
     defaultsResolver = springUtils.beanOrNull(SettingsDefaultsResolver.class);

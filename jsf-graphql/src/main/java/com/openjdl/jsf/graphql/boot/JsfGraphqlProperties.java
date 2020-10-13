@@ -40,10 +40,12 @@ public class JsfGraphqlProperties {
   private boolean enabled;
 
   /**
-   * 扫描的目录
+   * Graphql格式文件地址
    */
   @NotNull
-  private List<String> pathsToScan = Lists.newArrayList();
+  private List<String> schemaLocations = Lists.newArrayList(
+    "classpath*:**/*.graphql"
+  );
 
   //--------------------------------------------------------------------------
   // Getters & Setters
@@ -58,11 +60,11 @@ public class JsfGraphqlProperties {
   }
 
   @NotNull
-  public List<String> getPathsToScan() {
-    return pathsToScan;
+  public List<String> getSchemaLocations() {
+    return schemaLocations;
   }
 
-  public void setPathsToScan(@NotNull List<String> pathsToScan) {
-    this.pathsToScan = pathsToScan;
+  public void setSchemaLocations(@NotNull List<String> schemaLocations) {
+    this.schemaLocations = schemaLocations;
   }
 }

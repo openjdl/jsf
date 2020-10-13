@@ -1,0 +1,11 @@
+description = "OpenJDL's Java Server Foundation JDBC MyBatis Migration"
+
+ext {
+
+}
+
+dependencies {
+  // jsf
+  compile project(':jsf-core')
+  compile project(':jsf-jdbc-mybatis')
+}

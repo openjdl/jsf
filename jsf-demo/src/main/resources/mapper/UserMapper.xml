@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.openjdl.jsf.demo.data.mapper.UserMapper">
+  <!--
+   * User
+   -->
+  <parameterMap id="User" type="com.openjdl.jsf.demo.data.po.UserPo">
+    <parameter property="updatedAt" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    <parameter property="createdAt" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+  </parameterMap>
+
+
+  <resultMap id="User" type="com.openjdl.jsf.demo.data.po.UserPo">
+    <result column="updatedAt" property="updatedAt" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    <result column="createdAt" property="createdAt" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+  </resultMap>
+
+
+  <sql id="UserWhere01">
+    <where>
+      <if test="id !=null">
+        AND `user`.id IN(<foreach collection="id" separator="," item="it">#{it}</foreach>)
+      </if>
+      <if test="username !=null">
+        AND `user`.username IN(<foreach collection="username" separator="," item="it">#{it}</foreach>)
+      </if>
+    </where>
+  </sql>
+
+
+  <select id="getUsers" resultMap="User">
+    SELECT * FROM `user`
+    <include refid="UserWhere01"/>
+    <include refid="jsf.Utils.OrderBy"/>
+    <include refid="jsf.Utils.Limit"/>
+  </select>
+
+
+  <select id="countUser" resultType="int">
+    SELECT COUNT(*) FROM `user`
+    <include refid="UserWhere01"/>
+  </select>
+
+
+  <insert id="createUser" parameterMap="User" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `user`(`username`,
+                       `password`,
+                       `createdAt`,
+                       `updatedAt`)
+    VALUES (#{username},
+            #{password},
+            #{createdAt},
+            #{updatedAt})
+  </insert>
+
+
+  <update id="updateUser">
+    UPDATE `user`
+    <set>
+      <if test="username != null">username = #{username},</if>
+      <if test="updatedAt != null">`updatedAt` = #{updatedAt},</if>
+    </set>
+    <where>
+      <if test="true">AND id = #{id}</if>
+    </where>
+  </update>
+
+
+  <delete id="deleteUser">
+    DELETE
+    FROM `user`
+    WHERE id = #{id}
+  </delete>
+</mapper>

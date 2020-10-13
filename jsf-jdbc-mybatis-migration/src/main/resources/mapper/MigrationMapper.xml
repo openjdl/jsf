@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.openjdl.jsf.jdbc.mybatis.migration.data.mapper.MigrationMapper">
+  <!--
+   * MigrationPo
+   -->
+  <parameterMap id="MigrationPo" type="com.openjdl.jsf.jdbc.mybatis.migration.data.po.MigrationPo">
+    <parameter property="createdAt" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+  </parameterMap>
+
+
+  <resultMap id="MigrationPo" type="com.openjdl.jsf.jdbc.mybatis.migration.data.po.MigrationPo">
+    <result column="createdAt" property="createdAt" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+  </resultMap>
+
+
+  <update id="createTableIfNotExists">
+    CREATE TABLE IF NOT EXISTS ${prefix}migration
+    (
+      `id`        INT(11)      NOT NULL AUTO_INCREMENT,
+      `migrator`  VARCHAR(255) NOT NULL,
+      `createdAt` DATETIME(3)  NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `unique_migrator` (`migrator`)
+    )
+      ENGINE = InnoDB
+      DEFAULT CHARSET = utf8mb4
+      COLLATE utf8mb4_bin
+  </update>
+
+
+  <insert id="create">
+    INSERT INTO ${prefix}migration(`migrator`, `createdAt`)
+    VALUES (#{migrator}, #{createdAt})
+  </insert>
+
+
+  <select id="list" resultMap="MigrationPo">
+    SELECT *
+    FROM ${prefix}migration
+    ORDER BY migrator
+  </select>
+
+
+  <delete id="removeByMigrator">
+    DELETE
+    FROM ${prefix}migration
+    WHERE migrator = #{migrator}
+  </delete>
+</mapper>

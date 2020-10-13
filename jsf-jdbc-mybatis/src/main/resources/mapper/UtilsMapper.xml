@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="jsf.Utils">
+  <!--
+   * 加锁
+   -->
+  <sql id="Lock">
+    <choose>
+      <when test="lockForShare">LOCK IN SHARE MODE</when>
+      <when test="lockForUpdate">FOR UPDATE</when>
+    </choose>
+  </sql>
+
+
+  <!--
+   * 分页
+   -->
+  <sql id="Limit">
+    <if test="useLimit">
+      <choose>
+        <when test="limit != 0">LIMIT #{start},#{limit}</when>
+        <otherwise>LIMIT 1</otherwise>
+      </choose>
+    </if>
+  </sql>
+
+
+  <!--
+   * 排序
+   -->
+  <sql id="OrderBy">
+    <choose>
+      <when test="useOrder">
+        ORDER BY
+        <foreach collection="orders" separator="," item="order">
+          <foreach collection="order.fields" separator="," item="field" close=" ">
+            `${field}`
+          </foreach>
+          ${order.order}
+        </foreach>
+      </when>
+    </choose>
+  </sql>
+</mapper>

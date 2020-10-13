@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="false" scanPeriod="60 seconds">
+  <!-- 控制台 -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <withJansi>true</withJansi>
+
+    <encoder>
+      <pattern>%d %green(%5level) --- %msg --- %cyan(%logger{40}) [%thread] %n</pattern>
+    </encoder>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>NEUTRAL</onMismatch>
+    </filter>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>NEUTRAL</onMismatch>
+    </filter>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
+    <target>System.out</target>
+  </appender>
+
+  <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <withJansi>true</withJansi>
+
+    <encoder>
+      <pattern>%d %red(%5level) --- %msg --- %cyan(%logger{40}) [%thread] %n</pattern>
+    </encoder>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>NEUTRAL</onMismatch>
+    </filter>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
+    <target>System.out</target>
+  </appender>
+
+  <!-- 滚动日志 -->
+  <appender name="ROLLLOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d %5level --- %msg --- %logger{40} [%thread] %n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- 滚动错误日志 -->
+  <appender name="ERRROLLLOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}-error.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d %5level --- %msg --- %logger{40} [%thread] %n</pattern>
+    </encoder>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+
+  <!-- 滚动警告日志 -->
+  <appender name="WARNROLLLOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}-warn.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d %5level --- %msg --- %logger{40} [%thread] %n</pattern>
+    </encoder>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+
+  <!-- lifecycle file logger -->
+  <appender name="JSF_CORE" class="ch.qos.logback.core.FileAppender">
+    <file>logs/jsf-core.log</file>
+    <append>true</append>
+    <!-- 是否安全写入 -->
+    <prudent>true</prudent>
+    <encoder>
+      <pattern>%d %5level --- %msg --- %logger{40} [%thread] %n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- main thread appender -->
+  <appender name="MAIN_THREAD_APPENDER" class="ch.qos.logback.core.FileAppender">
+    <file>logs/main-thread.log</file>
+    <append>false</append>
+    <prudent>false</prudent>
+    <encoder>
+      <pattern>%d %5level --- %msg --- %logger{40} [%thread] %n</pattern>
+    </encoder>
+
+    <filter class="com.openjdl.jsf.core.log.logback.filter.MainThreadFilter"/>
+  </appender>
+
+  <!-- ############################################################# -->
+  <!-- JSF -->
+  <!-- ############################################################# -->
+
+  <!-- jsf micro service -->
+  <logger name="jsf-micro-service" additivity="false" level="info">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="STDERR"/>
+    <appender-ref ref="ROLLLOG"/>
+    <appender-ref ref="WARNROLLLOG"/>
+    <appender-ref ref="ERRROLLLOG"/>
+    <appender-ref ref="JSF_CORE"/>
+    <appender-ref ref="MAIN_THREAD_APPENDER"/>
+  </logger>
+
+  <!-- jsf jdbc -->
+  <logger name="com.openjdl.jsf.jdbc" additivity="false" level="info">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="STDERR"/>
+    <appender-ref ref="ROLLLOG"/>
+    <appender-ref ref="WARNROLLLOG"/>
+    <appender-ref ref="ERRROLLLOG"/>
+    <appender-ref ref="JSF_CORE"/>
+    <appender-ref ref="MAIN_THREAD_APPENDER"/>
+  </logger>
+
+  <!-- jsf -->
+  <logger name="com.openjdl.jsf" additivity="false" level="trace">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="STDERR"/>
+    <appender-ref ref="ROLLLOG"/>
+    <appender-ref ref="WARNROLLLOG"/>
+    <appender-ref ref="ERRROLLLOG"/>
+    <appender-ref ref="JSF_CORE"/>
+    <appender-ref ref="MAIN_THREAD_APPENDER"/>
+  </logger>
+
+  <!-- ############################################################# -->
+  <!-- App -->
+  <!-- ############################################################# -->
+
+  <!-- mapper -->
+  <logger name="com.openjdl.jsf.demo.data.mapper" additivity="false" level="info">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="STDERR"/>
+    <appender-ref ref="ROLLLOG"/>
+    <appender-ref ref="WARNROLLLOG"/>
+    <appender-ref ref="ERRROLLLOG"/>
+    <appender-ref ref="MAIN_THREAD_APPENDER"/>
+  </logger>
+
+  <logger name="com.openjdl.jsf.demo" additivity="false" level="trace">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="STDERR"/>
+    <appender-ref ref="ROLLLOG"/>
+    <appender-ref ref="WARNROLLLOG"/>
+    <appender-ref ref="ERRROLLLOG"/>
+    <appender-ref ref="MAIN_THREAD_APPENDER"/>
+  </logger>
+
+  <!-- ############################################################# -->
+  <!-- Root -->
+  <!-- ############################################################# -->
+
+  <root level="info">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="STDERR"/>
+    <appender-ref ref="ROLLLOG"/>
+    <appender-ref ref="WARNROLLLOG"/>
+    <appender-ref ref="ERRROLLLOG"/>
+    <appender-ref ref="MAIN_THREAD_APPENDER"/>
+  </root>
+</configuration>

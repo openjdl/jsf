@@ -1,5 +1,6 @@
 package com.openjdl.jsf.core.utils;
 
+import com.openjdl.jsf.core.utils.callback.Action0;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -173,6 +174,17 @@ public class SpringUtils implements ApplicationContextAware, EnvironmentAware {
       return bean(type);
     } catch (NoSuchBeanDefinitionException e) {
       return null;
+    }
+  }
+
+  /**
+   *
+   */
+  public <T> T beanOrDefault(Class<T> type, Action0<T> mappingAction) {
+    try {
+      return bean(type);
+    } catch (NoSuchBeanDefinitionException e) {
+      return mappingAction.call();
     }
   }
 

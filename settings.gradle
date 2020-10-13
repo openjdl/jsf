@@ -1,13 +1,22 @@
+// 基础
 include 'jsf-core'
 include 'jsf-webflux'
 include 'jsf-graphql'
 include 'jsf-graphql-webflux'
 include 'jsf-jdbc'
 include 'jsf-jdbc-mybatis'
+include 'jsf-jdbc-mybatis-migration'
 include 'jsf-settings'
+include 'jsf-dubbo'
 
+// demo
+include 'jsf-demo'
+
+// 项目名
 rootProject.name = "OpenJDL's Java Server Foundation"
+
+// 子模块
 rootProject.children.forEach { project ->
-  project.buildFileName = "${project.name}.gradle"
+//  project.buildFileName = "${project.name}.gradle"
 }
 
