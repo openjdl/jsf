@@ -22,7 +22,7 @@ public class JsfJdbcMybatisMigrationProperties {
   //--------------------------------------------------------------------------------------------------------------
 
   private boolean enabled;
-  private String tablePrefix = "";
+  private String tablePrefix = "jsf_";
 
   public boolean isEnabled() {
     return enabled;
