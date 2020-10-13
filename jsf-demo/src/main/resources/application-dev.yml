@@ -20,26 +20,26 @@ jsf:
   jdbc:
     default-data-source:
       property-values:
-        url: jdbc:mysql://127.0.0.1:3306/dev_openjdl_jsf?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+        url: jdbc:mysql://127.0.0.1:3306/dev_openjdl_jsf_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
         username: root
         password: root
     data-sources:
-      - name: quartz
-      - name: dev_openjdl_jsf
+      - name: openjdl_jsf_demo
+      - name: openjdl_jsf_demo_quartz
     routing-data-source:
-      default-group-name: dev_openjdl_jsf
+      default-group-name: openjdl_jsf_demo
       default-read-only: false
       groups:
-        - name: quartz
+        - name: openjdl_jsf_demo
           masters:
-            - quartz
+            - openjdl_jsf_demo
           slaves:
-            - quartz
-        - name: dev_openjdl_jsf
+            - openjdl_jsf_demo
+        - name: openjdl_jsf_demo_quartz
           masters:
-            - dev_openjdl_jsf
+            - openjdl_jsf_demo_quartz
           slaves:
-            - dev_openjdl_jsf
+            - openjdl_jsf_demo_quartz
   settings:
-    packages-to-scan: com.openjdl.greenway
+    packages-to-scan: com.openjdl.jsf.demo
 
