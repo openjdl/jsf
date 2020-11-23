@@ -26,16 +26,39 @@ public abstract class BaseClassPathResourceMigrator implements BaseMigrator {
   @NotNull
   private final String location;
 
+  @NotNull
+  private final String multiSqlSeparator;
+
+  /**
+   *
+   */
+  protected BaseClassPathResourceMigrator() {
+    this(null, null);
+  }
+
   /**
    *
    */
   protected BaseClassPathResourceMigrator(@Nullable String group, @Nullable String location) {
+    this(group, location, null);
+  }
+
+  /**
+   *
+   */
+  protected BaseClassPathResourceMigrator(@Nullable String group, @Nullable String location, @Nullable String multiSqlSeparator) {
     this.group = group;
 
     if (StringUtils.isBlank(location)) {
       this.location = String.format("migration/%s.sql", getClass().getSimpleName());
     } else {
       this.location = location;
+    }
+
+    if (StringUtils.isBlank(multiSqlSeparator)) {
+      this.multiSqlSeparator = "\n\n";
+    } else {
+      this.multiSqlSeparator = multiSqlSeparator;
     }
   }
 
@@ -74,8 +97,14 @@ public abstract class BaseClassPathResourceMigrator implements BaseMigrator {
    */
   @Override
   public void up(@NotNull MigratorMapper migratorMapper) {
-    String sql = loadSql(this.location);
+    String originalSql = loadSql(this.location);
+    String fixedSql = originalSql.replaceAll("\r\n", "\n");
+    String[] sqlArr = fixedSql.split(this.multiSqlSeparator);
 
-    migratorMapper.update(SqlAdapter.of(sql));
+    for (String sql : sqlArr) {
+      if (StringUtils.isNotBlank(sql)) {
+        migratorMapper.update(SqlAdapter.of(sql));
+      }
+    }
   }
 }
