@@ -44,7 +44,7 @@ public class JsfGraphqlProperties {
    */
   @NotNull
   private List<String> schemaLocations = Lists.newArrayList(
-    "classpath*:**/*.graphql"
+    "classpath*:**/graphql/**/*.graphql"
   );
 
   //--------------------------------------------------------------------------
