@@ -29,19 +29,19 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
    *
    */
   @NotNull
-  private final SessionManager sessionManager;
+  private final WebSocketSessionManager sessionManager;
 
   /**
    *
    */
   @NotNull
-  private final Session session;
+  private final WebSocketSession session;
 
   /**
    *
    */
   @NotNull
-  private final Payload payload;
+  private final WebSocketPayload payload;
 
   /**
    *
@@ -52,9 +52,9 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
   /**
    *
    */
-  public WebSocketMessageHandlingContext(@NotNull SessionManager sessionManager,
-                                         @NotNull Session session,
-                                         @NotNull Payload payload) {
+  public WebSocketMessageHandlingContext(@NotNull WebSocketSessionManager sessionManager,
+                                         @NotNull WebSocketSession session,
+                                         @NotNull WebSocketPayload payload) {
     this.sessionManager = sessionManager;
     this.session = session;
     this.payload = payload;
@@ -117,17 +117,17 @@ public class WebSocketMessageHandlingContext implements BeanAccessor {
   }
 
   @NotNull
-  public SessionManager getSessionManager() {
+  public WebSocketSessionManager getSessionManager() {
     return sessionManager;
   }
 
   @NotNull
-  public Session getSession() {
+  public WebSocketSession getSession() {
     return session;
   }
 
   @NotNull
-  public Payload getPayload() {
+  public WebSocketPayload getPayload() {
     return payload;
   }
 

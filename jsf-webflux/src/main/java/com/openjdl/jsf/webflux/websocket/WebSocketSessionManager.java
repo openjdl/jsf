@@ -17,7 +17,6 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,11 +32,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author kidal
  * @since 0.1.0
  */
-public class SessionManager implements WebSocketHandler, CorsConfigurationSource, JsfMicroServiceListener {
+public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurationSource, JsfMicroServiceListener {
   /**
    * 日志
    */
-  private final static Logger LOG = LoggerFactory.getLogger(SessionManager.class);
+  private final static Logger LOG = LoggerFactory.getLogger(WebSocketSessionManager.class);
 
   /**
    *
@@ -54,7 +53,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
   /**
    * 匿名会话
    */
-  private final ConcurrentMap<String, Session> anonymousSessionMap = Maps.newConcurrentMap();
+  private final ConcurrentMap<String, WebSocketSession> anonymousSessionMap = Maps.newConcurrentMap();
 
   /**
    * 已认证会话锁
@@ -64,23 +63,23 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
   /**
    * 已认证会话(SessionId -> Session)
    */
-  private final Map<String, Session> authenticatedSessionMapById = Maps.newHashMap();
+  private final Map<String, WebSocketSession> authenticatedSessionMapById = Maps.newHashMap();
 
   /**
    * 已认证会话(UIN -> Session)
    */
-  private final Map<Object, Session> authenticatedSessionMapByUin = Maps.newHashMap();
+  private final Map<Object, WebSocketSession> authenticatedSessionMapByUin = Maps.newHashMap();
 
   /**
    * 消息处理器
    */
-  private final Map<String, MessageHandler> handlerMap = Maps.newConcurrentMap();
+  private final Map<String, WebSocketMessageHandler> handlerMap = Maps.newConcurrentMap();
 
   /**
    *
    */
-  public SessionManager(@NotNull SpringUtils springUtils,
-                        @NotNull ConversionService conversionService) {
+  public WebSocketSessionManager(@NotNull SpringUtils springUtils,
+                                 @NotNull ConversionService conversionService) {
     this.registerSelf();
     this.springUtils = springUtils;
     this.conversionService = conversionService;
@@ -113,7 +112,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
               ? String.format("%s/%s", typeName, methodName)
               : methodName;
 
-            MessageHandler prevHandler = handlerMap.put(type, new MessageHandler(bean, method));
+            WebSocketMessageHandler prevHandler = handlerMap.put(type, new WebSocketMessageHandler(bean, method));
             if (prevHandler != null) {
               throw new IllegalStateException(
                 String.format("WebSocket message handler `%s` duplicated: %s.%s or %s.%s",
@@ -136,9 +135,9 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
    */
   @NotNull
   @Override
-  public Mono<Void> handle(@NotNull WebSocketSession webSocketSession) {
+  public Mono<Void> handle(@NotNull org.springframework.web.reactive.socket.WebSocketSession webSocketSession) {
     // 添加到匿名会话
-    Session session = new Session(this, webSocketSession);
+    WebSocketSession session = new WebSocketSession(this, webSocketSession);
     anonymousSessionMap.put(session.getId(), session);
 
     // 准备发送流
@@ -147,8 +146,8 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
       .receive()
       .doOnNext(message -> {
         String rawPayload = message.getPayloadAsText();
-        Payload payload = Payload.of(rawPayload);
-        Payload outgoingPayload = handleIncomingPayload(session, payload);
+        WebSocketPayload payload = WebSocketPayload.of(rawPayload);
+        WebSocketPayload outgoingPayload = handleIncomingPayload(session, payload);
 
         session.sendPayload(outgoingPayload);
       })
@@ -167,10 +166,10 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
    *
    */
   @NotNull
-  Payload handleIncomingPayload(@NotNull Session session,
-                                @NotNull Payload payload) {
+  WebSocketPayload handleIncomingPayload(@NotNull WebSocketSession session,
+                                         @NotNull WebSocketPayload payload) {
     // 获取处理器
-    MessageHandler handler = handlerMap.get(payload.getType());
+    WebSocketMessageHandler handler = handlerMap.get(payload.getType());
     if (handler == null) {
       // 使用内建消息处理
       if ("$heartbeat".equals(payload.getType())) {
@@ -179,7 +178,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
 
       // 报错
       return payload.toResponse(
-        new Payload.Error(
+        new WebSocketPayload.Error(
           JsfExceptions.BAD_REQUEST.getId(),
           JsfExceptions.BAD_REQUEST.getCode(),
           "There's no handler for this type: " + payload.getType()
@@ -194,16 +193,16 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
       return payload.toResponse(responseData);
     } catch (InvocationTargetException e) {
       if (e.getTargetException() instanceof JsfException) {
-        return payload.toResponse(new Payload.Error((JsfException) e.getTargetException()));
+        return payload.toResponse(new WebSocketPayload.Error((JsfException) e.getTargetException()));
       } else {
         LOG.error("Handle incoming payload {} failed", payload.getType(), e);
-        return payload.toResponse(new Payload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
+        return payload.toResponse(new WebSocketPayload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
       }
     } catch (JsfException e) {
-      return payload.toResponse(new Payload.Error(e));
+      return payload.toResponse(new WebSocketPayload.Error(e));
     } catch (Exception e) {
       LOG.error("Handle incoming payload {} failed", payload.getType(), e);
-      return payload.toResponse(new Payload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
+      return payload.toResponse(new WebSocketPayload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
     }
   }
 
@@ -221,7 +220,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
    *
    */
   @NotNull
-  public ImmutableList<Session> getAnonymousSessions() {
+  public ImmutableList<WebSocketSession> getAnonymousSessions() {
     return ImmutableList.copyOf(anonymousSessionMap.values());
   }
 
@@ -229,7 +228,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
    *
    */
   @NotNull
-  public ImmutableList<Session> getAuthenticatedSessions() {
+  public ImmutableList<WebSocketSession> getAuthenticatedSessions() {
     return ImmutableList.copyOf(authenticatedSessionMapByUin.values());
   }
 
@@ -237,7 +236,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
    *
    */
   @Nullable
-  public Session getAnonymousSessionById(@NotNull String id) {
+  public WebSocketSession getAnonymousSessionById(@NotNull String id) {
     return anonymousSessionMap.get(id);
   }
 
@@ -245,7 +244,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
    *
    */
   @Nullable
-  public Session getAuthenticatedSessionById(@NotNull String id) {
+  public WebSocketSession getAuthenticatedSessionById(@NotNull String id) {
     authenticatedSessionMapLock.readLock().lock();
     try {
       return authenticatedSessionMapById.get(id);
@@ -258,7 +257,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
    *
    */
   @Nullable
-  public Session getAuthenticatedSessionByUin(@NotNull Object uin) {
+  public WebSocketSession getAuthenticatedSessionByUin(@NotNull Object uin) {
     authenticatedSessionMapLock.readLock().lock();
     try {
       return authenticatedSessionMapByUin.get(uin);
@@ -270,7 +269,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
   /**
    * 登录
    */
-  void onSignIn(@NotNull Session session) {
+  void onSignIn(@NotNull WebSocketSession session) {
     anonymousSessionMap.remove(session.getId());
 
     authenticatedSessionMapLock.writeLock().lock();
@@ -285,7 +284,7 @@ public class SessionManager implements WebSocketHandler, CorsConfigurationSource
   /**
    * 登出
    */
-  void onSignOut(@NotNull Session session) {
+  void onSignOut(@NotNull WebSocketSession session) {
     authenticatedSessionMapLock.writeLock().lock();
     try {
       if (session.isSignedIn()) {

@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketMessage;
-import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.FluxSink;
 
 import java.util.Date;
@@ -21,23 +20,23 @@ import java.util.concurrent.ConcurrentMap;
  * @author kidal
  * @since 0.1.0
  */
-public class Session {
+public class WebSocketSession {
   /**
    * 日志器
    */
-  private static final Logger LOG = LoggerFactory.getLogger(Session.class);
+  private static final Logger LOG = LoggerFactory.getLogger(WebSocketSession.class);
 
   /**
    * 会话管理器
    */
   @NotNull
-  private final SessionManager sessionManager;
+  private final WebSocketSessionManager sessionManager;
 
   /**
    * 会话
    */
   @NotNull
-  private final WebSocketSession webSocketSession;
+  private final org.springframework.web.reactive.socket.WebSocketSession webSocketSession;
 
   /**
    * 创建于
@@ -78,8 +77,8 @@ public class Session {
   /**
    *
    */
-  public Session(@NotNull SessionManager sessionManager,
-                 @NotNull WebSocketSession webSocketSession) {
+  public WebSocketSession(@NotNull WebSocketSessionManager sessionManager,
+                          @NotNull org.springframework.web.reactive.socket.WebSocketSession webSocketSession) {
     this.sessionManager = sessionManager;
     this.webSocketSession = webSocketSession;
   }
@@ -115,13 +114,13 @@ public class Session {
       if (uin.equals(this.uin)) {
         return;
       }
-      signOut(SignOutReason.SWITCH);
+      signOut(WebSocketSignOutReason.SWITCH);
     }
 
     // 登出其他人登录的该账号
-    Session prevSession = sessionManager.getAuthenticatedSessionByUin(uin);
+    WebSocketSession prevSession = sessionManager.getAuthenticatedSessionByUin(uin);
     if (prevSession != null) {
-      prevSession.signOut(SignOutReason.ELSEWHERE);
+      prevSession.signOut(WebSocketSignOutReason.ELSEWHERE);
     }
 
     // 登录
@@ -140,7 +139,7 @@ public class Session {
   /**
    * 用户登出
    */
-  public void signOut(@NotNull SignOutReason reason) {
+  public void signOut(@NotNull WebSocketSignOutReason reason) {
     if (!isSignedIn()) {
       return;
     }
@@ -163,7 +162,7 @@ public class Session {
    */
   public void close() {
     UserIdentificationNumber uin = this.uin;
-    signOut(SignOutReason.CLOSE);
+    signOut(WebSocketSignOutReason.CLOSE);
     webSocketSession.close();
     closedAt = new Date(System.currentTimeMillis());
 
@@ -176,7 +175,7 @@ public class Session {
   /**
    * 发送载荷
    */
-  public void sendPayload(@NotNull Payload payload) {
+  public void sendPayload(@NotNull WebSocketPayload payload) {
     if (sink != null) {
       String rawPayload = payload.toRawPayload();
       WebSocketMessage message = webSocketSession.textMessage(rawPayload);
@@ -188,14 +187,14 @@ public class Session {
   /**
    * 发送载荷
    */
-  public void sendPayload(@NotNull String type, @Nullable Payload.Error error, @Nullable Object data) {
-    sendPayload(Payload.of(type, error, data));
+  public void sendPayload(@NotNull String type, @Nullable WebSocketPayload.Error error, @Nullable Object data) {
+    sendPayload(WebSocketPayload.of(type, error, data));
   }
 
   /**
    * 发送错误
    */
-  public void sendError(@NotNull String type, @Nullable Payload.Error error) {
+  public void sendError(@NotNull String type, @Nullable WebSocketPayload.Error error) {
     sendPayload(type, error, null);
   }
 
@@ -216,7 +215,7 @@ public class Session {
   }
 
   @NotNull
-  public WebSocketSession getWebSocketSession() {
+  public org.springframework.web.reactive.socket.WebSocketSession getWebSocketSession() {
     return webSocketSession;
   }
 

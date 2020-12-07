@@ -1,10 +1,12 @@
 package com.openjdl.jsf.webflux.boot;
 
 import com.google.common.collect.Lists;
+import com.openjdl.jsf.webflux.modbus.dtu.ModbusDtuServerType;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,11 +22,13 @@ public class JsfWebFluxProperties {
 
   public static final String P_ENABLED = P_PATH + ".enabled";
   public static final String P_CORS_ENABLED = P_PATH + ".cors.enabled";
+  public static final String P_MODBUS_DTU_ENABLED = P_PATH + ".modbus-dtu.enabled";
   public static final String P_WEBSOCKET_ENABLED = P_PATH + ".websocket.enabled";
 
   public static final String B_WEBFLUX_SERVICE = B_PATH + "-WebFluxService";
+  public static final String B_MODBUS_DTU_SESSION_MANAGER = B_PATH + "-ModbusDtuSessionManager";
   public static final String B_WEBSOCKET_HANDLER_BEAN_PREFIX = B_PATH + "-WebSocketHandler-";
-  public static final String B_SESSION_MANAGER = B_PATH + "-SessionManager";
+  public static final String B_WEBSOCKET_SESSION_MANAGER = B_PATH + "-WebSocketSessionManager";
 
   public static String makeWebSocketHandlerBeanName(@NotNull String name) {
     return String.format("%s-%s", B_WEBSOCKET_HANDLER_BEAN_PREFIX, name);
@@ -35,12 +39,29 @@ public class JsfWebFluxProperties {
   //--------------------------------------------------------------------------
 
   private boolean enabled = true;
-  private Cors cors = new Cors();
-  private WebSocket websocket = new WebSocket();
 
-  //--------------------------------------------------------------------------
-  //
-  //--------------------------------------------------------------------------
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------
+  // Cors
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  private Cors cors = new Cors();
+
+  public Cors getCors() {
+    return cors;
+  }
+
+  public void setCors(Cors cors) {
+    this.cors = cors;
+  }
 
   public static class Cors {
     private boolean enabled = true;
@@ -50,10 +71,6 @@ public class JsfWebFluxProperties {
     private List<String> allowedHeaders = Lists.newArrayList("*");
     private List<String> allowedMethods = Lists.newArrayList("*");
     private List<String> exposedHeaders = Lists.newArrayList(HttpHeaders.SET_COOKIE);
-
-    //--------------------------------------------------------------------------
-    //
-    //--------------------------------------------------------------------------
 
     public boolean isEnabled() {
       return enabled;
@@ -112,6 +129,101 @@ public class JsfWebFluxProperties {
     }
   }
 
+  //endregion
+
+  //--------------------------------------------------------------------------------------------------------------
+  // Modbus
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  private ModbusDtu modbusDtu = new ModbusDtu();
+
+  public ModbusDtu getModbusDtu() {
+    return modbusDtu;
+  }
+
+  public void setModbusDtu(ModbusDtu modbusDtu) {
+    this.modbusDtu = modbusDtu;
+  }
+
+  public static class ModbusDtu {
+    private boolean enabled = false;
+    private List<ModbusDtuServer> servers = new ArrayList<>();
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    public List<ModbusDtuServer> getServers() {
+      return servers;
+    }
+
+    public void setServers(List<ModbusDtuServer> servers) {
+      this.servers = servers;
+    }
+  }
+
+  public static class ModbusDtuServer {
+    private int port = 0;
+    private ModbusDtuServerType type;
+    private int bossThreads = 1;
+    private int workerThreads = 0;
+    private int backlog = 128;
+
+    public int getPort() {
+      return port;
+    }
+
+    public void setPort(int port) {
+      this.port = port;
+    }
+
+    public ModbusDtuServerType getType() {
+      return type;
+    }
+
+    public void setType(ModbusDtuServerType type) {
+      this.type = type;
+    }
+
+    public int getBossThreads() {
+      return bossThreads;
+    }
+
+    public void setBossThreads(int bossThreads) {
+      this.bossThreads = bossThreads;
+    }
+
+    public int getWorkerThreads() {
+      return workerThreads;
+    }
+
+    public void setWorkerThreads(int workerThreads) {
+      this.workerThreads = workerThreads;
+    }
+
+    public int getBacklog() {
+      return backlog;
+    }
+
+    public void setBacklog(int backlog) {
+      this.backlog = backlog;
+    }
+  }
+
+  //endregion
+
+  //--------------------------------------------------------------------------------------------------------------
+  // WebSocket
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  private WebSocket websocket = new WebSocket();
+
   public static class WebSocket {
     private boolean enabled = false;
     private String path = "";
@@ -133,26 +245,6 @@ public class JsfWebFluxProperties {
     }
   }
 
-  //--------------------------------------------------------------------------
-  //
-  //--------------------------------------------------------------------------
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public Cors getCors() {
-    return cors;
-  }
-
-  public void setCors(Cors cors) {
-    this.cors = cors;
-  }
-
   public WebSocket getWebsocket() {
     return websocket;
   }
@@ -160,4 +252,6 @@ public class JsfWebFluxProperties {
   public void setWebsocket(WebSocket websocket) {
     this.websocket = websocket;
   }
+
+  //endregion
 }

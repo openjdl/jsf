@@ -15,7 +15,7 @@ import java.util.UUID;
  * @author kidal
  * @since 0.1.0
  */
-public class Payload {
+public class WebSocketPayload {
   /**
    * 版本号
    */
@@ -56,8 +56,8 @@ public class Payload {
    * 创建载荷
    */
   @NotNull
-  public static Payload of(@NotNull String type, @Nullable Error error, @Nullable Object data) {
-    Payload payload = new Payload();
+  public static WebSocketPayload of(@NotNull String type, @Nullable Error error, @Nullable Object data) {
+    WebSocketPayload payload = new WebSocketPayload();
     payload.setId(UUID.randomUUID().toString().replace("-", "").toLowerCase());
     payload.setType(type);
     payload.setError(error);
@@ -69,7 +69,7 @@ public class Payload {
    * 创建载荷
    */
   @NotNull
-  public static Payload of(@NotNull String type, @Nullable Error error) {
+  public static WebSocketPayload of(@NotNull String type, @Nullable Error error) {
     return of(type, error, null);
   }
 
@@ -78,7 +78,7 @@ public class Payload {
    * 创建载荷
    */
   @NotNull
-  public static Payload of(@NotNull String type, @Nullable Object data) {
+  public static WebSocketPayload of(@NotNull String type, @Nullable Object data) {
     return of(type, null, data);
   }
 
@@ -86,8 +86,8 @@ public class Payload {
    * 从字符串创建载荷
    */
   @NotNull
-  public static Payload of(@NotNull String rawPayload) {
-    return JsonUtils.toObject(rawPayload, Payload.class);
+  public static WebSocketPayload of(@NotNull String rawPayload) {
+    return JsonUtils.toObject(rawPayload, WebSocketPayload.class);
   }
 
   /**
@@ -102,8 +102,8 @@ public class Payload {
    * 转换为应答载荷
    */
   @NotNull
-  public Payload toResponse(@Nullable Error error, @Nullable Object data) {
-    Payload payload = new Payload();
+  public WebSocketPayload toResponse(@Nullable Error error, @Nullable Object data) {
+    WebSocketPayload payload = new WebSocketPayload();
     payload.setVersion(version);
     payload.setId(id);
     payload.setType(type);
@@ -116,7 +116,7 @@ public class Payload {
    * 转换为应答载荷
    */
   @NotNull
-  public Payload toResponse(@NotNull Error error) {
+  public WebSocketPayload toResponse(@NotNull Error error) {
     return toResponse(error, null);
   }
 
@@ -124,7 +124,7 @@ public class Payload {
    * 转换为应答载荷
    */
   @NotNull
-  public Payload toResponse(@Nullable Object data) {
+  public WebSocketPayload toResponse(@Nullable Object data) {
     return toResponse(null, data);
   }
 

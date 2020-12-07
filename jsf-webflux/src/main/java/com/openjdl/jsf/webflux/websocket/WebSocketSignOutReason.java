@@ -6,7 +6,7 @@ package com.openjdl.jsf.webflux.websocket;
  * @author kidal
  * @since 0.1.0
  */
-public enum SignOutReason {
+public enum WebSocketSignOutReason {
   /**
    * 正常登出
    */
@@ -28,7 +28,7 @@ public enum SignOutReason {
 
   private final String value;
 
-  SignOutReason(String value) {
+  WebSocketSignOutReason(String value) {
     this.value = value;
   }
 

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @author kidal
  * @since 0.1.0
  */
-public class MessageHandler {
+public class WebSocketMessageHandler {
   /**
    * 目标
    */
@@ -35,7 +35,7 @@ public class MessageHandler {
   /**
    *
    */
-  public MessageHandler(@NotNull Object bean, @NotNull Method method) {
+  public WebSocketMessageHandler(@NotNull Object bean, @NotNull Method method) {
     this.bean = bean;
     this.method = method;
   }
@@ -56,7 +56,7 @@ public class MessageHandler {
         parameters[i] = context.getSession().isSignedIn()
           ? context.getSession().getUin()
           : null;
-      } else if (type == Session.class) {
+      } else if (type == WebSocketSession.class) {
         parameters[i] = context.getSession();
       } else if (type == UnifiedApiContext.class) {
         parameters[i] = new UnifiedApiContext(context, context.getParameters());

@@ -14,7 +14,8 @@ import com.openjdl.jsf.core.utils.json.Iso8601JsonSerializer;
 import com.openjdl.jsf.core.utils.json.UncertainDateJsonDeserializer;
 import com.openjdl.jsf.webflux.WebFluxService;
 import com.openjdl.jsf.webflux.WebFluxServiceImpl;
-import com.openjdl.jsf.webflux.websocket.SessionManager;
+import com.openjdl.jsf.webflux.modbus.dtu.ModbusDtuSessionManager;
+import com.openjdl.jsf.webflux.websocket.WebSocketSessionManager;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -109,6 +110,32 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
     return new WebFluxServiceImpl(properties, springUtils);
   }
 
+  //--------------------------------------------------------------------------------------------------------------
+  // ModbusDtu
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  /**
+   *
+   */
+  @Bean(JsfWebFluxProperties.B_MODBUS_DTU_SESSION_MANAGER)
+  @ConditionalOnProperty(value = JsfWebFluxProperties.P_MODBUS_DTU_ENABLED, havingValue = "true")
+  public ModbusDtuSessionManager modbusDtuSessionManager(
+    @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
+      SpringUtils springUtils,
+    @Qualifier(JsfCoreProperties.B_CONVERSION_SERVICE)
+      ConversionService conversionService
+  ) {
+    return new ModbusDtuSessionManager(springUtils, conversionService, properties.getModbusDtu());
+  }
+
+  //endregion
+
+  //--------------------------------------------------------------------------------------------------------------
+  // WebSocket
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
   /**
    *
    */
@@ -121,15 +148,15 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
   /**
    *
    */
-  @Bean(JsfWebFluxProperties.B_SESSION_MANAGER)
+  @Bean(JsfWebFluxProperties.B_WEBSOCKET_SESSION_MANAGER)
   @ConditionalOnProperty(value = JsfWebFluxProperties.P_WEBSOCKET_ENABLED, havingValue = "true")
-  public SessionManager sessionManager(
+  public WebSocketSessionManager webSocketSessionManager(
     @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
       SpringUtils springUtils,
     @Qualifier(JsfCoreProperties.B_CONVERSION_SERVICE)
       ConversionService conversionService
   ) {
-    return new SessionManager(springUtils, conversionService);
+    return new WebSocketSessionManager(springUtils, conversionService);
   }
 
   /**
@@ -144,11 +171,13 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
       ConversionService conversionService
   ) {
     Map<String, WebSocketHandler> handlerMap = Maps.newHashMap();
-    handlerMap.put(properties.getWebsocket().getPath(), sessionManager(springUtils, conversionService));
+    handlerMap.put(properties.getWebsocket().getPath(), webSocketSessionManager(springUtils, conversionService));
 
     SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
     mapping.setUrlMap(handlerMap);
     mapping.setOrder(-1);
     return mapping;
   }
+
+  //endregion
 }
