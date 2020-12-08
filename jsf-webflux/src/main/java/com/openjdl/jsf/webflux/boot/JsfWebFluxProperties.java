@@ -1,7 +1,6 @@
 package com.openjdl.jsf.webflux.boot;
 
 import com.google.common.collect.Lists;
-import com.openjdl.jsf.webflux.modbus.dtu.ModbusDtuServerType;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
@@ -169,7 +168,6 @@ public class JsfWebFluxProperties {
 
   public static class ModbusDtuServer {
     private int port = 0;
-    private ModbusDtuServerType type;
     private int bossThreads = 1;
     private int workerThreads = 0;
     private int backlog = 128;
@@ -180,14 +178,6 @@ public class JsfWebFluxProperties {
 
     public void setPort(int port) {
       this.port = port;
-    }
-
-    public ModbusDtuServerType getType() {
-      return type;
-    }
-
-    public void setType(ModbusDtuServerType type) {
-      this.type = type;
     }
 
     public int getBossThreads() {

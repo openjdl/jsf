@@ -3,6 +3,7 @@ package com.openjdl.jsf.webflux.modbus.dtu.payload;
 import com.openjdl.jsf.webflux.modbus.dtu.payload.request.ModbusDtuRequest;
 import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuExceptionResponse;
 import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuReadCoilsResponse;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuReadHoldingRegistersResponse;
 import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuResponse;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +49,7 @@ public class ModbusDtuPayload {
   public static ModbusDtuPayload of(@NotNull ByteBuf in) {
     // 保证有足够的长度
     if (in.readableBytes() < 7) {
-      log.trace("数据长度不够: {} < {}", in.readableBytes(), 7);
+      log.trace("Data not enough for decode payload header: {} < {}", in.readableBytes(), 7);
       return null;
     }
 
@@ -60,16 +61,16 @@ public class ModbusDtuPayload {
     payload.id = in.readUnsignedShort();
     payload.protocol = in.readUnsignedShort();
     payload.length = in.readUnsignedShort();
-    payload.unitId = in.readUnsignedByte();
+    payload.address = in.readUnsignedByte();
 
     // log
     if (log.isTraceEnabled()) {
-      log.trace("读取到数据头: {}", payload);
+      log.trace("Read payload header: {}", payload);
     }
 
     // 保证有足够的长度
-    if (in.readableBytes() < payload.length) {
-      log.trace("数据长度不够: {} < {}", in.readableBytes(), payload.length);
+    if (in.readableBytes() < payload.length - 1) {
+      log.trace("Data not enough for decode payload body: {} < {}", in.readableBytes(), payload.length - 1);
       return null;
     }
 
@@ -83,6 +84,8 @@ public class ModbusDtuPayload {
       response = ModbusDtuExceptionResponse.of(fc, in);
     } else if (fc == 0x01) {
       response = ModbusDtuReadCoilsResponse.of(in);
+    } else if (fc == 0x03) {
+      response = ModbusDtuReadHoldingRegistersResponse.of(in);
     }
 
     if (response == null) {
@@ -124,7 +127,7 @@ public class ModbusDtuPayload {
    * 单元标识符: 可以理解为设备地址。
    * 1字节.
    */
-  private short unitId;
+  private short address;
 
   /**
    * 请求
@@ -137,6 +140,18 @@ public class ModbusDtuPayload {
    */
   @NotNull
   private ModbusDtuResponse response = ModbusDtuResponse.EMPTY;
+
+  /**
+   *
+   */
+  public void write(@NotNull ByteBuf out) {
+    out.writeShort(id); // 0-1
+    out.writeShort(protocol); // 2-3
+    out.writeShort(length); // 4-5
+    out.writeByte(address); // 6
+
+    request.write(out);
+  }
 
   //--------------------------------------------------------------------------------------------------------------
   // Object
@@ -156,7 +171,7 @@ public class ModbusDtuPayload {
           ? ", id=" + id +
           ", protocol=" + protocol +
           ", length=" + length +
-          ", unitId=" + unitId
+          ", unitId=" + address
           : ""
       )
       +
@@ -215,12 +230,12 @@ public class ModbusDtuPayload {
     this.length = length;
   }
 
-  public short getUnitId() {
-    return unitId;
+  public short getAddress() {
+    return address;
   }
 
-  public void setUnitId(short unitId) {
-    this.unitId = unitId;
+  public void setAddress(short address) {
+    this.address = address;
   }
 
   @NotNull

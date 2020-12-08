@@ -3,13 +3,16 @@ package com.openjdl.jsf.webflux.modbus.dtu;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.openjdl.jsf.core.JsfMicroServiceListener;
+import com.openjdl.jsf.core.utils.ReflectionUtils;
 import com.openjdl.jsf.core.utils.SpringUtils;
 import com.openjdl.jsf.webflux.boot.JsfWebFluxProperties;
+import com.openjdl.jsf.webflux.modbus.dtu.annotation.ModbusDtuResponseMapping;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.convert.ConversionService;
+import org.springframework.scheduling.TaskScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +40,10 @@ public class ModbusDtuSessionManager implements JsfMicroServiceListener {
   private final SpringUtils springUtils;
 
   /**
-   * 转换服务
+   * 任务
    */
   @NotNull
-  private final ConversionService conversionService;
+  private final TaskScheduler taskScheduler;
 
   /**
    * 属性
@@ -75,13 +78,18 @@ public class ModbusDtuSessionManager implements JsfMicroServiceListener {
   private final Map<Object, ModbusDtuSession> authenticatedSessionMapByUin = Maps.newHashMap();
 
   /**
+   * 消息处理器
+   */
+  private final Map<Class<? extends ModbusDtuResponse>, ModbusDtuResponseHandler> responseHandlerMap = Maps.newHashMap();
+
+  /**
    *
    */
   public ModbusDtuSessionManager(@NotNull SpringUtils springUtils,
-                                 @NotNull ConversionService conversionService,
+                                 @NotNull TaskScheduler taskScheduler,
                                  @NotNull JsfWebFluxProperties.ModbusDtu properties) {
     this.springUtils = springUtils;
-    this.conversionService = conversionService;
+    this.taskScheduler = taskScheduler;
     this.properties = properties;
     this.registerSelf();
   }
@@ -91,6 +99,50 @@ public class ModbusDtuSessionManager implements JsfMicroServiceListener {
    */
   @Override
   public void onMicroServiceInitialized() throws InterruptedException {
+    springUtils
+      .getAllBeans(true)
+      .forEach(bean -> {
+        if (!bean.getClass().isAnnotationPresent(ModbusDtuResponseMapping.class)) {
+          return;
+        }
+
+        ReflectionUtils.doWithMethods(
+          bean.getClass(),
+          method -> {
+            List<Class<? extends ModbusDtuResponse>> types = new ArrayList<>();
+
+            for (Class<?> type : method.getParameterTypes()) {
+              if (ModbusDtuResponse.class.isAssignableFrom(type)) {
+                //noinspection unchecked
+                types.add((Class<? extends ModbusDtuResponse>) type);
+              }
+            }
+
+            for (Class<? extends ModbusDtuResponse> type : types) {
+              ModbusDtuResponseHandler prev = responseHandlerMap.put(type, new ModbusDtuResponseHandler(bean, method));
+
+              if (prev != null) {
+                throw new IllegalStateException(
+                  String.format("ModbusDtu message handler `%s` duplicated: %s.%s or %s.%s",
+                    type.getName(),
+                    prev.getBean().getClass().getSimpleName(),
+                    prev.getMethod().getName(),
+                    bean.getClass().getSimpleName(),
+                    method.getName()
+                  )
+                );
+              } else {
+                log.debug("Registered ModbusDtu message handler `{}.{}` for message `{}`",
+                  bean.getClass().getSimpleName(), method.getName(), type.getName());
+              }
+            }
+          },
+          method ->
+            method.isAnnotationPresent(ModbusDtuResponseMapping.class)
+              && method.getParameterCount() > 0
+        );
+      });
+
     servers.addAll(
       properties
         .getServers()
@@ -169,11 +221,24 @@ public class ModbusDtuSessionManager implements JsfMicroServiceListener {
   }
 
   /**
+   * 获取应答处理器
+   */
+  @Nullable
+  public ModbusDtuResponseHandler getResponseHandler(Class<?> type) {
+    return responseHandlerMap.get(type);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------
+  // Internal
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  /**
    * 链接
    */
   void onConnect(@NotNull ModbusDtuSession session) {
     if (log.isTraceEnabled()) {
-      log.trace("{} 链接", session);
+      log.trace("{} connect", session);
     }
 
     anonymousSessionMap.put(session.getId(), session);
@@ -184,7 +249,7 @@ public class ModbusDtuSessionManager implements JsfMicroServiceListener {
    */
   void onSignIn(@NotNull ModbusDtuSession session) {
     if (log.isTraceEnabled()) {
-      log.trace("{} 登录", session);
+      log.trace("{} sign in", session);
     }
 
     anonymousSessionMap.remove(session.getId());
@@ -203,7 +268,7 @@ public class ModbusDtuSessionManager implements JsfMicroServiceListener {
    */
   void onSignOut(@NotNull ModbusDtuSession session) {
     if (log.isTraceEnabled()) {
-      log.trace("{} 登出", session);
+      log.trace("{} sign out", session);
     }
 
     authenticatedSessionMapLock.writeLock().lock();
@@ -218,4 +283,28 @@ public class ModbusDtuSessionManager implements JsfMicroServiceListener {
 
     anonymousSessionMap.put(session.getId(), session);
   }
+
+  //endregion
+
+  //--------------------------------------------------------------------------------------------------------------
+  // Getters & Setters
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  @NotNull
+  public SpringUtils getSpringUtils() {
+    return springUtils;
+  }
+
+  @NotNull
+  public TaskScheduler getTaskScheduler() {
+    return taskScheduler;
+  }
+
+  @NotNull
+  public JsfWebFluxProperties.ModbusDtu getProperties() {
+    return properties;
+  }
+
+  //endregion
 }

@@ -28,6 +28,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -123,10 +124,9 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
   public ModbusDtuSessionManager modbusDtuSessionManager(
     @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
       SpringUtils springUtils,
-    @Qualifier(JsfCoreProperties.B_CONVERSION_SERVICE)
-      ConversionService conversionService
+    TaskScheduler taskScheduler
   ) {
-    return new ModbusDtuSessionManager(springUtils, conversionService, properties.getModbusDtu());
+    return new ModbusDtuSessionManager(springUtils, taskScheduler, properties.getModbusDtu());
   }
 
   //endregion

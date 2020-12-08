@@ -4,12 +4,12 @@ import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Created at 2020-12-07 22:55:27
+ * Created at 2020-12-08 16:53:33
  *
  * @author kidal
  * @since 0.5
  */
-public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
+public class ModbusDtuReadHoldingRegistersRequest implements ModbusDtuRequest {
   /**
    * 起始地址
    */
@@ -23,7 +23,7 @@ public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
   /**
    *
    */
-  public ModbusDtuReadCoilsRequest(short start, short count) {
+  public ModbusDtuReadHoldingRegistersRequest(short start, short count) {
     this.start = start;
     this.count = count;
   }
@@ -33,7 +33,7 @@ public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
    */
   @Override
   public String toString() {
-    return "ModbusDtuReadCoilsRequest{" +
+    return "ModbusDtuReadHoldingRegistersRequest{" +
       "fc=" + getFc() +
       ", byteCount=" + getByteCount() +
       ", start=" + getStart() +
@@ -46,7 +46,7 @@ public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
    */
   @Override
   public short getFc() {
-    return 0x01;
+    return 0x03;
   }
 
   /**

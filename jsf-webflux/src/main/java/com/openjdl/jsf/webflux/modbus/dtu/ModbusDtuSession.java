@@ -3,6 +3,10 @@ package com.openjdl.jsf.webflux.modbus.dtu;
 import com.google.common.collect.Maps;
 import com.openjdl.jsf.core.cipher.UserIdentificationNumber;
 import com.openjdl.jsf.core.utils.DateUtils;
+import com.openjdl.jsf.webflux.modbus.dtu.exception.ModbusDtuSendTimeoutException;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.ModbusDtuPayload;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.request.ModbusDtuRequest;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuResponse;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created at 2020-12-07 11:46:35
@@ -68,6 +73,23 @@ public class ModbusDtuSession {
   private Date closedAt;
 
   /**
+   * 发送锁
+   */
+  @NotNull
+  private final Object sendingSync = new Object();
+
+  /**
+   * 当前正在发送的载荷
+   */
+  @Nullable
+  private ModbusDtuPayload sendingPayload;
+
+  /**
+   *
+   */
+  private int transactionId = 1;
+
+  /**
    *
    */
   public ModbusDtuSession(@NotNull ModbusDtuSessionManager sessionManager,
@@ -122,7 +144,7 @@ public class ModbusDtuSession {
 
     // log
     if (log.isDebugEnabled()) {
-      log.debug("Session " + getId() + " sign in uin: " + uin.toString());
+      log.debug("{} sign in uin={}", this, uin);
     }
   }
 
@@ -140,7 +162,7 @@ public class ModbusDtuSession {
 
     // log
     if (log.isDebugEnabled()) {
-      log.debug("Session " + getId() + " sign out uin: " + uin.toString());
+      log.debug("{} sign out uin={}", this, uin);
     }
   }
 
@@ -155,15 +177,86 @@ public class ModbusDtuSession {
 
     // log
     if (log.isDebugEnabled()) {
-      log.debug("Session " + getId() + " close uin: " + uin);
+      log.debug("{} close uin={}", this, uin);
     }
+  }
+
+  /**
+   * 延迟关闭
+   */
+  public void close(Date startTime) {
+    sessionManager.getTaskScheduler().schedule(this::close, startTime);
   }
 
   /**
    * 发送载荷
    */
-  public void send(@NotNull byte[] data) {
-    channel.write(data);
+  @NotNull
+  public ModbusDtuPayload send(short address, @NotNull ModbusDtuRequest request) throws ModbusDtuSendTimeoutException {
+    // 准备载荷
+    ModbusDtuPayload sendingPayload = ModbusDtuPayload.of(ModbusDtuPayload.Type.MESSAGE);
+
+    synchronized (sendingSync) {
+      if (transactionId > 0xFFFF) {
+        transactionId = 1;
+      }
+
+      sendingPayload.setId(transactionId++);
+      sendingPayload.setProtocol(0x0000);
+      sendingPayload.setLength(request.getByteCount() + 1);
+      sendingPayload.setAddress(address);
+      sendingPayload.setRequest(request);
+
+      // 缓存
+      this.sendingPayload = sendingPayload;
+
+      // 发送
+      this.channel.writeAndFlush(sendingPayload);
+
+      // 等待载荷完成
+      try {
+        sendingSync.wait(TimeUnit.SECONDS.toMillis(15));
+      } catch (InterruptedException ignored) {
+      }
+
+      if (sendingPayload.getResponse().equals(ModbusDtuResponse.EMPTY)) {
+        // 关闭会话，让DTU重新连接，保证数据包不会错位
+        close();
+
+        // 超时异常
+        throw new ModbusDtuSendTimeoutException("Send payload timeout " + this + " " + sendingPayload);
+      }
+    }
+
+    // done
+    return sendingPayload;
+  }
+
+  /**
+   * 收到答复
+   */
+  boolean onResponse(@NotNull ModbusDtuPayload payload) {
+    synchronized (sendingSync) {
+      final ModbusDtuPayload sendingPayload = this.sendingPayload;
+
+      // 检查匹配度
+      if (sendingPayload == null) {
+        return false;
+      } else if (!sendingPayload.getType().equals(ModbusDtuPayload.Type.MESSAGE)) {
+        return false;
+      } else if (sendingPayload.getAddress() != payload.getAddress()) {
+        return false;
+      }
+
+      // 设置应答
+      sendingPayload.setResponse(payload.getResponse());
+
+      // 通知载荷完成
+      sendingSync.notify();
+    }
+
+    // done
+    return true;
   }
 
   //--------------------------------------------------------------------------------------------------------------
@@ -176,7 +269,7 @@ public class ModbusDtuSession {
    */
   @Override
   public String toString() {
-    return "SocketSession{" +
+    return "ModbusDtuSession{" +
       "channel=" + getChannel() +
       ", id=" + getId() +
       ", uin=" + uin +

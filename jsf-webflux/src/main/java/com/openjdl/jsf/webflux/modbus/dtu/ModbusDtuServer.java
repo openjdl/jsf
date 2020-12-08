@@ -1,6 +1,8 @@
 package com.openjdl.jsf.webflux.modbus.dtu;
 
 import com.openjdl.jsf.webflux.boot.JsfWebFluxProperties;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.ModbusDtuPayload;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuResponse;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -133,6 +135,27 @@ public class ModbusDtuServer {
         log.trace("Channel({}) read: {}", ctx.channel(), msg.toString());
       }
 
+      ModbusDtuPayload payload = (ModbusDtuPayload) msg;
+      ModbusDtuResponse response = payload.getResponse();
+
+      if (!response.equals(ModbusDtuResponse.EMPTY)) {
+        // 获取会话
+        ModbusDtuSession session = (ModbusDtuSession) ctx.channel().attr(AttributeKey.valueOf("session")).get();
+
+        // 处理消息
+        if (!session.onResponse(payload)) {
+          ModbusDtuResponseHandler handler = sessionManager.getResponseHandler(response.getClass());
+
+          if (handler == null) {
+            log.warn("Channel({}) handle `{}` failed, no handler for type `{}`",
+              ctx.channel(), response.toString(), response.getClass().getName());
+          } else {
+            handler.handle(session, payload);
+          }
+        }
+      }
+
+      // done
       super.channelRead(ctx, msg);
     }
 
@@ -140,25 +163,16 @@ public class ModbusDtuServer {
      * {@inheritDoc}
      */
     @Override
-    public void channelReadComplete(@NotNull ChannelHandlerContext ctx) throws Exception {
-      if (log.isTraceEnabled()) {
-        log.trace("Channel({}) read complete", ctx.channel());
-      }
-
-      super.channelReadComplete(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) throws Exception {
-      if (log.isTraceEnabled()) {
-        log.trace("Channel({}) exception caught", ctx.channel(), cause);
-      }
+      log.error("Channel({}) exception caught", ctx.channel(), cause);
 
-      ctx.channel().close();
+      // 获取会话
+      ModbusDtuSession session = (ModbusDtuSession) ctx.channel().attr(AttributeKey.valueOf("session")).get();
 
+      // 关闭
+      session.close();
+
+      // super
       super.exceptionCaught(ctx, cause);
     }
 

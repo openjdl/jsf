@@ -36,7 +36,7 @@ public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurat
   /**
    * 日志
    */
-  private final static Logger LOG = LoggerFactory.getLogger(WebSocketSessionManager.class);
+  private final static Logger log = LoggerFactory.getLogger(WebSocketSessionManager.class);
 
   /**
    *
@@ -73,7 +73,7 @@ public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurat
   /**
    * 消息处理器
    */
-  private final Map<String, WebSocketMessageHandler> handlerMap = Maps.newConcurrentMap();
+  private final Map<String, WebSocketMessageHandler> handlerMap = Maps.newHashMap();
 
   /**
    *
@@ -105,17 +105,20 @@ public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurat
           bean.getClass(),
           method -> {
             WebSocketRequestMapping methodMapping = method.getAnnotation(WebSocketRequestMapping.class);
+
             String methodName = StringUtils.isBlank(methodMapping.value())
               ? StringUtils.uncapitalize(method.getName())
               : methodMapping.value();
+
             String type = typeName != null
               ? String.format("%s/%s", typeName, methodName)
               : methodName;
 
             WebSocketMessageHandler prevHandler = handlerMap.put(type, new WebSocketMessageHandler(bean, method));
+
             if (prevHandler != null) {
               throw new IllegalStateException(
-                String.format("WebSocket message handler `%s` duplicated: %s.%s or %s.%s",
+                String.format("WebSocket message handler type=`%s` duplicated: %s.%s or %s.%s",
                   type,
                   prevHandler.getBean().getClass().getSimpleName(),
                   prevHandler.getMethod().getName(),
@@ -123,6 +126,9 @@ public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurat
                   method.getName()
                 )
               );
+            } else {
+              log.debug("Registered WebSocket message handler `{}.{}` for message `{}`",
+                bean.getClass().getSimpleName(), method.getName(), type);
             }
           },
           method -> method.isAnnotationPresent(WebSocketRequestMapping.class)
@@ -152,7 +158,7 @@ public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurat
         session.sendPayload(outgoingPayload);
       })
       .doFinally(signalType -> {
-        LOG.warn("doFinally: {}, {}", signalType, session.getId());
+        log.warn("doFinally: {}, {}", signalType, session.getId());
         session.close();
       })
       .then();
@@ -195,13 +201,13 @@ public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurat
       if (e.getTargetException() instanceof JsfException) {
         return payload.toResponse(new WebSocketPayload.Error((JsfException) e.getTargetException()));
       } else {
-        LOG.error("Handle incoming payload {} failed", payload.getType(), e);
+        log.error("Handle incoming payload {} failed", payload.getType(), e);
         return payload.toResponse(new WebSocketPayload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
       }
     } catch (JsfException e) {
       return payload.toResponse(new WebSocketPayload.Error(e));
     } catch (Exception e) {
-      LOG.error("Handle incoming payload {} failed", payload.getType(), e);
+      log.error("Handle incoming payload {} failed", payload.getType(), e);
       return payload.toResponse(new WebSocketPayload.Error(JsfExceptions.SERVER_INTERNAL_ERROR));
     }
   }

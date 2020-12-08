@@ -44,8 +44,8 @@ public interface ModbusDtuResponse {
    * 值
    */
   @NotNull
-  default byte[] getValues() {
-    return ArrayUtils.EMPTY_BYTE_ARRAY;
+  default int[] getValues() {
+    return ArrayUtils.EMPTY_INT_ARRAY;
   }
 
   /**

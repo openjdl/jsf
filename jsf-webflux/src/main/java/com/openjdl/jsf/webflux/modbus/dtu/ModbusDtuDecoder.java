@@ -3,6 +3,7 @@ package com.openjdl.jsf.webflux.modbus.dtu;
 import com.openjdl.jsf.webflux.modbus.dtu.payload.ModbusDtuPayload;
 import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuRegisterResponse;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.jetbrains.annotations.NotNull;
@@ -29,9 +30,14 @@ public class ModbusDtuDecoder extends ByteToMessageDecoder {
    */
   @Override
   protected void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf in, @NotNull List<Object> out) {
+    // log
+    if (log.isTraceEnabled()) {
+      log.trace("Received bytes {}", ByteBufUtil.hexDump(in));
+    }
+
     // 保证有足够的长度
     if (in.readableBytes() < Integer.BYTES) {
-      log.trace("数据长度不够: {} < {}", in.readableBytes(), Integer.BYTES);
+      log.trace("Data not enough for decode: {} < {}", in.readableBytes(), Integer.BYTES);
       return;
     }
 
@@ -50,6 +56,8 @@ public class ModbusDtuDecoder extends ByteToMessageDecoder {
       } else if (protocol == 0x0000FFFE) {
         successful = decodeHeartbeatMessage(ctx, in, out);
       } else {
+        in.resetReaderIndex();
+        in.markReaderIndex();
         successful = decodeDataMessage(ctx, in, out);
       }
     } catch (Exception e) {
@@ -71,7 +79,7 @@ public class ModbusDtuDecoder extends ByteToMessageDecoder {
 
     // 保证有足够的长度
     if (in.readableBytes() < length - 6) {
-      log.trace("注册数据长度不够: {} < {}", in.readableBytes(), length - 6);
+      log.trace("Data not enough for register: {} < {}", in.readableBytes(), length - 6);
       return false;
     }
 

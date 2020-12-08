@@ -23,6 +23,4 @@ public enum ModbusDtuSignOutReason {
    * 会话关闭
    */
   CLOSE,
-  //
-  ;
 }
