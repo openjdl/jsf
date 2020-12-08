@@ -160,7 +160,7 @@ configure(subprojects) { subproject ->
 
   publishing {
     publications {
-      everybodygame(MavenPublication) {
+      openjdl(MavenPublication) {
         from components.java
         artifact sourcesJar
       }
