@@ -10,22 +10,22 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 
 /**
- * Created at 2020-12-07 22:17:40
+ * Created at 2020-12-14 16:06:35
  *
  * @author kidal
  * @since 0.5
  */
-public class ModbusDtuReadCoilsResponse implements ModbusDtuResponse {
+public class ModbusDtuReadDiscreteInputsResponse implements ModbusDtuResponse {
   /**
    * log
    */
-  protected static final Logger log = LoggerFactory.getLogger(ModbusDtuReadCoilsResponse.class);
+  protected static final Logger log = LoggerFactory.getLogger(ModbusDtuReadDiscreteInputsResponse.class);
 
   /**
    * 创建
    */
   @Nullable
-  public static ModbusDtuReadCoilsResponse of(@NotNull ByteBuf in) {
+  public static ModbusDtuReadDiscreteInputsResponse of(@NotNull ByteBuf in) {
     if (in.readableBytes() < 1) {
       log.trace("Data not enough: {} < {}", in.readableBytes(), 1);
       return null;
@@ -43,7 +43,7 @@ public class ModbusDtuReadCoilsResponse implements ModbusDtuResponse {
       values[i / 2] = in.readUnsignedShort();
     }
 
-    return new ModbusDtuReadCoilsResponse(byteCount, values);
+    return new ModbusDtuReadDiscreteInputsResponse(byteCount, values);
   }
 
   /**
@@ -59,7 +59,7 @@ public class ModbusDtuReadCoilsResponse implements ModbusDtuResponse {
   /**
    *
    */
-  public ModbusDtuReadCoilsResponse(short byteCount, int[] values) {
+  public ModbusDtuReadDiscreteInputsResponse(short byteCount, int[] values) {
     this.byteCount = byteCount;
     this.values = values;
   }
@@ -69,7 +69,7 @@ public class ModbusDtuReadCoilsResponse implements ModbusDtuResponse {
    */
   @Override
   public String toString() {
-    return "ModbusDtuReadCoilsResponse{" +
+    return "ModbusDtuReadDiscreteInputsResponse{" +
       "fc=" + getFc() +
       "byteCount=" + getByteCount() +
       ", values=" + Arrays.toString(getValues()) +
@@ -81,7 +81,7 @@ public class ModbusDtuReadCoilsResponse implements ModbusDtuResponse {
    */
   @Override
   public short getFc() {
-    return ModbusDtuFc.READ_COIL.getCode();
+    return ModbusDtuFc.READ_DISCRETE_INPUT.getCode();
   }
 
   /**

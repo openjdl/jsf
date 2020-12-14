@@ -1,7 +1,6 @@
 package com.openjdl.jsf.webflux.modbus.dtu.payload.response;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -38,14 +37,6 @@ public interface ModbusDtuResponse {
    */
   default short getByteCount() {
     return 0;
-  }
-
-  /**
-   * 值
-   */
-  @NotNull
-  default int[] getValues() {
-    return ArrayUtils.EMPTY_INT_ARRAY;
   }
 
   /**

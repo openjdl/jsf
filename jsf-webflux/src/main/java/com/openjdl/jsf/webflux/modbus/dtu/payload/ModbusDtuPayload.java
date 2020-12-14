@@ -1,10 +1,8 @@
 package com.openjdl.jsf.webflux.modbus.dtu.payload;
 
+import com.openjdl.jsf.webflux.modbus.dtu.ModbusDtuFc;
 import com.openjdl.jsf.webflux.modbus.dtu.payload.request.ModbusDtuRequest;
-import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuExceptionResponse;
-import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuReadCoilsResponse;
-import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuReadHoldingRegistersResponse;
-import com.openjdl.jsf.webflux.modbus.dtu.payload.response.ModbusDtuResponse;
+import com.openjdl.jsf.webflux.modbus.dtu.payload.response.*;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -82,10 +80,18 @@ public class ModbusDtuPayload {
 
     if (fc > 0x80) {
       response = ModbusDtuExceptionResponse.of(fc, in);
-    } else if (fc == 0x01) {
+    } else if (fc == ModbusDtuFc.READ_COIL.getCode()) {
       response = ModbusDtuReadCoilsResponse.of(in);
-    } else if (fc == 0x03) {
+    } else if (fc == ModbusDtuFc.READ_DISCRETE_INPUT.getCode()) {
+      response = ModbusDtuReadDiscreteInputsResponse.of(in);
+    } else if (fc == ModbusDtuFc.READ_HOLDING_REGISTERS.getCode()) {
       response = ModbusDtuReadHoldingRegistersResponse.of(in);
+    } else if (fc == ModbusDtuFc.READ_INPUT_REGISTERS.getCode()) {
+      response = ModbusDtuReadInputRegistersResponse.of(in);
+    } else if (fc == ModbusDtuFc.WRITE_SINGLE_COIL.getCode()) {
+      response = ModbusDtuWriteSingleCoilResponse.of(in);
+    } else if (fc == ModbusDtuFc.WRITE_SINGLE_HOLDING_REGISTER.getCode()) {
+      response = ModbusDtuWriteSingleHoldingRegisterResponse.of(in);
     }
 
     if (response == null) {

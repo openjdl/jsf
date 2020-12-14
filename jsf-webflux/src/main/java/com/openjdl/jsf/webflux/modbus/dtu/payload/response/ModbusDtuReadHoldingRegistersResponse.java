@@ -1,5 +1,6 @@
 package com.openjdl.jsf.webflux.modbus.dtu.payload.response;
 
+import com.openjdl.jsf.webflux.modbus.dtu.ModbusDtuFc;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +81,7 @@ public class ModbusDtuReadHoldingRegistersResponse implements ModbusDtuResponse 
    */
   @Override
   public short getFc() {
-    return 0x03;
+    return ModbusDtuFc.READ_HOLDING_REGISTERS.getCode();
   }
 
   /**
@@ -92,9 +93,8 @@ public class ModbusDtuReadHoldingRegistersResponse implements ModbusDtuResponse 
   }
 
   /**
-   * {@inheritDoc}
+   *
    */
-  @Override
   @NotNull
   public int[] getValues() {
     return values;

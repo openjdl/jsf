@@ -5,12 +5,12 @@ import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Created at 2020-12-07 22:55:27
+ * Created at 2020-12-14 11:31:16
  *
  * @author kidal
  * @since 0.5
  */
-public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
+public class ModbusDtuReadDiscreteInputsRequest implements ModbusDtuRequest {
   /**
    * 起始地址
    */
@@ -24,7 +24,7 @@ public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
   /**
    *
    */
-  public ModbusDtuReadCoilsRequest(int start, int count) {
+  public ModbusDtuReadDiscreteInputsRequest(int start, int count) {
     if (start < 0 || start > 0xFFFF) { // [0, 65535]
       throw new IllegalArgumentException("Invalid start address: " + start);
     }
@@ -40,7 +40,7 @@ public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
    */
   @Override
   public String toString() {
-    return "ModbusDtuReadCoilsRequest{" +
+    return "ModbusDtuReadDiscreteInputsRequest{" +
       "fc=" + getFc() +
       ", byteCount=" + getByteCount() +
       ", start=" + getStart() +
@@ -53,7 +53,7 @@ public class ModbusDtuReadCoilsRequest implements ModbusDtuRequest {
    */
   @Override
   public short getFc() {
-    return ModbusDtuFc.READ_COIL.getCode();
+    return ModbusDtuFc.READ_DISCRETE_INPUT.getCode();
   }
 
   /**

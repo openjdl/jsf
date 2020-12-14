@@ -1,5 +1,6 @@
 package com.openjdl.jsf.webflux.modbus.dtu.payload.request;
 
+import com.openjdl.jsf.webflux.modbus.dtu.ModbusDtuFc;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,17 +14,23 @@ public class ModbusDtuReadHoldingRegistersRequest implements ModbusDtuRequest {
   /**
    * 起始地址
    */
-  private final short start;
+  private final int start;
 
   /**
    * 数据个数
    */
-  private final short count;
+  private final int count;
 
   /**
    *
    */
-  public ModbusDtuReadHoldingRegistersRequest(short start, short count) {
+  public ModbusDtuReadHoldingRegistersRequest(int start, int count) {
+    if (start < 0 || start > 0xFFFF) { // [0, 65535]
+      throw new IllegalArgumentException("Invalid start address: " + start);
+    }
+    if (count < 1 || count > 0x07D0) { // [1, 2000]
+      throw new IllegalArgumentException("Invalid count: " + start);
+    }
     this.start = start;
     this.count = count;
   }
@@ -46,7 +53,7 @@ public class ModbusDtuReadHoldingRegistersRequest implements ModbusDtuRequest {
    */
   @Override
   public short getFc() {
-    return 0x03;
+    return ModbusDtuFc.READ_HOLDING_REGISTERS.getCode();
   }
 
   /**
@@ -60,14 +67,14 @@ public class ModbusDtuReadHoldingRegistersRequest implements ModbusDtuRequest {
   /**
    * 起始地址
    */
-  public short getStart() {
+  public int getStart() {
     return start;
   }
 
   /**
    * 数据个数
    */
-  public short getCount() {
+  public int getCount() {
     return count;
   }
 
