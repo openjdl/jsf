@@ -26,14 +26,15 @@ public class ModbusDtuEncoder extends MessageToByteEncoder<ModbusDtuPayload> {
    */
   @Override
   protected void encode(@NotNull ChannelHandlerContext ctx, @NotNull ModbusDtuPayload payload, @NotNull ByteBuf out) {
-    if (log.isTraceEnabled()) {
-      log.trace("Before encode {} to {}", payload, ByteBufUtil.hexDump(out));
-    }
+//    if (log.isTraceEnabled()) {
+//      log.trace("Before encode {} to {}", payload, ByteBufUtil.hexDump(out));
+//    }
 
     payload.write(out);
 
     if (log.isTraceEnabled()) {
-      log.trace("After encode {} to {}", payload, ByteBufUtil.hexDump(out));
+      log.trace("Encode {} to {}", payload, ByteBufUtil.hexDump(out));
+//      log.trace("After encode {} to {}", payload, ByteBufUtil.hexDump(out));
     }
   }
 }

@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
  * @author kidal
  * @since 0.5
  */
-public class ModbusDtuWriteSingleRegisterRequest implements ModbusDtuRequest {
+public class ModbusDtuWriteSingleHoldingRegisterRequest implements ModbusDtuRequest {
   /**
    * 地址
    */
-  private final int addr;
+  private final int address;
 
   /**
    * 值
@@ -24,14 +24,14 @@ public class ModbusDtuWriteSingleRegisterRequest implements ModbusDtuRequest {
   /**
    *
    */
-  public ModbusDtuWriteSingleRegisterRequest(int addr, int value) {
-    if (addr < 0 || addr > 0xFFFF) { // [0, 65535]
-      throw new IllegalArgumentException("Invalid addr: " + addr);
+  public ModbusDtuWriteSingleHoldingRegisterRequest(int address, int value) {
+    if (address < 0 || address > 0xFFFF) { // [0, 65535]
+      throw new IllegalArgumentException("Invalid addr: " + address);
     }
     if (value < 0 || value > 0xFFFF) { // [0, 65535]
       throw new IllegalArgumentException("Invalid value: " + value);
     }
-    this.addr = addr;
+    this.address = address;
     this.value = value;
   }
 
@@ -43,7 +43,7 @@ public class ModbusDtuWriteSingleRegisterRequest implements ModbusDtuRequest {
     return "ModbusDtuWriteSingleRegisterRequest{" +
       "fc=" + getFc() +
       ", byteCount=" + getByteCount() +
-      ", addr=" + getAddr() +
+      ", address=" + getAddress() +
       ", value=" + getValue() +
       '}';
   }
@@ -67,8 +67,8 @@ public class ModbusDtuWriteSingleRegisterRequest implements ModbusDtuRequest {
   /**
    * 地址
    */
-  public int getAddr() {
-    return addr;
+  public int getAddress() {
+    return address;
   }
 
   /**
@@ -84,7 +84,7 @@ public class ModbusDtuWriteSingleRegisterRequest implements ModbusDtuRequest {
   @Override
   public void write(@NotNull ByteBuf out) {
     out.writeByte(getFc()); // 0
-    out.writeShort(getAddr()); // 1-2
+    out.writeShort(getAddress()); // 1-2
     out.writeShort(getValue()); // 3-4
   }
 }

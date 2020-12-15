@@ -71,7 +71,7 @@ public class ModbusDtuReadHoldingRegistersResponse implements ModbusDtuResponse 
   public String toString() {
     return "ModbusDtuReadHoldingRegistersResponse{" +
       "fc=" + getFc() +
-      "byteCount=" + getByteCount() +
+      ", byteCount=" + getByteCount() +
       ", values=" + Arrays.toString(getValues()) +
       '}';
   }

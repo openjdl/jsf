@@ -8,49 +8,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created at 2020-12-14 16:36:31
+ * Created at 2020-12-15 11:03:52
  *
  * @author kidal
  * @since 0.5
  */
-public class ModbusDtuWriteSingleCoilResponse implements ModbusDtuResponse {
+public class ModbusDtuWriteMultipleCoilsResponse implements ModbusDtuResponse {
   /**
    * log
    */
-  protected static final Logger log = LoggerFactory.getLogger(ModbusDtuWriteSingleCoilResponse.class);
+  protected static final Logger log = LoggerFactory.getLogger(ModbusDtuWriteMultipleCoilsResponse.class);
 
   /**
    * 创建
    */
   @Nullable
-  public static ModbusDtuWriteSingleCoilResponse of(@NotNull ByteBuf in) {
+  public static ModbusDtuWriteMultipleCoilsResponse of(@NotNull ByteBuf in) {
     if (in.readableBytes() < 4) {
       log.trace("Data not enough: {} < {}", in.readableBytes(), 4);
       return null;
     }
 
-    int addr = in.readUnsignedShort();
-    boolean flag = in.readUnsignedShort() == 0xFF00;
+    int start = in.readUnsignedShort();
+    int count = in.readUnsignedShort();
 
-    return new ModbusDtuWriteSingleCoilResponse(addr, flag);
+    return new ModbusDtuWriteMultipleCoilsResponse(start, count);
   }
 
   /**
-   * 地址
+   * 起始
    */
-  private final int addr;
+  private final int start;
 
   /**
    * 数据值
    */
-  private final boolean flag;
+  private final int count;
 
   /**
    *
    */
-  public ModbusDtuWriteSingleCoilResponse(int addr, boolean flag) {
-    this.addr = addr;
-    this.flag = flag;
+  public ModbusDtuWriteMultipleCoilsResponse(int start, int count) {
+    this.start = start;
+    this.count = count;
   }
 
   /**
@@ -58,10 +58,10 @@ public class ModbusDtuWriteSingleCoilResponse implements ModbusDtuResponse {
    */
   @Override
   public String toString() {
-    return "ModbusDtuWriteSingleCoilResponse{" +
+    return "ModbusDtuWriteMultipleCoilsResponse{" +
       "fc=" + getFc() +
-      ", addr=" + getAddr() +
-      ", flag=" + isFlag() +
+      ", start=" + getStart() +
+      ", count=" + getCount() +
       '}';
   }
 
@@ -70,7 +70,7 @@ public class ModbusDtuWriteSingleCoilResponse implements ModbusDtuResponse {
    */
   @Override
   public short getFc() {
-    return ModbusDtuFc.WRITE_SINGLE_COIL.getCode();
+    return ModbusDtuFc.WRITE_MULTIPLE_COILS.getCode();
   }
 
   /**
@@ -82,17 +82,17 @@ public class ModbusDtuWriteSingleCoilResponse implements ModbusDtuResponse {
   }
 
   /**
-   * 获取地址
+   *
    */
-  public int getAddr() {
-    return addr;
+  public int getStart() {
+    return start;
   }
 
   /**
-   * 获取值
+   *
    */
-  public boolean isFlag() {
-    return flag;
+  public int getCount() {
+    return count;
   }
 }
 

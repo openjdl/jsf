@@ -92,6 +92,10 @@ public class ModbusDtuPayload {
       response = ModbusDtuWriteSingleCoilResponse.of(in);
     } else if (fc == ModbusDtuFc.WRITE_SINGLE_HOLDING_REGISTER.getCode()) {
       response = ModbusDtuWriteSingleHoldingRegisterResponse.of(in);
+    } else if (fc == ModbusDtuFc.WRITE_MULTIPLE_COILS.getCode()) {
+      response = ModbusDtuWriteMultipleCoilsResponse.of(in);
+    } else if (fc == ModbusDtuFc.WRITE_MULTIPLE_HOLDING_REGISTERS.getCode()) {
+      response = ModbusDtuWriteMultipleHoldingRegistersResponse.of(in);
     }
 
     if (response == null) {

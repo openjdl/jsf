@@ -71,7 +71,7 @@ public class ModbusDtuReadCoilsResponse implements ModbusDtuResponse {
   public String toString() {
     return "ModbusDtuReadCoilsResponse{" +
       "fc=" + getFc() +
-      "byteCount=" + getByteCount() +
+      ", byteCount=" + getByteCount() +
       ", values=" + Arrays.toString(getValues()) +
       '}';
   }

@@ -8,49 +8,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created at 2020-12-14 16:39:55
+ * Created at 2020-12-15 11:42:04
  *
  * @author kidal
  * @since 0.5
  */
-public class ModbusDtuWriteSingleHoldingRegisterResponse implements ModbusDtuResponse {
+public class ModbusDtuWriteMultipleHoldingRegistersResponse implements ModbusDtuResponse {
   /**
    * log
    */
-  protected static final Logger log = LoggerFactory.getLogger(ModbusDtuWriteSingleHoldingRegisterResponse.class);
+  protected static final Logger log = LoggerFactory.getLogger(ModbusDtuWriteMultipleHoldingRegistersResponse.class);
 
   /**
    * 创建
    */
   @Nullable
-  public static ModbusDtuWriteSingleHoldingRegisterResponse of(@NotNull ByteBuf in) {
+  public static ModbusDtuWriteMultipleHoldingRegistersResponse of(@NotNull ByteBuf in) {
     if (in.readableBytes() < 4) {
       log.trace("Data not enough: {} < {}", in.readableBytes(), 4);
       return null;
     }
 
-    int addr = in.readUnsignedShort();
-    int value = in.readUnsignedShort();
+    int address = in.readUnsignedShort();
+    int count = in.readUnsignedShort();
 
-    return new ModbusDtuWriteSingleHoldingRegisterResponse(addr, value);
+    return new ModbusDtuWriteMultipleHoldingRegistersResponse(address, count);
   }
 
   /**
    * 地址
    */
-  private final int addr;
+  private final int address;
 
   /**
    * 数据值
    */
-  private final int value;
+  private final int count;
 
   /**
    *
    */
-  public ModbusDtuWriteSingleHoldingRegisterResponse(int addr, int value) {
-    this.addr = addr;
-    this.value = value;
+  public ModbusDtuWriteMultipleHoldingRegistersResponse(int address, int count) {
+    this.address = address;
+    this.count = count;
   }
 
   /**
@@ -60,8 +60,8 @@ public class ModbusDtuWriteSingleHoldingRegisterResponse implements ModbusDtuRes
   public String toString() {
     return "ModbusDtuWriteSingleHoldingRegisterResponse{" +
       "fc=" + getFc() +
-      ", addr=" + getAddr() +
-      ", value=" + getValue() +
+      ", address=" + getAddress() +
+      ", count=" + getCount() +
       '}';
   }
 
@@ -70,7 +70,7 @@ public class ModbusDtuWriteSingleHoldingRegisterResponse implements ModbusDtuRes
    */
   @Override
   public short getFc() {
-    return ModbusDtuFc.WRITE_SINGLE_HOLDING_REGISTER.getCode();
+    return ModbusDtuFc.WRITE_MULTIPLE_HOLDING_REGISTERS.getCode();
   }
 
   /**
@@ -84,15 +84,15 @@ public class ModbusDtuWriteSingleHoldingRegisterResponse implements ModbusDtuRes
   /**
    * 获取地址
    */
-  public int getAddr() {
-    return addr;
+  public int getAddress() {
+    return address;
   }
 
   /**
    * 获取值
    */
-  public int getValue() {
-    return value;
+  public int getCount() {
+    return count;
   }
 }
 

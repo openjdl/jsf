@@ -78,8 +78,8 @@ public class ModbusDtuDecoder extends ByteToMessageDecoder {
     int length = in.readUnsignedShort();
 
     // 保证有足够的长度
-    if (in.readableBytes() < length) {
-      log.trace("Data not enough for register: {} < {}", in.readableBytes(), length);
+    if (in.readableBytes() < length - 6) {
+      log.trace("Data not enough for register: {} < {}", in.readableBytes(), length - 6);
       return false;
     }
 

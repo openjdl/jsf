@@ -14,15 +14,7 @@ public enum ModbusDtuFc {
   READ_INPUT_REGISTERS(0x04), // 4
   WRITE_SINGLE_COIL(0x05), // 5
   WRITE_SINGLE_HOLDING_REGISTER(0x06), // 6
-  /**
-   * @deprecated 还未实现
-   */
-  @Deprecated
   WRITE_MULTIPLE_COILS(0x0F), // 15
-  /**
-   * @deprecated 还未实现
-   */
-  @Deprecated
   WRITE_MULTIPLE_HOLDING_REGISTERS(0x10), // 16
   ;
 
