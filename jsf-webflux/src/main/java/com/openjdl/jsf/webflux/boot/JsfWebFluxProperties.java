@@ -23,11 +23,13 @@ public class JsfWebFluxProperties {
   public static final String P_CORS_ENABLED = P_PATH + ".cors.enabled";
   public static final String P_MODBUS_DTU_ENABLED = P_PATH + ".modbus-dtu.enabled";
   public static final String P_WEBSOCKET_ENABLED = P_PATH + ".websocket.enabled";
+  public static final String P_SOCKET_ENABLED = P_PATH + ".socket.enabled";
 
   public static final String B_WEBFLUX_SERVICE = B_PATH + "-WebFluxService";
   public static final String B_MODBUS_DTU_SESSION_MANAGER = B_PATH + "-ModbusDtuSessionManager";
   public static final String B_WEBSOCKET_HANDLER_BEAN_PREFIX = B_PATH + "-WebSocketHandler-";
   public static final String B_WEBSOCKET_SESSION_MANAGER = B_PATH + "-WebSocketSessionManager";
+  public static final String B_SOCKET_SESSION_MANAGER = B_PATH + "-SocketSessionManager";
 
   public static String makeWebSocketHandlerBeanName(@NotNull String name) {
     return String.format("%s-%s", B_WEBSOCKET_HANDLER_BEAN_PREFIX, name);
@@ -241,6 +243,83 @@ public class JsfWebFluxProperties {
 
   public void setWebsocket(WebSocket websocket) {
     this.websocket = websocket;
+  }
+
+  //endregion
+
+  //--------------------------------------------------------------------------------------------------------------
+  // Socket
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  private Socket socket = new Socket();
+
+  public Socket getSocket() {
+    return socket;
+  }
+
+  public void setSocket(Socket socket) {
+    this.socket = socket;
+  }
+
+  public static class Socket {
+    private boolean enabled = false;
+    private List<SocketServer> servers = new ArrayList<>();
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    public List<SocketServer> getServers() {
+      return servers;
+    }
+
+    public void setServers(List<SocketServer> servers) {
+      this.servers = servers;
+    }
+  }
+
+  public static class SocketServer {
+    private int port = 0;
+    private int bossThreads = 1;
+    private int workerThreads = 0;
+    private int backlog = 128;
+
+    public int getPort() {
+      return port;
+    }
+
+    public void setPort(int port) {
+      this.port = port;
+    }
+
+    public int getBossThreads() {
+      return bossThreads;
+    }
+
+    public void setBossThreads(int bossThreads) {
+      this.bossThreads = bossThreads;
+    }
+
+    public int getWorkerThreads() {
+      return workerThreads;
+    }
+
+    public void setWorkerThreads(int workerThreads) {
+      this.workerThreads = workerThreads;
+    }
+
+    public int getBacklog() {
+      return backlog;
+    }
+
+    public void setBacklog(int backlog) {
+      this.backlog = backlog;
+    }
   }
 
   //endregion

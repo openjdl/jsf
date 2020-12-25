@@ -14,6 +14,7 @@ import com.openjdl.jsf.core.utils.json.Iso8601JsonSerializer;
 import com.openjdl.jsf.core.utils.json.UncertainDateJsonDeserializer;
 import com.openjdl.jsf.webflux.WebFluxService;
 import com.openjdl.jsf.webflux.WebFluxServiceImpl;
+import com.openjdl.jsf.webflux.socket.SocketSessionManager;
 import com.openjdl.jsf.webflux.modbus.dtu.ModbusDtuSessionManager;
 import com.openjdl.jsf.webflux.websocket.WebSocketSessionManager;
 import org.jetbrains.annotations.NotNull;
@@ -177,6 +178,26 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
     mapping.setUrlMap(handlerMap);
     mapping.setOrder(-1);
     return mapping;
+  }
+
+  //endregion
+
+  //--------------------------------------------------------------------------------------------------------------
+  // Socket
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  /**
+   *
+   */
+  @Bean(JsfWebFluxProperties.B_SOCKET_SESSION_MANAGER)
+  @ConditionalOnProperty(value = JsfWebFluxProperties.P_SOCKET_ENABLED, havingValue = "true")
+  public SocketSessionManager socketSessionManager(
+    @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
+      SpringUtils springUtils,
+    TaskScheduler taskScheduler
+  ) {
+    return new SocketSessionManager(springUtils, taskScheduler, properties.getSocket());
   }
 
   //endregion
