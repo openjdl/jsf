@@ -264,6 +264,7 @@ public class JsfWebFluxProperties {
 
   public static class Socket {
     private boolean enabled = false;
+    private List<String> packagesToScan = new ArrayList<>();
     private List<SocketServer> servers = new ArrayList<>();
 
     public boolean isEnabled() {
@@ -272,6 +273,14 @@ public class JsfWebFluxProperties {
 
     public void setEnabled(boolean enabled) {
       this.enabled = enabled;
+    }
+
+    public List<String> getPackagesToScan() {
+      return packagesToScan;
+    }
+
+    public void setPackagesToScan(List<String> packagesToScan) {
+      this.packagesToScan = packagesToScan;
     }
 
     public List<SocketServer> getServers() {

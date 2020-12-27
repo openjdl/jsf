@@ -1,5 +1,8 @@
 package com.openjdl.jsf.webflux.socket.payload;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,23 +18,34 @@ public class SocketPayload {
    */
   private static final Logger log = LoggerFactory.getLogger(SocketPayload.class);
 
+  @NotNull
   private final SocketPayloadHeader header;
-  private SocketPayloadBodyExternalizable body;
 
-  public SocketPayload(SocketPayloadHeader header, SocketPayloadBodyExternalizable body) {
+  @NotNull
+  private final SocketPayloadBody body;
+
+  /**
+   * Ctor.
+   */
+  public SocketPayload(@NotNull SocketPayloadHeader header, @NotNull SocketPayloadBody body) {
     this.header = header;
     this.body = body;
   }
 
+  //--------------------------------------------------------------------------------------------------------------
+  // Getters & Setters
+  //--------------------------------------------------------------------------------------------------------------
+  //region
+
+  @NotNull
   public SocketPayloadHeader getHeader() {
     return header;
   }
 
-  public SocketPayloadBodyExternalizable getBody() {
+  @NotNull
+  public SocketPayloadBody getBody() {
     return body;
   }
 
-  public void setBody(SocketPayloadBodyExternalizable body) {
-    this.body = body;
-  }
+  //endregion
 }

@@ -7,11 +7,15 @@ package com.openjdl.jsf.webflux.socket.payload;
  * @since 2.0.0
  */
 public class SocketPayloadHeader {
- private final short mask;
- private final short version;
- private final long id;
- private final long type;
- private final long length;
+  private final short mask;
+  private final short version;
+  private final long id;
+  private final long type;
+  private final long length;
+
+  public SocketPayloadHeader(long id, long type) {
+    this((short) 0xFF, (short) 0x01, id, type, 0);
+  }
 
   public SocketPayloadHeader(short mask, short version, long id, long type, long length) {
     this.mask = mask;

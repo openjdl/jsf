@@ -9,7 +9,14 @@ import org.jetbrains.annotations.NotNull;
  * @author zink
  * @since 2.0.0
  */
-public interface SocketPayloadBodyExternalizable {
+public interface SocketPayloadBody {
+  /**
+   * 反序列化
+   */
   void deserialize(@NotNull ByteBuf in);
+
+  /**
+   * 序列化
+   */
   void serialize(@NotNull ByteBuf out);
 }

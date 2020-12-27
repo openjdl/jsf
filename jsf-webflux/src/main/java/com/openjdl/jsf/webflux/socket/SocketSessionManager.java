@@ -10,8 +10,7 @@ import com.openjdl.jsf.core.utils.SpringUtils;
 import com.openjdl.jsf.webflux.boot.JsfWebFluxProperties;
 import com.openjdl.jsf.webflux.socket.annotation.SocketPayloadTypeDef;
 import com.openjdl.jsf.webflux.socket.annotation.SocketRequestMapping;
-import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBodyExternalizable;
-import com.openjdl.jsf.webflux.socket.payload.response.SocketResponse;
+import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBody;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -106,30 +106,31 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   }
 
   @Override
-  public void onMicroServiceInitialized() throws InterruptedException {
-    springUtils
-      .getAllBeans(true)
-      .forEach(bean -> {
-        if (bean.getClass().isAnnotationPresent(SocketPayloadTypeDef.class)) {
-          SocketPayloadTypeDef def = bean.getClass().getAnnotation(SocketPayloadTypeDef.class);
+  public void onMicroServiceInitialized() throws InterruptedException, IOException, ClassNotFoundException {
+    // 类型定义
+    ReflectionUtils
+      .loadClassesByAnnotation(SocketPayloadTypeDef.class, properties.getPackagesToScan().toArray(new String[0]))
+      .forEach(classType -> {
+        SocketPayloadTypeDef def = classType.getAnnotation(SocketPayloadTypeDef.class);
 
-          if (!SocketPayloadBodyExternalizable.class.isAssignableFrom(bean.getClass())) {
-            throw new IllegalStateException(
-              String.format("Class `%s` not implements `%s`",
-                bean.getClass().getName(), SocketPayloadBodyExternalizable.class.getName()
-              )
-            );
-          }
+        if (!SocketPayloadBody.class.isAssignableFrom(classType)) {
+          throw new IllegalStateException(
+            String.format("Class `%s` not implements `%s`",
+              classType.getName(), SocketPayloadBody.class.getName()
+            )
+          );
+        }
 
-          if (typeClassBiMap.put(def.value(), bean.getClass()) != null) {
-            throw new IllegalStateException(
-              String.format("Bind class `%s` to socket payload type `%d` failed: type already exits",
-                bean.getClass().getName(), def.value()
-              )
-            );
-          }
+        if (typeClassBiMap.put(def.value(), classType) != null) {
+          throw new IllegalStateException(
+            String.format("Bind class `%s` to socket payload type `%d` failed: type already exits",
+              classType.getName(), def.value()
+            )
+          );
         }
       });
+
+    // 请求处理器
     springUtils
       .getAllBeans(true)
       .forEach(bean -> {
@@ -158,16 +159,16 @@ public class SocketSessionManager implements JsfMicroServiceListener {
                     bean.getClass().getSimpleName(), method.getName(), type);
                 }
               } else {
-                List<Class<? extends SocketPayloadBodyExternalizable>> bodyTypes = new ArrayList<>();
+                List<Class<? extends SocketPayloadBody>> bodyTypes = new ArrayList<>();
 
                 for (Class<?> parameterType : method.getParameterTypes()) {
-                  if (SocketPayloadBodyExternalizable.class.isAssignableFrom(parameterType)) {
+                  if (SocketPayloadBody.class.isAssignableFrom(parameterType)) {
                     //noinspection unchecked
-                    bodyTypes.add((Class<? extends SocketPayloadBodyExternalizable>) parameterType);
+                    bodyTypes.add((Class<? extends SocketPayloadBody>) parameterType);
                   }
                 }
 
-                for (Class<? extends SocketPayloadBodyExternalizable> bodyType : bodyTypes) {
+                for (Class<? extends SocketPayloadBody> bodyType : bodyTypes) {
                   Long found = typeClassBiMap.inverse().get(bodyType);
                   if (found != null) {
                     SocketResponseHandler prev = responseHandlerMap.put(found, new SocketResponseHandler(bean, method));
@@ -245,7 +246,7 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   /**
    *
    */
-  @NotNull
+  @Nullable
   public SocketSession getAnonymousSessionById(@NotNull String id) {
     return anonymousSessionMap.get(id);
   }
@@ -253,7 +254,7 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   /**
    *
    */
-  @NotNull
+  @Nullable
   public SocketSession getAuthenticatedSessionById(@NotNull String id) {
     authenticatedSessionMapLock.readLock().lock();
     try {
@@ -266,7 +267,7 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   /**
    *
    */
-  @NotNull
+  @Nullable
   public SocketSession getAuthenticatedSessionByUin(@NotNull Object uin) {
     authenticatedSessionMapLock.readLock().lock();
     try {
@@ -279,7 +280,7 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   /**
    * 获取应答处理器
    */
-  @NotNull
+  @Nullable
   public SocketResponseHandler getRequestHandler(long type) {
     return responseHandlerMap.get(type);
   }
@@ -341,13 +342,13 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   }
 
   @Nullable
-  public SocketPayloadBodyExternalizable createPayloadBody(long type, ByteBuf in) {
+  public SocketPayloadBody createPayloadBody(long type, ByteBuf in) {
     Class<?> bodyType = typeClassBiMap.get(type);
     if (bodyType == null) {
       return null;
     }
     try {
-      SocketPayloadBodyExternalizable body = (SocketPayloadBodyExternalizable)bodyType.newInstance();
+      SocketPayloadBody body = (SocketPayloadBody) bodyType.newInstance();
       body.deserialize(in);
       return body;
     } catch (InstantiationException | IllegalAccessException e) {
@@ -356,7 +357,12 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   }
 
   @Nullable
-  public Long GetSocketPayloadTypeByClass(Class<?> bodyClass) {
+  public Class<?> getSocketPayloadClassByType(long type) {
+    return typeClassBiMap.get(type);
+  }
+
+  @Nullable
+  public Long getSocketPayloadTypeByClass(Class<?> bodyClass) {
     return typeClassBiMap.inverse().get(bodyClass);
   }
 

@@ -78,7 +78,7 @@ public class SocketServer {
 
         @Override
         protected void initChannel(@NotNull SocketChannel ch) {
-          if(log.isTraceEnabled()) {
+          if (log.isTraceEnabled()) {
             log.trace("Channel({}) init", ch);
           }
 
@@ -93,9 +93,9 @@ public class SocketServer {
     // 绑定
     bindChannelFuture = bootstrap.bind(properties.getPort()).sync();
 
-    if(bindChannelFuture.isSuccess()) {
+    if (bindChannelFuture.isSuccess()) {
       log.info("Socket server started on port: {}", properties.getPort());
-    }else {
+    } else {
       throw new IllegalStateException("Socket server started failed");
     }
   }
@@ -105,7 +105,7 @@ public class SocketServer {
    */
   public void shutNettyServer() {
     // 等待关闭信号
-    if(bindChannelFuture != null) {
+    if (bindChannelFuture != null) {
       bindChannelFuture.channel().closeFuture().addListener((ChannelFutureListener) future -> {
         log.trace("Socket server close on port: {}", properties.getPort());
         bossGroup.shutdownGracefully();
@@ -134,17 +134,17 @@ public class SocketServer {
       SocketPayload payload = (SocketPayload) msg;
       long type = payload.getHeader().getType();
 
-        // 获取会话
-        SocketSession session = (SocketSession) ctx.channel().attr(AttributeKey.valueOf("session")).get();
+      // 获取会话
+      SocketSession session = (SocketSession) ctx.channel().attr(AttributeKey.valueOf("session")).get();
 
-        // 处理消息
-          SocketResponseHandler handler = sessionManager.getRequestHandler(type);
+      // 处理消息
+      SocketResponseHandler handler = sessionManager.getRequestHandler(type);
 
-          if(handler == null) {
-            log.warn("Channel({}) handle failed, no handler for type `{}`", ctx.channel(), type);
-          } else {
-            handler.handle(session, payload);
-          }
+      if (handler == null) {
+        log.warn("Channel({}) handle failed, no handler for type `{}`", ctx.channel(), type);
+      } else {
+        handler.handle(session, payload);
+      }
 
       // done
       super.channelRead(ctx, msg);
@@ -173,7 +173,7 @@ public class SocketServer {
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
       Channel channel = ctx.channel();
 
-      if(log.isTraceEnabled()){
+      if (log.isTraceEnabled()) {
         log.trace("Channel({}) active", channel);
       }
 
@@ -194,7 +194,7 @@ public class SocketServer {
      */
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
-      if(log.isTraceEnabled()){
+      if (log.isTraceEnabled()) {
         log.trace("Channel({}) inactive", ctx.channel());
       }
 

@@ -3,12 +3,10 @@ package com.openjdl.jsf.webflux.socket;
 import com.google.common.collect.Maps;
 import com.openjdl.jsf.core.cipher.UserIdentificationNumber;
 import com.openjdl.jsf.core.utils.DateUtils;
-import com.openjdl.jsf.webflux.boot.JsfWebFluxProperties;
+import com.openjdl.jsf.webflux.socket.exception.SocketPayloadTypeNotFoundException;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayload;
-import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBodyExternalizable;
+import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBody;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadHeader;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -192,18 +190,17 @@ public class SocketSession {
   /**
    * 发送载荷
    */
-  public void send(@NotNull SocketPayloadBodyExternalizable body){
-    long id= this.id.getAndIncrement();
-    Long type = sessionManager.GetSocketPayloadTypeByClass(body.getClass());
+  public void send(@NotNull SocketPayloadBody body) throws SocketPayloadTypeNotFoundException {
+    // id
+    long id = this.id.getAndIncrement();
+
+    // 获取消息体对应的类型
+    Long type = sessionManager.getSocketPayloadTypeByClass(body.getClass());
     if (type == null) {
-      // TODO:
-      throw new IllegalStateException();
+      throw new SocketPayloadTypeNotFoundException("Payload type for class " + body.getClass() + " not found");
     }
 
-    ByteBuf out = Unpooled.buffer();
-    body.serialize(out);
-
-    SocketPayloadHeader header = new SocketPayloadHeader((short) 0xFF, (short) 0x01, id, type, 0);
+    SocketPayloadHeader header = new SocketPayloadHeader(id, type);
     SocketPayload payload = new SocketPayload(header, body);
 
     channel.write(payload);
