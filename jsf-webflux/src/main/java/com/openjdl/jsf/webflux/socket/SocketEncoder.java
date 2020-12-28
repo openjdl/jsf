@@ -4,6 +4,7 @@ import com.openjdl.jsf.webflux.socket.payload.SocketPayload;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBody;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadHeader;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -40,5 +41,9 @@ public class SocketEncoder extends MessageToByteEncoder<SocketPayload> {
     body.serialize(bodyOut);
     out.writeInt(bodyOut.writerIndex());
     out.writeBytes(bodyOut);
+
+    if (log.isTraceEnabled()) {
+      log.trace("Encode {} to {}", payload, ByteBufUtil.hexDump(out));
+    }
   }
 }

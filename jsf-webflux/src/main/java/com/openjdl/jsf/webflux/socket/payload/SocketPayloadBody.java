@@ -13,10 +13,10 @@ public interface SocketPayloadBody {
   /**
    * 反序列化
    */
-  void deserialize(@NotNull ByteBuf in);
+  default void deserialize(@NotNull byte[] data) {}
 
   /**
    * 序列化
    */
-  void serialize(@NotNull ByteBuf out);
+  default void serialize(@NotNull ByteBuf out) {}
 }

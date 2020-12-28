@@ -76,8 +76,10 @@ public class SocketDecoder extends ByteToMessageDecoder {
       ctx.channel().close();
       return;
     }
+    byte[] bodyData = new byte[(int) length];
+    in.readBytes(bodyData);
     SocketPayloadBody body = (SocketPayloadBody) bodyType.newInstance();
-    body.deserialize(in);
+    body.deserialize(bodyData);
 
     // 消息头
     SocketPayloadHeader header = new SocketPayloadHeader(mask, version, id, type, length);

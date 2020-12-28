@@ -342,21 +342,6 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   }
 
   @Nullable
-  public SocketPayloadBody createPayloadBody(long type, ByteBuf in) {
-    Class<?> bodyType = typeClassBiMap.get(type);
-    if (bodyType == null) {
-      return null;
-    }
-    try {
-      SocketPayloadBody body = (SocketPayloadBody) bodyType.newInstance();
-      body.deserialize(in);
-      return body;
-    } catch (InstantiationException | IllegalAccessException e) {
-      return ExceptionUtils.rethrow(e);
-    }
-  }
-
-  @Nullable
   public Class<?> getSocketPayloadClassByType(long type) {
     return typeClassBiMap.get(type);
   }
