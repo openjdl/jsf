@@ -203,7 +203,7 @@ public class SocketSession {
     SocketPayloadHeader header = new SocketPayloadHeader(id, type);
     SocketPayload payload = new SocketPayload(header, body);
 
-    channel.write(payload);
+    channel.writeAndFlush(payload);
   }
 
   @Override

@@ -31,16 +31,18 @@ public class SocketEncoder extends MessageToByteEncoder<SocketPayload> {
   protected void encode(@NotNull ChannelHandlerContext ctx, @NotNull SocketPayload payload, @NotNull ByteBuf out) throws Exception {
     SocketPayloadHeader header = payload.getHeader();
     SocketPayloadBody body = payload.getBody();
+    byte[] bodyData = body.serialize();
 
     out.writeByte(header.getMask());
     out.writeByte(header.getVersion());
     out.writeInt((int) header.getId());
     out.writeInt((int) header.getType());
-
-    ByteBuf bodyOut = Unpooled.buffer();
-    body.serialize(bodyOut);
-    out.writeInt(bodyOut.writerIndex());
-    out.writeBytes(bodyOut);
+    if (bodyData == null) {
+      out.writeInt(0);
+    } else {
+      out.writeInt(bodyData.length);
+      out.writeBytes(bodyData);
+    }
 
     if (log.isTraceEnabled()) {
       log.trace("Encode {} to {}", payload, ByteBufUtil.hexDump(out));
