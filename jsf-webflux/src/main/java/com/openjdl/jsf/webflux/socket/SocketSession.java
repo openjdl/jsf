@@ -5,7 +5,6 @@ import com.openjdl.jsf.core.cipher.UserIdentificationNumber;
 import com.openjdl.jsf.core.utils.DateUtils;
 import com.openjdl.jsf.webflux.socket.exception.SocketPayloadTypeNotFoundException;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayload;
-import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBody;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadHeader;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
@@ -190,7 +189,7 @@ public class SocketSession {
   /**
    * 发送载荷
    */
-  public void send(@NotNull SocketPayloadBody body) throws SocketPayloadTypeNotFoundException {
+  public void send(@NotNull Object body) throws SocketPayloadTypeNotFoundException {
     // id
     long id = this.id.getAndIncrement();
 

@@ -6,15 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created at 2020-12-25 15:11:23
+ * Created at 2020-12-29 21:04:31
  *
- * @author zink
- * @since 2.0.0
+ * @author kidal
+ * @since 2.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
-public @interface SocketPayloadTypeDef {
-  long type();
-
-  Class<?> bodyType();
+@Target(ElementType.TYPE)
+public @interface SocketPayloadTypeDefs {
+  SocketPayloadTypeDef[] value();
 }

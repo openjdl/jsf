@@ -1,6 +1,5 @@
 package com.openjdl.jsf.webflux.socket.payload;
 
-import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**

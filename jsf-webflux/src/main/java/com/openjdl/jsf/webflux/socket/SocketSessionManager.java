@@ -4,15 +4,15 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.protobuf.MessageLite;
 import com.openjdl.jsf.core.JsfMicroServiceListener;
 import com.openjdl.jsf.core.utils.ReflectionUtils;
 import com.openjdl.jsf.core.utils.SpringUtils;
 import com.openjdl.jsf.webflux.boot.JsfWebFluxProperties;
 import com.openjdl.jsf.webflux.socket.annotation.SocketPayloadTypeDef;
+import com.openjdl.jsf.webflux.socket.annotation.SocketPayloadTypeDefs;
 import com.openjdl.jsf.webflux.socket.annotation.SocketRequestMapping;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBody;
-import io.netty.buffer.ByteBuf;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -89,7 +89,7 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   private final Map<Long, SocketResponseHandler> responseHandlerMap = Maps.newHashMap();
 
   /**
-   * TODO
+   *
    */
   private final BiMap<Long, Class<?>> typeClassBiMap = HashBiMap.create();
 
@@ -109,24 +109,18 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   public void onMicroServiceInitialized() throws InterruptedException, IOException, ClassNotFoundException {
     // 类型定义
     ReflectionUtils
-      .loadClassesByAnnotation(SocketPayloadTypeDef.class, properties.getPackagesToScan().toArray(new String[0]))
+      .loadClassesByAnnotation(SocketPayloadTypeDefs.class, properties.getPackagesToScan().toArray(new String[0]))
       .forEach(classType -> {
-        SocketPayloadTypeDef def = classType.getAnnotation(SocketPayloadTypeDef.class);
+        SocketPayloadTypeDefs defs = classType.getAnnotation(SocketPayloadTypeDefs.class);
 
-        if (!SocketPayloadBody.class.isAssignableFrom(classType)) {
-          throw new IllegalStateException(
-            String.format("Class `%s` not implements `%s`",
-              classType.getName(), SocketPayloadBody.class.getName()
-            )
-          );
-        }
-
-        if (typeClassBiMap.put(def.value(), classType) != null) {
-          throw new IllegalStateException(
-            String.format("Bind class `%s` to socket payload type `%d` failed: type already exits",
-              classType.getName(), def.value()
-            )
-          );
+        for (SocketPayloadTypeDef def : defs.value()) {
+          if (typeClassBiMap.put(def.type(), def.bodyType()) != null) {
+            throw new IllegalStateException(
+              String.format("Bind class `%s` to socket payload type `%d` failed: type already exits",
+                def.bodyType().getName(), def.type()
+              )
+            );
+          }
         }
       });
 
@@ -159,16 +153,17 @@ public class SocketSessionManager implements JsfMicroServiceListener {
                     bean.getClass().getSimpleName(), method.getName(), type);
                 }
               } else {
-                List<Class<? extends SocketPayloadBody>> bodyTypes = new ArrayList<>();
+                List<Class<?>> bodyTypes = new ArrayList<>();
 
                 for (Class<?> parameterType : method.getParameterTypes()) {
-                  if (SocketPayloadBody.class.isAssignableFrom(parameterType)) {
-                    //noinspection unchecked
-                    bodyTypes.add((Class<? extends SocketPayloadBody>) parameterType);
+                  if (MessageLite.class.isAssignableFrom(parameterType)) {
+                    bodyTypes.add(parameterType);
+                  } else if (SocketPayloadBody.class.isAssignableFrom(parameterType)) {
+                    bodyTypes.add(parameterType);
                   }
                 }
 
-                for (Class<? extends SocketPayloadBody> bodyType : bodyTypes) {
+                for (Class<?> bodyType : bodyTypes) {
                   Long found = typeClassBiMap.inverse().get(bodyType);
                   if (found != null) {
                     SocketResponseHandler prev = responseHandlerMap.put(found, new SocketResponseHandler(bean, method));

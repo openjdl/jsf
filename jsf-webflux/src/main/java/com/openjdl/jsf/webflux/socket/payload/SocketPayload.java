@@ -1,7 +1,5 @@
 package com.openjdl.jsf.webflux.socket.payload;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +20,12 @@ public class SocketPayload {
   private final SocketPayloadHeader header;
 
   @NotNull
-  private final SocketPayloadBody body;
+  private final Object body;
 
   /**
    * Ctor.
    */
-  public SocketPayload(@NotNull SocketPayloadHeader header, @NotNull SocketPayloadBody body) {
+  public SocketPayload(@NotNull SocketPayloadHeader header, @NotNull Object body) {
     this.header = header;
     this.body = body;
   }
@@ -43,7 +41,7 @@ public class SocketPayload {
   }
 
   @NotNull
-  public SocketPayloadBody getBody() {
+  public Object getBody() {
     return body;
   }
 

@@ -1,11 +1,11 @@
 package com.openjdl.jsf.webflux.socket;
 
+import com.google.protobuf.MessageLite;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayload;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBody;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadHeader;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jetbrains.annotations.NotNull;
@@ -30,8 +30,18 @@ public class SocketEncoder extends MessageToByteEncoder<SocketPayload> {
   @Override
   protected void encode(@NotNull ChannelHandlerContext ctx, @NotNull SocketPayload payload, @NotNull ByteBuf out) throws Exception {
     SocketPayloadHeader header = payload.getHeader();
-    SocketPayloadBody body = payload.getBody();
-    byte[] bodyData = body.serialize();
+    Object body = payload.getBody();
+    byte[] bodyData;
+
+    if (body instanceof byte[]) {
+      bodyData = (byte[]) body;
+    } else if (body instanceof MessageLite) {
+      bodyData = ((MessageLite) body).toByteArray();
+    } else if (body instanceof SocketPayloadBody) {
+      bodyData = ((SocketPayloadBody) body).serialize();
+    } else {
+      throw new IllegalStateException("Body class type " + body.getClass().getName() + " not support");
+    }
 
     out.writeByte(header.getMask());
     out.writeByte(header.getVersion());

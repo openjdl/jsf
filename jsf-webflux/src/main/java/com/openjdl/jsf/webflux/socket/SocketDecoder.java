@@ -1,7 +1,6 @@
 package com.openjdl.jsf.webflux.socket;
 
 import com.openjdl.jsf.webflux.socket.payload.SocketPayload;
-import com.openjdl.jsf.webflux.socket.payload.SocketPayloadBody;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadHeader;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -68,19 +67,8 @@ public class SocketDecoder extends ByteToMessageDecoder {
       return;
     }
 
-    // 解码包体
-    Class<?> bodyType = sessionManager.getSocketPayloadClassByType(type);
-    if (bodyType == null) {
-      log.warn("Class not found for body type {}", type);
-      in.readerIndex((int) (in.readerIndex() + length));
-//      in.resetReaderIndex();
-//      ctx.channel().close();
-      return;
-    }
-    byte[] bodyData = new byte[(int) length];
-    in.readBytes(bodyData);
-    SocketPayloadBody body = (SocketPayloadBody) bodyType.newInstance();
-    body.deserialize(bodyData);
+    byte[] body = new byte[(int) length];
+    in.readBytes(body);
 
     // 消息头
     SocketPayloadHeader header = new SocketPayloadHeader(mask, version, id, type, length);
