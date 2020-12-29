@@ -202,7 +202,6 @@ public class SocketServer {
       SocketSession session = (SocketSession) ctx.channel().attr(AttributeKey.valueOf("session")).get();
 
       //关闭
-
       session.close();
 
       super.channelInactive(ctx);

@@ -72,8 +72,9 @@ public class SocketDecoder extends ByteToMessageDecoder {
     Class<?> bodyType = sessionManager.getSocketPayloadClassByType(type);
     if (bodyType == null) {
       log.warn("Class not found for body type {}", type);
-      in.resetReaderIndex();
-      ctx.channel().close();
+      in.readerIndex((int) (in.readerIndex() + length));
+//      in.resetReaderIndex();
+//      ctx.channel().close();
       return;
     }
     byte[] bodyData = new byte[(int) length];
