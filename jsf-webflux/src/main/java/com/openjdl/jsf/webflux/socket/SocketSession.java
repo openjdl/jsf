@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created at 2020-12-23 17:39:29
@@ -86,7 +88,8 @@ public class SocketSession {
   /**
    *
    */
-  private final AtomicLong id = new AtomicLong(1);
+  private final ReentrantLock idLock = new ReentrantLock(true);
+  private int id = 1;
 
   /**
    *
@@ -191,7 +194,16 @@ public class SocketSession {
    */
   public void send(@NotNull Object body) throws SocketPayloadTypeNotFoundException {
     // id
-    long id = this.id.getAndIncrement();
+    long id;
+    idLock.lock();
+    try {
+      if (this.id >= 10000000) {
+        this.id = 1;
+      }
+      id = this.id++;
+    } finally {
+      idLock.unlock();
+    }
 
     // 获取消息体对应的类型
     Long type = sessionManager.getSocketPayloadTypeByClass(body.getClass());
