@@ -138,15 +138,15 @@ public class SocketServer {
       SocketSession session = (SocketSession) ctx.channel().attr(AttributeKey.valueOf("session")).get();
 
       // 处理 rpc
-      session.onResponse(payload);
+      if (!session.onResponse(payload)) {
+        // 处理消息
+        SocketResponseHandler handler = sessionManager.getRequestHandler(type);
 
-      // 处理消息
-      SocketResponseHandler handler = sessionManager.getRequestHandler(type);
-
-      if (handler == null) {
-        log.warn("Channel({}) handle failed, no handler for type `{}`", ctx.channel(), type);
-      } else {
-        handler.handle(session, payload);
+        if (handler == null) {
+          log.warn("Channel({}) handle failed, no handler for type `{}`", ctx.channel(), type);
+        } else {
+          handler.handle(session, payload);
+        }
       }
 
       // done
