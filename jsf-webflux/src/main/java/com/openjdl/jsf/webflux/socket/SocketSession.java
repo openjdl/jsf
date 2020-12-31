@@ -7,6 +7,7 @@ import com.openjdl.jsf.webflux.socket.exception.SocketPayloadTypeNotFoundExcepti
 import com.openjdl.jsf.webflux.socket.payload.SocketPayload;
 import com.openjdl.jsf.webflux.socket.payload.SocketPayloadHeader;
 import io.netty.channel.Channel;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -14,7 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
@@ -74,22 +77,11 @@ public class SocketSession {
   private Date closedAt;
 
   /**
-   * 发送锁
-   */
-  @NotNull
-  private final Object sendingSync = new Object();
-
-  /**
-   * 当前正在发送的载荷
-   */
-  @Nullable
-  private SocketPayload sendingPayload;
-
-  /**
    *
    */
   private final ReentrantLock idLock = new ReentrantLock(true);
   private int id = 1;
+  private final ConcurrentMap<Long, Pair<Object, SocketPayload>> rpcWaitingMap = new ConcurrentHashMap<>();
 
   /**
    *
@@ -192,7 +184,7 @@ public class SocketSession {
   /**
    * 发送载荷
    */
-  public void send(@NotNull Object body) throws SocketPayloadTypeNotFoundException {
+  public SocketPayload send(@NotNull Object body) throws SocketPayloadTypeNotFoundException {
     // id
     long id;
     idLock.lock();
@@ -215,6 +207,40 @@ public class SocketSession {
     SocketPayload payload = new SocketPayload(header, body);
 
     channel.writeAndFlush(payload);
+
+    return payload;
+  }
+
+  /**
+   * 发送载荷
+   */
+  @NotNull
+  public SocketPayload rpc(@NotNull Object body) throws SocketPayloadTypeNotFoundException {
+    final Object sync = new Object();
+    SocketPayload payload = send(body);
+
+    synchronized (sync) {
+      rpcWaitingMap.put(payload.getHeader().getId(), Pair.of(sync, payload));
+
+      try {
+        sync.wait(TimeUnit.SECONDS.toMillis(15));
+      } catch (InterruptedException ignored) {
+      }
+    }
+
+    return payload;
+  }
+
+  void onResponse(@NotNull SocketPayload payload) {
+    Pair<Object, SocketPayload> pair = rpcWaitingMap.get(payload.getHeader().getId());
+    if (pair == null) {
+      return;
+    }
+    Object sync = pair.getKey();
+    SocketPayload waiting = pair.getValue();
+
+    waiting.setResponse(payload.getBody());
+    sync.notify();
   }
 
   @Override

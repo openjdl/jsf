@@ -137,6 +137,9 @@ public class SocketServer {
       // 获取会话
       SocketSession session = (SocketSession) ctx.channel().attr(AttributeKey.valueOf("session")).get();
 
+      // 处理 rpc
+      session.onResponse(payload);
+
       // 处理消息
       SocketResponseHandler handler = sessionManager.getRequestHandler(type);
 

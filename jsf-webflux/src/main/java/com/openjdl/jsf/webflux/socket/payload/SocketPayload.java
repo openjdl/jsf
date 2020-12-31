@@ -1,6 +1,7 @@
 package com.openjdl.jsf.webflux.socket.payload;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,9 @@ public class SocketPayload {
 
   @NotNull
   private final Object body;
+
+  @Nullable
+  private Object response;
 
   /**
    * Ctor.
@@ -43,6 +47,15 @@ public class SocketPayload {
   @NotNull
   public Object getBody() {
     return body;
+  }
+
+  @Nullable
+  public Object getResponse() {
+    return response;
+  }
+
+  public void setResponse(@Nullable Object response) {
+    this.response = response;
   }
 
   //endregion
