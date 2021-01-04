@@ -55,7 +55,7 @@ public class SocketEncoder extends MessageToByteEncoder<SocketPayload> {
     }
 
     if (log.isTraceEnabled()) {
-      log.trace("Encode {} to {}", payload, ByteBufUtil.hexDump(out));
+//      log.trace("Encode {} to {}", payload, ByteBufUtil.hexDump(out));
     }
   }
 }

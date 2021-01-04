@@ -34,7 +34,7 @@ public class SocketDecoder extends ByteToMessageDecoder {
   protected void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf in, @NotNull List<Object> out) throws Exception {
     // log
     if (log.isTraceEnabled()) {
-      log.trace("Received bytes {}", ByteBufUtil.hexDump(in).toUpperCase());
+//      log.trace("Received bytes {}", ByteBufUtil.hexDump(in).toUpperCase());
     }
 
     // 保证有足够的长度
