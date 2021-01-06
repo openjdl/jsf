@@ -11,6 +11,9 @@ import io.netty.util.AttributeKey;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created at 2020-12-23 16:27:06
@@ -145,7 +148,13 @@ public class SocketServer {
         if (handler == null) {
           log.warn("Channel({}) handle failed, no handler for type `{}`", ctx.channel(), type);
         } else {
-          handler.handle(session, payload);
+          sessionManager.getThreadPoolTaskExecutor().submit(() -> {
+            try {
+              handler.handle(session, payload);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+              log.error("Channel({}) handle payload `{}` failed", payload, e);
+            }
+          });
         }
       }
 

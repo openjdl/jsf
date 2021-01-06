@@ -30,6 +30,7 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -195,9 +196,10 @@ public class JsfWebFluxPropertiesAutoConfiguration implements WebFluxConfigurer 
   public SocketSessionManager socketSessionManager(
     @Qualifier(JsfCoreProperties.B_SPRING_UTILS)
       SpringUtils springUtils,
-    TaskScheduler taskScheduler
+    TaskScheduler taskScheduler,
+    ThreadPoolTaskExecutor threadPoolTaskExecutor
   ) {
-    return new SocketSessionManager(springUtils, taskScheduler, properties.getSocket());
+    return new SocketSessionManager(springUtils, taskScheduler, threadPoolTaskExecutor, properties.getSocket());
   }
 
   //endregion

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,6 +51,12 @@ public class SocketSessionManager implements JsfMicroServiceListener {
    */
   @NotNull
   private final TaskScheduler taskScheduler;
+
+  /**
+   *
+   */
+  @NotNull
+  private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
   /**
    * 属性
@@ -98,9 +105,11 @@ public class SocketSessionManager implements JsfMicroServiceListener {
    */
   public SocketSessionManager(@NotNull SpringUtils springUtils,
                               @NotNull TaskScheduler taskScheduler,
+                              @NotNull ThreadPoolTaskExecutor threadPoolTaskExecutor,
                               @NotNull JsfWebFluxProperties.Socket properties) {
     this.springUtils = springUtils;
     this.taskScheduler = taskScheduler;
+    this.threadPoolTaskExecutor = threadPoolTaskExecutor;
     this.properties = properties;
     this.registerSelf();
   }
@@ -361,6 +370,11 @@ public class SocketSessionManager implements JsfMicroServiceListener {
   @NotNull
   public TaskScheduler getTaskScheduler() {
     return taskScheduler;
+  }
+
+  @NotNull
+  public ThreadPoolTaskExecutor getThreadPoolTaskExecutor() {
+    return threadPoolTaskExecutor;
   }
 
   @NotNull
