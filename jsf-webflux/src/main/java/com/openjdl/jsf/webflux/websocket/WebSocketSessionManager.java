@@ -17,6 +17,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -151,11 +152,11 @@ public class WebSocketSessionManager implements WebSocketHandler, CorsConfigurat
       .getWebSocketSession()
       .receive()
       .doOnNext(message -> {
-        String rawPayload = message.getPayloadAsText();
-        WebSocketPayload payload = WebSocketPayload.of(rawPayload);
-        WebSocketPayload outgoingPayload = handleIncomingPayload(session, payload);
+          String rawPayload = message.getPayloadAsText();
+          WebSocketPayload payload = WebSocketPayload.of(rawPayload);
+          WebSocketPayload outgoingPayload = handleIncomingPayload(session, payload);
 
-        session.sendPayload(outgoingPayload);
+          session.sendPayload(outgoingPayload);
       })
       .doFinally(signalType -> {
         log.warn("doFinally: {}, {}", signalType, session.getId());

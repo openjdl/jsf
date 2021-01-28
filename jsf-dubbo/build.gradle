@@ -10,4 +10,5 @@ dependencies {
 
   // spring
   compile "org.apache.dubbo:dubbo:${dubboVersion}"
+//  compile "org.apache.dubbo:dubbo-spring-boot-starter:${dubboVersion}"
 }
