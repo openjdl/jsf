@@ -51,10 +51,15 @@ public class ModbusDtuDecoder extends ByteToMessageDecoder {
     boolean successful;
 
     try {
+      // 0x0000FFFF: 注册，有bug，长度被错误的计算为两倍
+      // 0x0000FFFE: 心跳
+      // 0x0000FFFD: 注册，修正了 0x0000FFFF 长度错误bug的注册
       if (protocol == 0x0000FFFF) {
-        successful = decodeRegisterMessage(ctx, in, out);
+        successful = decodeRegisterMessage(ctx, in, out, true);
       } else if (protocol == 0x0000FFFE) {
         successful = decodeHeartbeatMessage(ctx, in, out);
+      } else if (protocol == 0x0000FFFD) {
+        successful = decodeRegisterMessage(ctx, in, out, false);
       } else {
         in.resetReaderIndex();
         in.markReaderIndex();
@@ -73,13 +78,19 @@ public class ModbusDtuDecoder extends ByteToMessageDecoder {
   /**
    * 解码注册消息
    */
-  private boolean decodeRegisterMessage(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf in, @NotNull List<Object> out) {
+  private boolean decodeRegisterMessage(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf in, @NotNull List<Object> out,
+                                        boolean fixLengthBug) {
     // 载荷长度
     int length = in.readUnsignedShort();
 
+    // fix bug
+    if (fixLengthBug) {
+      length = length / 2;
+    }
+
     // 保证有足够的长度
-    if (in.readableBytes() < length - 6) {
-      log.trace("Data not enough for register: {} < {}", in.readableBytes(), length - 6);
+    if (in.readableBytes() < length) {
+      log.trace("Data not enough for register: {} < {}", in.readableBytes(), length);
       return false;
     }
 
