@@ -175,10 +175,10 @@ configure(subprojects) { subproject ->
         // 可以配置在~/.gradle/gradle.properties
         // NEXUS_USERNAME=maven-publisher
         // NEXUS_PASSWORD=maven-publisher-lalalala-demaxiya
-//        credentials {
-//          username NEXUS_USERNAME
-//          password NEXUS_PASSWORD
-//        }
+        credentials {
+          username NEXUS_USERNAME
+          password NEXUS_PASSWORD
+        }
       }
     }
   }
