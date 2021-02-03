@@ -2,12 +2,14 @@ package com.openjdl.jsf.jdbc.mybatis.boot;
 
 import com.openjdl.jsf.core.utils.StringUtils;
 import com.openjdl.jsf.jdbc.boot.JsfJdbcProperties;
+import com.openjdl.jsf.jdbc.boot.JsfJdbcPropertiesAutoConfiguration;
 import com.openjdl.jsf.jdbc.mybatis.JdbcMybatisService;
 import com.openjdl.jsf.jdbc.mybatis.JdbcMybatisServiceImpl;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +38,7 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties(JsfJdbcMybatisProperties.class)
 @ConditionalOnProperty(value = JsfJdbcMybatisProperties.P_ENABLED, havingValue = "true", matchIfMissing = true)
+@AutoConfigureAfter(JsfJdbcPropertiesAutoConfiguration.class)
 public class JsfJdbcMybatisPropertiesAutoConfiguration {
   /**
    *
