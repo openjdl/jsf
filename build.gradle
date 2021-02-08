@@ -176,8 +176,8 @@ configure(subprojects) { subproject ->
         // NEXUS_USERNAME=maven-publisher
         // NEXUS_PASSWORD=maven-publisher-lalalala-demaxiya
         credentials {
-          username NEXUS_USERNAME
-          password NEXUS_PASSWORD
+//          username NEXUS_USERNAME
+//          password NEXUS_PASSWORD
         }
       }
     }
