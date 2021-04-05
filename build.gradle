@@ -107,15 +107,9 @@ configure(allprojects) { project ->
   }
 
   repositories {
-    maven {
-      url "https://maven.aliyun.com/repository/public/"
-    }
-    maven {
-      url "https://maven.aliyun.com/repository/spring/"
-    }
-    maven {
-      url "https://jitpack.io"
-    }
+    maven { url "https://maven.aliyun.com/repository/public/" }
+    maven { url "https://maven.aliyun.com/repository/spring/" }
+    maven { url "https://jitpack.io" }
     mavenLocal()
     mavenCentral()
   }
@@ -169,15 +163,15 @@ configure(subprojects) { subproject ->
     repositories {
       maven {
         name = 'openjdl'
-        def releasesRepoUrl = "https://nexus.openjdl.com/repository/maven-releases/"
-        def snapshotsRepoUrl = "https://nexus.openjdl.com/repository/maven-snapshots/"
-        url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         // 可以配置在~/.gradle/gradle.properties
-        // NEXUS_USERNAME=maven-publisher
-        // NEXUS_PASSWORD=maven-publisher-lalalala-demaxiya
+        // NEXUS_SNAPSHOT_REPO_URL=http://xxx/repository/maven-snapshots/
+        // NEXUS_RELEASE_REPO_URL=http://xxx/repository/maven-releases/
+        //NEXUS_PASSWORD=xxx
+        //NEXUS_USERNAME=xxx
+        url = version.endsWith('SNAPSHOT') ? NEXUS_SNAPSHOT_REPO_URL : NEXUS_RELEASE_REPO_URL
         credentials {
-//          username NEXUS_USERNAME
-//          password NEXUS_PASSWORD
+          username NEXUS_USERNAME
+          password NEXUS_PASSWORD
         }
       }
     }
