@@ -181,7 +181,7 @@ configure(subprojects) { subproject ->
 configure(rootProject) {
   description = "OpenJDL's Java Server Foundation"
 
-  apply plugin: "groovy"
+//  apply plugin: "groovy"
 
   // Don't publish the default jar for the root project
   configurations.archives.artifacts.clear()
