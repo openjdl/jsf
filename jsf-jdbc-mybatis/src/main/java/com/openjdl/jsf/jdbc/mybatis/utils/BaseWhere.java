@@ -9,6 +9,7 @@ import com.openjdl.jsf.core.utils.callback.Action0;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  * @author kidal
  * @since 0.1.0
  */
-public class BaseWhere {
+public class BaseWhere implements Serializable {
   /**
    *
    */
@@ -270,7 +271,7 @@ public class BaseWhere {
   //
   //--------------------------------------------------------------------------
 
-  public static class Order {
+  public static class Order implements Serializable {
     private List<String> fields;
     private String order;
 

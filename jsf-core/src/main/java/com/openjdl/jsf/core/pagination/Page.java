@@ -5,6 +5,7 @@ import com.openjdl.jsf.core.utils.callback.Action0;
 import com.openjdl.jsf.core.utils.callback.Action1;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  * @author kidal
  * @since 0.1.0
  */
-public class Page<T> {
+public class Page<T> implements Serializable {
   /**
    * 分页参数
    */

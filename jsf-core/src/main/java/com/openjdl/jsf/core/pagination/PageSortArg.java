@@ -3,13 +3,15 @@ package com.openjdl.jsf.core.pagination;
 
 import com.google.common.base.Objects;
 
+import java.io.Serializable;
+
 /**
  * Created at 2020-08-04 17:30:00
  *
  * @author kidal
  * @since 0.1.0
  */
-public class PageSortArg {
+public class PageSortArg implements Serializable {
   /**
    * 参数名
    */

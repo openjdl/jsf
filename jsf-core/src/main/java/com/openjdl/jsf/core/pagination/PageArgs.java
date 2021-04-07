@@ -5,6 +5,7 @@ import com.openjdl.jsf.core.utils.MathUtils;
 import com.openjdl.jsf.core.utils.callback.Action1;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * @author kidal
  * @since 0.1.0
  */
-public class PageArgs {
+public class PageArgs implements Serializable {
   /**
    * 默认页码
    */
