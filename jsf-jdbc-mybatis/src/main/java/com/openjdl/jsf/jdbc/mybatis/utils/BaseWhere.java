@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,6 +134,27 @@ public class BaseWhere implements Serializable {
     } else {
       return list.stream().sorted().collect(Collectors.toList());
     }
+  }
+
+  /**
+   * 标准化
+   */
+  public <E> List<E> normalize(List<E> list, E item, List<E> items) {
+    if (item == null && (items == null || items.size() == 0)) {
+      return normalize(list);
+    }
+
+    List<E> results = list == null ? new ArrayList<>() : list;
+
+    if (item != null) {
+      results.add(item);
+    }
+
+    if (items != null && items.size() > 0) {
+      results.addAll(items);
+    }
+
+    return normalize(results);
   }
 
   /**
