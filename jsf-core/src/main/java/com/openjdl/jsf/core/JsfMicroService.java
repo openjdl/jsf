@@ -79,11 +79,26 @@ public class JsfMicroService {
     @NotNull Class<?> entryClass,
     String[] args
   ) throws Exception {
-    // 安装缺少的加密解密库
-    BouncyCastleCryptoProvider.install();
-
     // 将进程号写入磁盘
     ProcessUtils.writeProcessId(".pid");
+
+    // 准备启动
+    prepareRun(group);
+
+    // springboot
+    try {
+      new SpringApplicationBuilder(entryClass).web(webApplicationType).run(args);
+    } catch (JsfException e) {
+      LOG.error(e.formatMessage(), e);
+    }
+  }
+
+  /**
+   * 准备启动
+   */
+  public static void prepareRun(@NotNull String group) throws Exception {
+    // 安装缺少的加密解密库
+    BouncyCastleCryptoProvider.install();
 
     // 本机IP
     final String lanIp = IpUtils.resolveLanIp();
@@ -93,13 +108,13 @@ public class JsfMicroService {
     metadata.setGroup(group);
     metadata.getInstance().setLanIp(lanIp);
     metadata.getInstance().setWanIp(lanIp);
+  }
 
-    // springboot
-    try {
-      new SpringApplicationBuilder(entryClass).web(webApplicationType).run(args);
-    } catch (JsfException e) {
-      LOG.error(e.formatMessage(), e);
-    }
+  /**
+   * 准备启动
+   */
+  public static void prepareTest() throws Exception {
+    prepareRun("test");
   }
 
   /**

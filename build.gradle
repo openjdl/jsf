@@ -114,19 +114,19 @@ configure(allprojects) { project ->
     mavenCentral()
   }
 
-  test {
-    useJUnitPlatform()
-    include(["**/*Tests.class", "**/*Test.class"])
-  }
+//  test {
+//    useJUnitPlatform()
+//    include(["**/*Tests.class", "**/*Test.class"])
+//  }
 
   dependencies {
     implementation "org.springframework.boot:spring-boot-starter:${springBootVersion}"
     implementation "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
-    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
-      exclude group: "org.junit.vintage", module: "junit-vintage-engine"
-    }
+//    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
+//      exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+//    }
   }
 }
 
