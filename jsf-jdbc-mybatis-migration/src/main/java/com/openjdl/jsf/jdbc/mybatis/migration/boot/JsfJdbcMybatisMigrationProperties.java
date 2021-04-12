@@ -2,6 +2,9 @@ package com.openjdl.jsf.jdbc.mybatis.migration.boot;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created at 2020-10-11 19:32:06
  *
@@ -23,6 +26,7 @@ public class JsfJdbcMybatisMigrationProperties {
 
   private boolean enabled;
   private String tablePrefix = "jsf_";
+  private List<String> cleanupGroups = new ArrayList<>();
 
   public boolean isEnabled() {
     return enabled;
@@ -38,5 +42,13 @@ public class JsfJdbcMybatisMigrationProperties {
 
   public void setTablePrefix(String tablePrefix) {
     this.tablePrefix = tablePrefix;
+  }
+
+  public List<String> getCleanupGroups() {
+    return cleanupGroups;
+  }
+
+  public void setCleanupGroups(List<String> cleanupGroups) {
+    this.cleanupGroups = cleanupGroups;
   }
 }

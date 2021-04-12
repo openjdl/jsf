@@ -125,6 +125,17 @@ public class JdbcMybatisMigrationServiceImpl implements JdbcMybatisMigrationServ
     // 列出全部数据源
     Set<String> groupSet = definitionMap.keySet();
 
+    // 移除表
+    for (String group : properties.getCleanupGroups()) {
+      routingDataSource.run(group, false, () -> {
+        List<String> tables = migrationMapper.getTables();
+        for (String table : tables) {
+          migrationMapper.dropTableIfNotExists(table);
+        }
+        return null;
+      });
+    }
+
     // 确保每个数据源都建立好了迁移记录表
     for (String group : groupSet) {
       routingDataSource.run(group, false, () -> {

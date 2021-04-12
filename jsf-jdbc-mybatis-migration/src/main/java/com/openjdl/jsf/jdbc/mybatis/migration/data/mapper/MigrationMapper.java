@@ -15,6 +15,16 @@ import java.util.List;
  */
 public interface MigrationMapper {
   /**
+   * 获取全部标
+   */
+  List<String> getTables();
+
+  /**
+   * 删除表
+   */
+  void dropTableIfNotExists(@NotNull @Param("name") String name);
+
+  /**
    * 创建迁移记录表
    */
   void createTableIfNotExists(@NotNull @Param("prefix") String prefix);
