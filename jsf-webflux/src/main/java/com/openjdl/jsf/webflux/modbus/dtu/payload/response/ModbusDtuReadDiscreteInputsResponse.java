@@ -39,8 +39,8 @@ public class ModbusDtuReadDiscreteInputsResponse implements ModbusDtuResponse {
     }
 
     int[] values = new int[byteCount];
-    for (int i = 0; i < byteCount; i += 2) {
-      values[i / 2] = in.readUnsignedShort();
+    for (int i = 0; i < byteCount; i++) {
+      values[i] = in.readUnsignedByte();
     }
 
     return new ModbusDtuReadDiscreteInputsResponse(byteCount, values);
