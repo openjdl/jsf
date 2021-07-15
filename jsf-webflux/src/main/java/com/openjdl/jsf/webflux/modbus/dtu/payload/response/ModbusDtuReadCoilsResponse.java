@@ -39,8 +39,8 @@ public class ModbusDtuReadCoilsResponse implements ModbusDtuResponse {
     }
 
     int[] values = new int[byteCount];
-    for (int i = 0; i < byteCount; i += 2) {
-      values[i / 2] = in.readUnsignedShort();
+    for (int i = 0; i < byteCount; i++) {
+      values[i] = in.readUnsignedByte();
     }
 
     return new ModbusDtuReadCoilsResponse(byteCount, values);
